@@ -26,12 +26,13 @@ const weddingDate = new Date('2025-07-26T14:00:00');
 const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
 
+// Updated photos array to use local images from /public/images/carousel
 const photos = [
-  { src: "https://picsum.photos/seed/p1/1440/720", alt: "Photo 1", hint: "couple romantic beach" },
-  { src: "https://picsum.photos/seed/p2/1440/720", alt: "Photo 2", hint: "wedding rings detail" },
-  { src: "https://picsum.photos/seed/p3/1440/720", alt: "Photo 3", hint: "couple laughing park" },
-  { src: "https://picsum.photos/seed/p4/1440/720", alt: "Photo 4", hint: "engagement photo city" },
-  { src: "https://picsum.photos/seed/p5/1440/720", alt: "Photo 5", hint: "couple silhouette sunset" },
+  { src: "/images/carousel/photo1.jpg", alt: "Photo 1" }, // Assuming photo1.jpg, photo2.jpg etc. exist
+  { src: "/images/carousel/photo2.jpg", alt: "Photo 2" },
+  { src: "/images/carousel/photo3.jpg", alt: "Photo 3" },
+  { src: "/images/carousel/photo4.jpg", alt: "Photo 4" },
+  { src: "/images/carousel/photo5.jpg", alt: "Photo 5" },
 ];
 
 const padres = [
@@ -315,7 +316,7 @@ export default function Home() {
                                       style={{ objectFit: "cover" }} // Use style for objectFit
                                       className="transition-transform duration-500 ease-in-out animate-zoom-loop-short" // Removed group-hover, added short zoom loop
                                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
-                                      data-ai-hint={photo.hint}
+                                      // Removed data-ai-hint
                                   />
                               </CardContent>
                            </Card>
@@ -433,3 +434,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
