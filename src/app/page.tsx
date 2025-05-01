@@ -27,13 +27,13 @@ const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
 
 // Updated photos array to use local images from /public/images/carousel
-// Ensure files Foto1.jpg, Foto2.jpg, etc. exist in public/images/carousel/
+// Ensure files Foto1.jpeg, Foto2.jpeg, etc. exist in public/images/carousel/
 const photos = [
-  { src: "/images/carousel/Foto1.jpg", alt: "Oscar y Silvia Foto 1" },
-  { src: "/images/carousel/Foto2.jpg", alt: "Oscar y Silvia Foto 2" },
-  { src: "/images/carousel/Foto3.jpg", alt: "Oscar y Silvia Foto 3" },
-  { src: "/images/carousel/Foto4.jpg", alt: "Oscar y Silvia Foto 4" },
-  { src: "/images/carousel/Foto5.jpg", alt: "Oscar y Silvia Foto 5" },
+  { src: "/images/carousel/Foto1.jpeg", alt: "Oscar y Silvia Foto 1" },
+  { src: "/images/carousel/Foto2.jpeg", alt: "Oscar y Silvia Foto 2" },
+  { src: "/images/carousel/Foto3.jpeg", alt: "Oscar y Silvia Foto 3" },
+  { src: "/images/carousel/Foto4.jpeg", alt: "Oscar y Silvia Foto 4" },
+  { src: "/images/carousel/Foto5.jpeg", alt: "Oscar y Silvia Foto 5" },
 ];
 
 const padres = [
@@ -433,5 +433,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
