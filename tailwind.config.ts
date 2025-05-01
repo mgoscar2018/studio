@@ -71,6 +71,7 @@ export default {
             serif: ['var(--font-playfair-display)', 'serif'],
             lato: ['var(--font-lato)'],
             playfair: ['var(--font-playfair-display)'],
+            'julietta': ['Julietta Alexart', 'cursive'], // Added Julietta Alexart
         },
   		keyframes: {
   			'accordion-down': {
