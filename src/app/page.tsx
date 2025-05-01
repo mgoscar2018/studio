@@ -133,9 +133,9 @@ export default function Home() {
       if (audioRef.current) {
         // Directly check and remove listeners if they exist
         const currentAudio = audioRef.current;
-        // Create dummy listeners for removal check as they are defined inside the scope
-        const playListener = () => {};
-        const pauseListener = () => {};
+        // Define dummy listeners for removal (need to match the ones added)
+        const playListener = () => { if (isMounted) setIsPlaying(true); };
+        const pauseListener = () => { if (isMounted) setIsPlaying(false); };
         currentAudio.removeEventListener('play', playListener);
         currentAudio.removeEventListener('pause', pauseListener);
 
@@ -159,11 +159,11 @@ export default function Home() {
              // If play fails, ensure state is false. 'play' event won't fire.
              setIsPlaying(false);
         });
-        // 'play' event listener should set isPlaying to true if successful
+        // Event listener 'play' will set isPlaying to true if successful
     } else {
        // If it's playing, pause it
        audioRef.current.pause();
-       // 'pause' event listener should set isPlaying to false
+       // Event listener 'pause' will set isPlaying to false
     }
     // Rely on event listeners to update isPlaying state
   };
@@ -404,7 +404,8 @@ export default function Home() {
       </main>
 
       <footer className="text-center py-8 bg-muted/50 mt-16">
-          <p className="text-muted-foreground">&copy; {new Date().getFullYear()} {brideName} & {groomName}. Todos los derechos reservados.</p>
+          {/* Updated Footer Text */}
+          <p className="text-muted-foreground">{brideName} & {groomName} - 26 julio 2025.</p>
       </footer>
     </div>
   );
