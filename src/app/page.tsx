@@ -59,18 +59,18 @@ const locationAddress = "Av. Jiutepec #87, esquina Paseo de las Rosas. Colonia A
 const googleMapsUrl = "https://maps.app.goo.gl/RCKCQHaGdfsZZzpz9";
 
 export default function Home() {
-  const [isPlaying, setIsPlaying] = useState(false); // Initial state, will be updated by autoplay attempt
-  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false); // State managed by audio events
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]); // State for confirmed guests
   const [isRejected, setIsRejected] = useState<boolean>(false); // State for rejection status
   const [assignedPasses, setAssignedPasses] = useState<number>(0); // State for assigned passes
   const [isLoading, setIsLoading] = useState(true); // Loading state for initial data fetch
   const audioRef = useRef<HTMLAudioElement | null>(null); // Ref to manage the audio element directly
-  const hasInteracted = useRef(false); // Track user interaction for autoplay policy
 
 
-  // Combined useEffect for fetching initial data
+  // Combined useEffect for fetching initial data and setting up audio
   useEffect(() => {
+    let audioElement: HTMLAudioElement | null = null; // Define here for cleanup access
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
@@ -81,10 +81,16 @@ export default function Home() {
         ]);
 
         // Setup Audio
-        const audioElement = new Audio(musicData.musicUrl);
+        audioElement = new Audio(musicData.musicUrl);
         audioElement.loop = true;
-        audioRef.current = audioElement; // Store in ref
-        setAudio(audioElement); // Also store in state if needed elsewhere
+        audioRef.current = audioElement;
+
+        const handlePlay = () => setIsPlaying(true);
+        const handlePause = () => setIsPlaying(false);
+
+        // Add event listeners
+        audioElement.addEventListener('play', handlePlay);
+        audioElement.addEventListener('pause', handlePause);
 
         // Set Confirmation Data
         if (confirmationData) {
@@ -95,11 +101,19 @@ export default function Home() {
         // Set Assigned Passes
         setAssignedPasses(passesData);
 
-         // Attempt Autoplay after setting up audio
-         attemptAutoplay();
+        // Attempt Autoplay after setting up audio and listeners
+        audioElement.play().then(() => {
+             // Autoplay succeeded, 'play' event will set isPlaying=true
+             console.log("Autoplay successful.");
+        }).catch(error => {
+             // Autoplay failed, 'play' event won't fire
+             console.log("Autoplay prevented:", error);
+             setIsPlaying(false); // Explicitly ensure it's false if autoplay fails
+        });
 
       } catch (error) {
         console.error("Error fetching initial data:", error);
+        setIsPlaying(false); // Ensure state is false on error
         // Handle error state if needed
       } finally {
         setIsLoading(false);
@@ -108,57 +122,36 @@ export default function Home() {
 
     fetchData();
 
-    // Add interaction listener for autoplay (only if needed as a fallback)
-    const handleInteraction = () => {
-        if (!hasInteracted.current) {
-            hasInteracted.current = true;
-            if (!isPlaying) { // Only attempt play if not already playing
-                attemptAutoplay(); // Try playing again on first interaction
-            }
-            // Remove listeners after first interaction regardless of play success
-            window.removeEventListener('click', handleInteraction);
-            window.removeEventListener('keydown', handleInteraction);
-        }
-    };
-
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('keydown', handleInteraction);
-
-
     // Clean up audio element and listeners on unmount
     return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
-      setAudio(null);
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('keydown', handleInteraction);
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('play', () => setIsPlaying(true));
+        audioRef.current.removeEventListener('pause', () => setIsPlaying(false));
+        audioRef.current.pause(); // Pause audio on cleanup
+      }
+       audioRef.current = null; // Clear the ref
     };
-  }, [invitationId]); // isPlaying removed from dependency array to avoid re-running on state change
-
-
- const attemptAutoplay = () => {
-     if (audioRef.current) { // Don't check isPlaying here, always attempt
-        audioRef.current.play().then(() => {
-             setIsPlaying(true); // Update state ONLY if autoplay succeeds
-             console.log("Autoplay successful.");
-        }).catch(error => {
-             console.log("Autoplay prevented:", error);
-             // Autoplay was prevented, user needs to interact
-             setIsPlaying(false); // Ensure state reflects that music is not playing
-        });
-     }
- };
+  }, [invitationId]);
 
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
-    if (isPlaying) {
+
+    // Check the actual paused state of the audio element
+    if (!audioRef.current.paused) {
+      // If it's playing, pause it
       audioRef.current.pause();
+      // 'pause' event listener will set isPlaying to false
     } else {
-      // Manually triggered play should generally work after interaction or if allowed
-      audioRef.current.play().catch(error => console.error("Audio playback failed:", error));
+      // If it's paused, play it
+      audioRef.current.play().catch(error => {
+        console.error("Audio playback failed on toggle:", error);
+        // If play fails, ensure state is false. 'play' event won't fire.
+        setIsPlaying(false);
+      });
+      // 'play' event listener will set isPlaying to true if successful
     }
-    setIsPlaying(!isPlaying); // Toggle state regardless of play success/failure for user feedback
+    // No need to manually setIsPlaying here, events handle it.
   };
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
@@ -396,4 +389,3 @@ export default function Home() {
     </div>
   );
 }
-
