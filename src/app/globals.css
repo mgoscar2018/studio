@@ -1,12 +1,11 @@
-/* Moved to top to avoid CSS parsing error */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400;700&display=swap');
 
 @font-face {
   font-family: 'Julietta Alexart';
-  src: url('/fonts/Julietta Alexart.ttf') format('truetype'); /* Adjust path as necessary */
+  src: url('/fonts/Julietta Alexart.ttf') format('truetype'); /* Use root-relative path */
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: swap; /* Ensure text is visible while font loads */
 }
 
 
@@ -111,6 +110,11 @@ body {
    /* Apply specific font to headings */
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Playfair Display', serif; /* Elegant heading font */
+    }
+
+     /* Apply custom font where needed via class */
+    .font-julietta {
+        font-family: 'Julietta Alexart', cursive;
     }
 }
 
