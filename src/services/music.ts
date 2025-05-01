@@ -27,10 +27,9 @@ export async function getMusic(invitationId: string): Promise<Music> {
 
   console.warn(`Fetching placeholder music for invitation ID: ${invitationId}`);
 
-  // Return placeholder data for now
+  // Return placeholder data for now, pointing to the local file
   return {
-    // Using a freely available MP3 for demonstration
-    musicUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+    musicUrl: '/music/UnPactoConDios.mp3', // Updated music URL
   };
 }
 
