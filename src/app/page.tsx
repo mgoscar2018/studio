@@ -334,7 +334,7 @@ export default function Home() {
                  <CardHeader>
                     <CardTitle className="text-3xl md:text-4xl font-semibold flex items-center justify-center gap-2">
                         <MapPin className="h-8 w-8 text-primary" />
-                        Ubicación
+                        Ubicación - Jardín Margaty {/* Updated Title */}
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -396,3 +396,4 @@ export default function Home() {
     </div>
   );
 }
+
