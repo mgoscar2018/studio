@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Play, BookOpen, Ring, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle } from 'lucide-react';
+// Replaced Ring with Gem as Ring does not exist in lucide-react
+import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Countdown from '@/components/invitation/Countdown';
 import ItineraryItem from '@/components/invitation/ItineraryItem';
@@ -40,7 +41,7 @@ const padres = [
 
 const padrinos = [
   { icon: BookOpen, names: "Sandra & Pedro", role: "Padrinos de Biblia" },
-  { icon: Ring, names: "Lorena & Eduardo", role: "Padrinos de Anillos" },
+  { icon: Gem, names: "Lorena & Eduardo", role: "Padrinos de Anillos" }, // Changed Ring to Gem
   { icon: Diamond, names: "Fernanda & Luis", role: "Padrinos de Aras" },
   { icon: HandHeart, names: "María & Daniel", role: "Padrinos de Lazo" },
 ];
