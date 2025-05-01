@@ -156,10 +156,10 @@ html {
 /* Automatic Zoom Loop Animation for Header Image */
 @keyframes zoomLoop {
   0% { transform: scale(1); }
-  50% { transform: scale(1.1); } /* Zoom in for the first half (5 seconds) */
-  100% { transform: scale(1); } /* Zoom out for the second half (5 seconds) */
+  50% { transform: scale(1.1); } /* Zoom in for the first half */
+  100% { transform: scale(1); } /* Zoom out for the second half */
 }
 
 .animate-zoom-loop {
-  animation: zoomLoop 10s ease-in-out infinite; /* 10s total duration, infinite loop */
+  animation: zoomLoop 20s ease-in-out infinite; /* 20s total duration, infinite loop */
 }

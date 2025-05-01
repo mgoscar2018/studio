@@ -123,7 +123,7 @@ export default {
             'slide-in-right': 'slide-in-right 0.8s ease-out forwards', // Added slide-in-right utility
             'slide-in-up': 'slide-in-up 0.8s ease-out forwards', // Added slide-in-up utility
             'slide-in-down': 'slide-in-down 0.8s ease-out forwards', // Added slide-in-down utility
-            'zoom-loop': 'zoomLoop 10s ease-in-out infinite', // Added zoom-loop animation utility
+            'zoom-loop': 'zoomLoop 20s ease-in-out infinite', // Updated zoom-loop animation utility duration to 20s
   		}
   	}
   },

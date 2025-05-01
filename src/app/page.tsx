@@ -1,13 +1,13 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // Import useRef
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 // Replaced Ring with Gem as Ring does not exist in lucide-react
-import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle } from 'lucide-react';
+import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; // Added Volume icons
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Countdown from '@/components/invitation/Countdown';
 import ItineraryItem from '@/components/invitation/ItineraryItem';
@@ -15,14 +15,15 @@ import PadrinoItem from '@/components/invitation/PadrinoItem';
 import ConfirmationForm from '@/components/invitation/ConfirmationForm';
 import AnimatedSection from '@/components/invitation/AnimatedSection';
 // Mock function, replace with actual data fetching
-// import { getMusic } from '@/services/music';
+import { getMusic, getConfirmation, submitConfirmation, getAssignedPasses } from '@/services/music';
+
 
 // Placeholder data - Replace with actual data fetching logic
 const invitationId = 'unique-invitation-id'; // Example ID, should come from URL params or props
 const weddingDate = new Date('2025-07-26T14:00:00');
 const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
-const assignedPasses = 4; // Example, fetch from backend
+// const assignedPasses = 4; // Example, fetch from backend - Moved fetching to useEffect
 
 const photos = [
   { src: "https://picsum.photos/seed/p1/1440/720", alt: "Photo 1", hint: "couple romantic beach" },
@@ -57,64 +58,119 @@ const locationAddress = "Av. Jiutepec #87, esquina Paseo de las Rosas. Colonia A
 const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationAddress)}`;
 
 export default function Home() {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false); // Start as false, will be set to true after first interaction or successful autoplay
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]); // State for confirmed guests
   const [isRejected, setIsRejected] = useState<boolean>(false); // State for rejection status
+  const [assignedPasses, setAssignedPasses] = useState<number>(0); // State for assigned passes
+  const [isLoading, setIsLoading] = useState(true); // Loading state for initial data fetch
+  const audioRef = useRef<HTMLAudioElement | null>(null); // Ref to manage the audio element directly
+  const hasInteracted = useRef(false); // Track user interaction for autoplay policy
 
-  // Fetch music URL based on invitationId (replace with actual API call)
+
+  // Combined useEffect for fetching initial data
   useEffect(() => {
-    const fetchMusic = async () => {
-      // const musicData = await getMusic(invitationId);
-      // Simulating API call
-      const musicUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'; // Placeholder music
-      const audioElement = new Audio(musicUrl);
-      audioElement.loop = true;
-      setAudio(audioElement);
-    };
-    fetchMusic();
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [musicData, confirmationData, passesData] = await Promise.all([
+          getMusic(invitationId),
+          getConfirmation(invitationId),
+          getAssignedPasses(invitationId)
+        ]);
 
-    // Clean up audio element on unmount
+        // Setup Audio
+        const audioElement = new Audio(musicData.musicUrl);
+        audioElement.loop = true;
+        audioRef.current = audioElement; // Store in ref
+        setAudio(audioElement); // Also store in state if needed elsewhere
+
+        // Set Confirmation Data
+        if (confirmationData) {
+            setConfirmedGuests(confirmationData.guests || []);
+            setIsRejected(confirmationData.rejected || false);
+        }
+
+        // Set Assigned Passes
+        setAssignedPasses(passesData);
+
+         // Attempt Autoplay after setting up audio
+         attemptAutoplay();
+
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+        // Handle error state if needed
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+
+    // Add interaction listener for autoplay
+    const handleInteraction = () => {
+      if (!hasInteracted.current) {
+        hasInteracted.current = true;
+        attemptAutoplay(); // Try playing again on first interaction
+        window.removeEventListener('click', handleInteraction);
+        window.removeEventListener('keydown', handleInteraction);
+      }
+    };
+
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('keydown', handleInteraction);
+
+
+    // Clean up audio element and listeners on unmount
     return () => {
-      audio?.pause();
+      audioRef.current?.pause();
+      audioRef.current = null;
       setAudio(null);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
     };
-  }, [invitationId]); // Re-fetch if invitationId changes (though likely static for a single page)
-
-  // Fetch confirmation status (replace with actual API call)
-   useEffect(() => {
-    const fetchConfirmation = async () => {
-        // Replace with API call to fetch confirmation status and guests for invitationId
-        // Example: const response = await fetch(`/api/confirmations/${invitationId}`);
-        // const data = await response.json();
-        // setConfirmedGuests(data.guests || []);
-        // setIsRejected(data.rejected || false);
-
-        // Placeholder data for testing
-        // setConfirmedGuests(["Juan Perez", "Maria Lopez"]);
-        // setIsRejected(true);
-    };
-    fetchConfirmation();
   }, [invitationId]);
 
 
+ const attemptAutoplay = () => {
+     if (audioRef.current && !isPlaying) {
+        audioRef.current.play().then(() => {
+             setIsPlaying(true); // Update state if autoplay succeeds
+        }).catch(error => {
+             console.log("Autoplay prevented:", error);
+             // Autoplay was prevented, user needs to interact
+             setIsPlaying(false); // Ensure state reflects that music is not playing
+        });
+     }
+ };
+
+
   const togglePlayPause = () => {
-    if (!audio) return;
+    if (!audioRef.current) return;
     if (isPlaying) {
-      audio.pause();
+      audioRef.current.pause();
     } else {
-      audio.play().catch(error => console.error("Audio playback failed:", error)); // Basic error handling
+      audioRef.current.play().catch(error => console.error("Audio playback failed:", error)); // Basic error handling
     }
     setIsPlaying(!isPlaying);
   };
 
-  const handleConfirmation = (guests: string[], rejected: boolean) => {
-     // Replace with API call to submit confirmation
-     // Example: await fetch(`/api/confirmations/${invitationId}`, { method: 'POST', body: JSON.stringify({ guests, rejected }) });
-     console.log("Confirmation submitted:", { guests, rejected });
-     setConfirmedGuests(guests);
-     setIsRejected(rejected);
+  const handleConfirmation = async (guests: string[], rejected: boolean) => {
+     try {
+        await submitConfirmation(invitationId, { guests, rejected });
+        console.log("Confirmation submitted:", { guests, rejected });
+        setConfirmedGuests(guests);
+        setIsRejected(rejected);
+     } catch (error) {
+         console.error("Failed to submit confirmation:", error);
+         // Optionally show a toast or error message to the user
+     }
   };
+
+   if (isLoading) {
+     // Optional: Render a loading indicator while fetching data
+     return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
+   }
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -123,8 +179,8 @@ export default function Home() {
         <Image
           src="https://picsum.photos/seed/weddingcover/1440/720"
           alt="Portada de Boda"
-          layout="fill"
-          objectFit="cover"
+          fill // Use fill instead of layout="fill" in newer Next.js
+          style={{ objectFit: "cover" }} // Use style for objectFit
           quality={90}
           priority
           className="transition-transform duration-500 ease-in-out animate-zoom-loop" // Removed group-hover:scale-105, added animate-zoom-loop
@@ -133,7 +189,7 @@ export default function Home() {
          {/* Parallax Logo */}
          <div
             className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
-            style={{ transform: 'translateZ(-10px) scale(1.1)' }} // Example Parallax effect
+            // style={{ transform: 'translateZ(-10px) scale(1.1)' }} // Example Parallax effect - Consider performance implications
           >
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-playfair text-white opacity-80 text-center select-none">
                {brideName} <span className="text-3xl md:text-5xl lg:text-7xl">&</span> {groomName}
@@ -182,7 +238,8 @@ export default function Home() {
                 onClick={togglePlayPause}
                 aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
                 >
-                <Play className={`h-8 w-8 ${isPlaying ? 'fill-primary' : ''}`} />
+                {/* Use Volume2 for playing and VolumeX for paused/muted */}
+                 {isPlaying ? <Volume2 className="h-8 w-8 text-primary" /> : <VolumeX className="h-8 w-8 text-muted-foreground" />}
                 </Button>
             </AnimatedSection>
 
@@ -202,12 +259,7 @@ export default function Home() {
                   align: "start",
                   loop: true,
                   }}
-                   plugins={[
-                    // Autoplay({ // Uncomment if you install embla-carousel-autoplay
-                    //   delay: 30000, // 30 seconds
-                    //   stopOnInteraction: false,
-                    // }),
-                  ]}
+                   // plugins={[ Autoplay({ delay: 5000, stopOnInteraction: false }) ]} // Example Autoplay
                   className="w-full max-w-4xl mx-auto"
               >
                   <CarouselContent>
@@ -218,9 +270,10 @@ export default function Home() {
                                   <Image
                                       src={photo.src}
                                       alt={photo.alt}
-                                      layout="fill"
-                                      objectFit="cover"
+                                      fill // Use fill for responsive layout
+                                      style={{ objectFit: "cover" }} // Use style for objectFit
                                       className="transition-transform duration-500 ease-in-out group-hover:scale-105"
+                                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
                                       data-ai-hint={photo.hint}
                                   />
                               </CardContent>
