@@ -70,8 +70,12 @@ export default function Home() {
 
   // Combined useEffect for fetching initial data and setting up audio
   useEffect(() => {
-    let audioElement: HTMLAudioElement | null = null; // Define here for cleanup access
+    let audioElement: HTMLAudioElement | null = null;
     let isMounted = true; // Flag to prevent state updates on unmounted component
+
+    // Define handlers within useEffect scope so they can be added and removed
+    const handlePlay = () => { if (isMounted) setIsPlaying(true); };
+    const handlePause = () => { if (isMounted) setIsPlaying(false); };
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -89,10 +93,7 @@ export default function Home() {
         audioElement.loop = true;
         audioRef.current = audioElement;
 
-        const handlePlay = () => { if (isMounted) setIsPlaying(true); };
-        const handlePause = () => { if (isMounted) setIsPlaying(false); };
-
-        // Add event listeners
+        // Add event listeners BEFORE trying to play
         audioElement.addEventListener('play', handlePlay);
         audioElement.addEventListener('pause', handlePause);
 
@@ -105,21 +106,26 @@ export default function Home() {
         // Set Assigned Passes
         setAssignedPasses(passesData);
 
-        // Attempt Autoplay after setting up audio and listeners
-        audioElement.play().then(() => {
-             // Autoplay succeeded, 'play' event will set isPlaying=true
-             console.log("Autoplay successful.");
-             if (isMounted) setIsPlaying(true); // Ensure state is true if already mounted
-        }).catch(error => {
-             // Autoplay failed, 'play' event won't fire
-             console.log("Autoplay prevented:", error);
-             if (isMounted) setIsPlaying(false); // Explicitly ensure it's false if autoplay fails
-        });
+        // Attempt Autoplay - Rely solely on events now to manage isPlaying state
+        try {
+            // Note: Autoplay with sound is often blocked by browsers (esp. mobile)
+            // until user interaction. This attempt might fail silently or throw.
+            await audioElement.play();
+            // If successful, the 'play' event listener (handlePlay) will set isPlaying = true
+             console.log("Autoplay initiated. Playback depends on browser policy.");
+        } catch (error) {
+            // Autoplay failed or requires user interaction
+             console.log("Autoplay prevented by browser:", error);
+             // The 'pause' event listener (handlePause) should ensure isPlaying remains false,
+             // or if it was briefly true, it will become false.
+             // We don't need to explicitly set it false here if relying on events.
+             // The UI should reflect the actual state via the isPlaying variable.
+        }
 
       } catch (error) {
         console.error("Error fetching initial data:", error);
-         if (isMounted) setIsPlaying(false); // Ensure state is false on error
-        // Handle error state if needed
+         // Ensure state is false on fetch error, as audio likely didn't load/play
+         if (isMounted) setIsPlaying(false);
       } finally {
          if (isMounted) setIsLoading(false);
       }
@@ -131,17 +137,14 @@ export default function Home() {
     return () => {
       isMounted = false; // Mark as unmounted
       if (audioRef.current) {
-        // Directly check and remove listeners if they exist
         const currentAudio = audioRef.current;
-        // Define dummy listeners for removal (need to match the ones added)
-        const playListener = () => { if (isMounted) setIsPlaying(true); };
-        const pauseListener = () => { if (isMounted) setIsPlaying(false); };
-        currentAudio.removeEventListener('play', playListener);
-        currentAudio.removeEventListener('pause', pauseListener);
+        // Use the actual handler functions for removal
+        currentAudio.removeEventListener('play', handlePlay);
+        currentAudio.removeEventListener('pause', handlePause);
 
-        // Pause audio on cleanup
+        // Pause audio and release resources on cleanup
         currentAudio.pause();
-        currentAudio.src = ""; // Release resource
+        currentAudio.src = ""; // Important to release resource
       }
        audioRef.current = null; // Clear the ref
     };
@@ -156,17 +159,18 @@ export default function Home() {
         // If it's paused, play it
         audioRef.current.play().catch(error => {
             console.error("Audio playback failed on toggle:", error);
-             // If play fails, ensure state is false. 'play' event won't fire.
-             setIsPlaying(false);
+             // If play fails, the 'play' event won't fire. The state should remain false.
+             // We rely on the 'pause' event handler if it was playing and fails to pause.
         });
-        // Event listener 'play' will set isPlaying to true if successful
+        // 'play' event listener will set isPlaying to true if successful
     } else {
        // If it's playing, pause it
        audioRef.current.pause();
-       // Event listener 'pause' will set isPlaying to false
+       // 'pause' event listener will set isPlaying to false
     }
-    // Rely on event listeners to update isPlaying state
+    // Rely on event listeners ('play'/'pause') to update the isPlaying state accurately.
   };
+
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
      try {
@@ -253,6 +257,12 @@ export default function Home() {
                 {/* Use Volume2 for playing and VolumeX for paused/muted */}
                  {isPlaying ? <Volume2 className="h-8 w-8 text-primary" /> : <VolumeX className="h-8 w-8 text-muted-foreground" />}
                 </Button>
+                {/* Inform user interaction might be needed */}
+                 {!isPlaying && !isLoading && (
+                   <p className="text-xs text-muted-foreground text-center max-w-xs">
+                     Es posible que necesites presionar el botón para iniciar la música en algunos dispositivos.
+                   </p>
+                 )}
             </AnimatedSection>
 
             <AnimatedSection animationType="slideInRight" className="text-center">
