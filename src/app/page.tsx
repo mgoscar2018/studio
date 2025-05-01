@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 // Replaced Ring with Gem as Ring does not exist in lucide-react
 import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; // Added Volume icons
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay"; // Import Autoplay plugin
 import Countdown from '@/components/invitation/Countdown';
 import ItineraryItem from '@/components/invitation/ItineraryItem';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
@@ -70,6 +71,7 @@ export default function Home() {
   // Combined useEffect for fetching initial data and setting up audio
   useEffect(() => {
     let audioElement: HTMLAudioElement | null = null; // Define here for cleanup access
+    let isMounted = true; // Flag to prevent state updates on unmounted component
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -80,13 +82,15 @@ export default function Home() {
           getAssignedPasses(invitationId)
         ]);
 
+        if (!isMounted) return; // Exit if component unmounted
+
         // Setup Audio
         audioElement = new Audio(musicData.musicUrl);
         audioElement.loop = true;
         audioRef.current = audioElement;
 
-        const handlePlay = () => setIsPlaying(true);
-        const handlePause = () => setIsPlaying(false);
+        const handlePlay = () => { if (isMounted) setIsPlaying(true); };
+        const handlePause = () => { if (isMounted) setIsPlaying(false); };
 
         // Add event listeners
         audioElement.addEventListener('play', handlePlay);
@@ -105,18 +109,19 @@ export default function Home() {
         audioElement.play().then(() => {
              // Autoplay succeeded, 'play' event will set isPlaying=true
              console.log("Autoplay successful.");
+             if (isMounted) setIsPlaying(true); // Ensure state is true if already mounted
         }).catch(error => {
              // Autoplay failed, 'play' event won't fire
              console.log("Autoplay prevented:", error);
-             setIsPlaying(false); // Explicitly ensure it's false if autoplay fails
+             if (isMounted) setIsPlaying(false); // Explicitly ensure it's false if autoplay fails
         });
 
       } catch (error) {
         console.error("Error fetching initial data:", error);
-        setIsPlaying(false); // Ensure state is false on error
+         if (isMounted) setIsPlaying(false); // Ensure state is false on error
         // Handle error state if needed
       } finally {
-        setIsLoading(false);
+         if (isMounted) setIsLoading(false);
       }
     };
 
@@ -124,34 +129,42 @@ export default function Home() {
 
     // Clean up audio element and listeners on unmount
     return () => {
+      isMounted = false; // Mark as unmounted
       if (audioRef.current) {
-        audioRef.current.removeEventListener('play', () => setIsPlaying(true));
-        audioRef.current.removeEventListener('pause', () => setIsPlaying(false));
-        audioRef.current.pause(); // Pause audio on cleanup
+        // Directly check and remove listeners if they exist
+        const currentAudio = audioRef.current;
+        const playListener = () => setIsPlaying(true); // Recreate listener for removal check if needed
+        const pauseListener = () => setIsPlaying(false);
+        currentAudio.removeEventListener('play', playListener);
+        currentAudio.removeEventListener('pause', pauseListener);
+
+        // Pause audio on cleanup
+        currentAudio.pause();
+        currentAudio.src = ""; // Release resource
       }
        audioRef.current = null; // Clear the ref
     };
-  }, [invitationId]);
+  }, [invitationId]); // Re-run only if invitationId changes
 
 
   const togglePlayPause = () => {
     if (!audioRef.current) return;
 
     // Check the actual paused state of the audio element
-    if (!audioRef.current.paused) {
-      // If it's playing, pause it
-      audioRef.current.pause();
-      // 'pause' event listener will set isPlaying to false
+    if (audioRef.current.paused) {
+        // If it's paused, play it
+        audioRef.current.play().catch(error => {
+            console.error("Audio playback failed on toggle:", error);
+             // If play fails, ensure state is false. 'play' event won't fire.
+             setIsPlaying(false);
+        });
+        // 'play' event listener should set isPlaying to true if successful
     } else {
-      // If it's paused, play it
-      audioRef.current.play().catch(error => {
-        console.error("Audio playback failed on toggle:", error);
-        // If play fails, ensure state is false. 'play' event won't fire.
-        setIsPlaying(false);
-      });
-      // 'play' event listener will set isPlaying to true if successful
+       // If it's playing, pause it
+       audioRef.current.pause();
+       // 'pause' event listener should set isPlaying to false
     }
-    // No need to manually setIsPlaying here, events handle it.
+    // Rely on event listeners to update isPlaying state
   };
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
@@ -257,7 +270,13 @@ export default function Home() {
                   align: "start",
                   loop: true,
                   }}
-                   // plugins={[ Autoplay({ delay: 5000, stopOnInteraction: false }) ]} // Example Autoplay
+                  plugins={[ // Add the Autoplay plugin
+                      Autoplay({
+                          delay: 5000, // 5 seconds delay
+                          stopOnInteraction: false, // Don't stop on manual interaction
+                          stopOnMouseEnter: true, // Pause on hover
+                      }),
+                  ]}
                   className="w-full max-w-4xl mx-auto"
               >
                   <CarouselContent>
