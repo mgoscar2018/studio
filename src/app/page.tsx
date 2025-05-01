@@ -133,8 +133,9 @@ export default function Home() {
       if (audioRef.current) {
         // Directly check and remove listeners if they exist
         const currentAudio = audioRef.current;
-        const playListener = () => setIsPlaying(true); // Recreate listener for removal check if needed
-        const pauseListener = () => setIsPlaying(false);
+        // Create dummy listeners for removal check as they are defined inside the scope
+        const playListener = () => {};
+        const pauseListener = () => {};
         currentAudio.removeEventListener('play', playListener);
         currentAudio.removeEventListener('pause', pauseListener);
 
@@ -281,7 +282,7 @@ export default function Home() {
               >
                   <CarouselContent>
                   {photos.map((photo, index) => (
-                      <CarouselItem key={index} className="group">
+                      <CarouselItem key={index} className="group opacity-0 animate-carousel-fade-in"> {/* Added fade-in animation */}
                            <Card className="overflow-hidden border-none shadow-lg">
                               <CardContent className="p-0 aspect-video relative">
                                   <Image
@@ -289,7 +290,7 @@ export default function Home() {
                                       alt={photo.alt}
                                       fill // Use fill for responsive layout
                                       style={{ objectFit: "cover" }} // Use style for objectFit
-                                      className="transition-transform duration-500 ease-in-out group-hover:scale-105"
+                                      className="transition-transform duration-500 ease-in-out animate-zoom-loop-short" // Removed group-hover, added short zoom loop
                                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
                                       data-ai-hint={photo.hint}
                                   />

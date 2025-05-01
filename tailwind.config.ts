@@ -114,6 +114,15 @@ export default {
                 '50%': { transform: 'scale(1.1)' },
                 '100%': { transform: 'scale(1)' },
             },
+            'zoom-loop-short': { // Added short zoom-loop keyframes
+                '0%': { transform: 'scale(1)' },
+                '50%': { transform: 'scale(1.05)' },
+                '100%': { transform: 'scale(1)' },
+            },
+            'carousel-fade-in': { // Added carousel fade-in
+                from: { opacity: '0' },
+                to: { opacity: '1' },
+            },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
@@ -123,7 +132,9 @@ export default {
             'slide-in-right': 'slide-in-right 0.8s ease-out forwards', // Added slide-in-right utility
             'slide-in-up': 'slide-in-up 0.8s ease-out forwards', // Added slide-in-up utility
             'slide-in-down': 'slide-in-down 0.8s ease-out forwards', // Added slide-in-down utility
-            'zoom-loop': 'zoomLoop 20s ease-in-out infinite', // Updated zoom-loop animation utility duration to 20s
+            'zoom-loop': 'zoomLoop 10s ease-in-out infinite', // Updated zoom-loop animation utility duration to 10s
+            'zoom-loop-short': 'zoomLoopShort 5s ease-in-out infinite', // Added short zoom-loop utility
+            'carousel-fade-in': 'carouselFadeIn 1.5s ease-out forwards', // Added carousel fade-in utility
   		}
   	}
   },
