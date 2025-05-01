@@ -76,6 +76,10 @@ export default function Home() {
     // Define handlers within useEffect scope so they can be added and removed
     const handlePlay = () => { if (isMounted) setIsPlaying(true); };
     const handlePause = () => { if (isMounted) setIsPlaying(false); };
+    const handleEnded = () => {
+      // Optional: Handle what happens when the audio finishes if loop is disabled
+       if (isMounted) setIsPlaying(false);
+    };
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -96,6 +100,7 @@ export default function Home() {
         // Add event listeners BEFORE trying to play
         audioElement.addEventListener('play', handlePlay);
         audioElement.addEventListener('pause', handlePause);
+        audioElement.addEventListener('ended', handleEnded); // Listen for ended event
 
         // Set Confirmation Data
         if (confirmationData) {
@@ -108,17 +113,19 @@ export default function Home() {
 
         // Attempt Autoplay - Rely solely on events now to manage isPlaying state
         try {
-            // Note: Autoplay with sound is often blocked by browsers (esp. mobile)
+            // NOTE: Autoplay with sound is often blocked by browsers (esp. mobile)
             // until user interaction. This attempt might fail silently or throw.
             await audioElement.play();
             // If successful, the 'play' event listener (handlePlay) will set isPlaying = true
              console.log("Autoplay initiated. Playback depends on browser policy.");
+             // Explicitly set state if play() resolves without error
+             // This might be redundant if the 'play' event fires reliably, but belt and suspenders.
+             if(isMounted) setIsPlaying(true);
         } catch (error) {
-            // Autoplay failed or requires user interaction
+             // Autoplay failed or requires user interaction
              console.log("Autoplay prevented by browser:", error);
-             // The 'pause' event listener (handlePause) should ensure isPlaying remains false,
-             // or if it was briefly true, it will become false.
-             // We don't need to explicitly set it false here if relying on events.
+             // Ensure state is false if autoplay fails
+             if(isMounted) setIsPlaying(false);
              // The UI should reflect the actual state via the isPlaying variable.
         }
 
@@ -141,10 +148,14 @@ export default function Home() {
         // Use the actual handler functions for removal
         currentAudio.removeEventListener('play', handlePlay);
         currentAudio.removeEventListener('pause', handlePause);
+        currentAudio.removeEventListener('ended', handleEnded); // Remove ended listener
 
         // Pause audio and release resources on cleanup
-        currentAudio.pause();
+        if (!currentAudio.paused) {
+          currentAudio.pause();
+        }
         currentAudio.src = ""; // Important to release resource
+        currentAudio.load(); // Helps ensure release
       }
        audioRef.current = null; // Clear the ref
     };
@@ -154,21 +165,23 @@ export default function Home() {
   const togglePlayPause = () => {
     if (!audioRef.current) return;
 
+    const currentAudio = audioRef.current;
+
     // Check the actual paused state of the audio element
-    if (audioRef.current.paused) {
+    if (currentAudio.paused) {
         // If it's paused, play it
-        audioRef.current.play().catch(error => {
+        currentAudio.play().catch(error => {
             console.error("Audio playback failed on toggle:", error);
-             // If play fails, the 'play' event won't fire. The state should remain false.
-             // We rely on the 'pause' event handler if it was playing and fails to pause.
+             // If play fails, the state should remain unchanged (likely false)
+             // We rely on the 'play' event handler to update state if successful
         });
-        // 'play' event listener will set isPlaying to true if successful
     } else {
        // If it's playing, pause it
-       audioRef.current.pause();
-       // 'pause' event listener will set isPlaying to false
+       currentAudio.pause();
+        // We rely on the 'pause' event handler to update state
     }
-    // Rely on event listeners ('play'/'pause') to update the isPlaying state accurately.
+    // Let event listeners ('play'/'pause') update the isPlaying state accurately.
+    // Avoid setting state directly here to prevent race conditions with events.
   };
 
 
@@ -194,14 +207,14 @@ export default function Home() {
       {/* Portada Section */}
       <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/weddingcover/1440/720"
-          alt="Portada de Boda"
+          src="/images/Principal.jpeg" // Updated image source
+          alt="Portada de Boda Oscar y Silvia" // Updated alt text
           fill
           style={{ objectFit: "cover" }}
           quality={90}
           priority
           className="transition-transform duration-500 ease-in-out animate-zoom-loop"
-          data-ai-hint="wedding couple elegant landscape"
+          // Removed data-ai-hint as it's a specific local image now
         />
          {/* Parallax Logo */}
          <div
