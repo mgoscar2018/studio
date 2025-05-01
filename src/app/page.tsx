@@ -27,12 +27,13 @@ const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
 
 // Updated photos array to use local images from /public/images/carousel
+// Ensure files Foto1.jpg, Foto2.jpg, etc. exist in public/images/carousel/
 const photos = [
-  { src: "/images/carousel/photo1.jpg", alt: "Photo 1" }, // Assuming photo1.jpg, photo2.jpg etc. exist
-  { src: "/images/carousel/photo2.jpg", alt: "Photo 2" },
-  { src: "/images/carousel/photo3.jpg", alt: "Photo 3" },
-  { src: "/images/carousel/photo4.jpg", alt: "Photo 4" },
-  { src: "/images/carousel/photo5.jpg", alt: "Photo 5" },
+  { src: "/images/carousel/Foto1.jpg", alt: "Oscar y Silvia Foto 1" },
+  { src: "/images/carousel/Foto2.jpg", alt: "Oscar y Silvia Foto 2" },
+  { src: "/images/carousel/Foto3.jpg", alt: "Oscar y Silvia Foto 3" },
+  { src: "/images/carousel/Foto4.jpg", alt: "Oscar y Silvia Foto 4" },
+  { src: "/images/carousel/Foto5.jpg", alt: "Oscar y Silvia Foto 5" },
 ];
 
 const padres = [
@@ -116,11 +117,11 @@ export default function Home() {
         try {
             // NOTE: Autoplay with sound is often blocked by browsers (esp. mobile)
             // until user interaction. This attempt might fail silently or throw.
+            // A user interaction might be required on some devices.
             await audioElement.play();
             // If successful, the 'play' event listener (handlePlay) will set isPlaying = true
              console.log("Autoplay initiated. Playback depends on browser policy.");
              // Explicitly set state if play() resolves without error
-             // This might be redundant if the 'play' event fires reliably, but belt and suspenders.
              if(isMounted) setIsPlaying(true);
         } catch (error) {
              // Autoplay failed or requires user interaction
@@ -208,21 +209,20 @@ export default function Home() {
       {/* Portada Section */}
       <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
         <Image
-          src="/images/Principal.jpeg" // Updated image source
+          src="/images/Principal.jpeg" // Ensure this image exists in public/images/
           alt="Portada de Boda Oscar y Silvia" // Updated alt text
           fill
           style={{ objectFit: "cover" }}
           quality={90}
-          priority
-          className="transition-transform duration-500 ease-in-out animate-zoom-loop"
-          // Removed data-ai-hint as it's a specific local image now
+          priority // Load this image first
+          className="animate-zoom-loop" // Apply zoom loop animation
         />
          {/* Parallax Logo */}
          <div
             className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
           >
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-julietta text-white opacity-80 text-center select-none">
-               {brideName} <span className="text-3xl md:text-5xl lg:text-7xl">+</span> {groomName}
+               {brideName}+{groomName}
             </h1>
         </div>
         <div className="absolute inset-0 bg-black bg-opacity-30"></div> {/* Overlay */}
@@ -306,17 +306,16 @@ export default function Home() {
               >
                   <CarouselContent>
                   {photos.map((photo, index) => (
-                      <CarouselItem key={index} className="group opacity-0 animate-carousel-fade-in"> {/* Added fade-in animation */}
+                      <CarouselItem key={index} className="opacity-0 animate-carousel-fade-in"> {/* Added fade-in animation */}
                            <Card className="overflow-hidden border-none shadow-lg">
                               <CardContent className="p-0 aspect-video relative">
                                   <Image
-                                      src={photo.src}
+                                      src={photo.src} // Path relative to /public
                                       alt={photo.alt}
                                       fill // Use fill for responsive layout
                                       style={{ objectFit: "cover" }} // Use style for objectFit
-                                      className="transition-transform duration-500 ease-in-out animate-zoom-loop-short" // Removed group-hover, added short zoom loop
+                                      className="animate-zoom-loop-short" // Apply short zoom loop animation
                                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
-                                      // Removed data-ai-hint
                                   />
                               </CardContent>
                            </Card>
