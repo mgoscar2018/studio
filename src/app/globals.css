@@ -1,3 +1,4 @@
+/* Moved to top to avoid CSS parsing error */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Lato:wght@300;400;700&display=swap');
 
 @tailwind base;
@@ -150,4 +151,15 @@ html {
 .slide-in-right {
   animation: slideInRight 0.8s ease-out forwards;
    opacity: 0; /* Start hidden */
+}
+
+/* Automatic Zoom Loop Animation for Header Image */
+@keyframes zoomLoop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); } /* Zoom in for the first half (5 seconds) */
+  100% { transform: scale(1); } /* Zoom out for the second half (5 seconds) */
+}
+
+.animate-zoom-loop {
+  animation: zoomLoop 10s ease-in-out infinite; /* 10s total duration, infinite loop */
 }

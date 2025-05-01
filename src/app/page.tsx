@@ -20,8 +20,8 @@ import AnimatedSection from '@/components/invitation/AnimatedSection';
 // Placeholder data - Replace with actual data fetching logic
 const invitationId = 'unique-invitation-id'; // Example ID, should come from URL params or props
 const weddingDate = new Date('2025-07-26T14:00:00');
-const groomName = "Él"; // Replace with actual groom name
-const brideName = "Ella"; // Replace with actual bride name
+const groomName = "Oscar"; // Replace with actual groom name
+const brideName = "Silvia"; // Replace with actual bride name
 const assignedPasses = 4; // Example, fetch from backend
 
 const photos = [
@@ -119,7 +119,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Portada Section */}
-      <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden group">
+      <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden"> {/* Removed 'group' class */}
         <Image
           src="https://picsum.photos/seed/weddingcover/1440/720"
           alt="Portada de Boda"
@@ -127,7 +127,7 @@ export default function Home() {
           objectFit="cover"
           quality={90}
           priority
-          className="transition-transform duration-500 ease-in-out group-hover:scale-105"
+          className="transition-transform duration-500 ease-in-out animate-zoom-loop" // Removed group-hover:scale-105, added animate-zoom-loop
           data-ai-hint="wedding couple elegant landscape"
         />
          {/* Parallax Logo */}
