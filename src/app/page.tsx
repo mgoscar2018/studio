@@ -1,3 +1,4 @@
+// src/app/page.tsx
 'use client';
 
 import type React from 'react';
@@ -23,7 +24,6 @@ const invitationId = 'unique-invitation-id'; // Example ID, should come from URL
 const weddingDate = new Date('2025-07-26T14:00:00');
 const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
-// const assignedPasses = 4; // Example, fetch from backend - Moved fetching to useEffect
 
 const photos = [
   { src: "https://picsum.photos/seed/p1/1440/720", alt: "Photo 1", hint: "couple romantic beach" },
@@ -55,10 +55,11 @@ const itinerary = [
 ];
 
 const locationAddress = "Av. Jiutepec #87, esquina Paseo de las Rosas. Colonia Atlacomulco, C.P. 62560, Jiutepec, Morelos.";
-const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locationAddress)}`;
+// Updated Google Maps URL to the specific one requested
+const googleMapsUrl = "https://maps.app.goo.gl/RCKCQHaGdfsZZzpz9";
 
 export default function Home() {
-  const [isPlaying, setIsPlaying] = useState(false); // Start as false, will be set to true after first interaction or successful autoplay
+  const [isPlaying, setIsPlaying] = useState(false); // Initial state, will be updated by autoplay attempt
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]); // State for confirmed guests
   const [isRejected, setIsRejected] = useState<boolean>(false); // State for rejection status
@@ -107,14 +108,17 @@ export default function Home() {
 
     fetchData();
 
-    // Add interaction listener for autoplay
+    // Add interaction listener for autoplay (only if needed as a fallback)
     const handleInteraction = () => {
-      if (!hasInteracted.current) {
-        hasInteracted.current = true;
-        attemptAutoplay(); // Try playing again on first interaction
-        window.removeEventListener('click', handleInteraction);
-        window.removeEventListener('keydown', handleInteraction);
-      }
+        if (!hasInteracted.current) {
+            hasInteracted.current = true;
+            if (!isPlaying) { // Only attempt play if not already playing
+                attemptAutoplay(); // Try playing again on first interaction
+            }
+            // Remove listeners after first interaction regardless of play success
+            window.removeEventListener('click', handleInteraction);
+            window.removeEventListener('keydown', handleInteraction);
+        }
     };
 
     window.addEventListener('click', handleInteraction);
@@ -129,13 +133,14 @@ export default function Home() {
       window.removeEventListener('click', handleInteraction);
       window.removeEventListener('keydown', handleInteraction);
     };
-  }, [invitationId]);
+  }, [invitationId]); // isPlaying removed from dependency array to avoid re-running on state change
 
 
  const attemptAutoplay = () => {
-     if (audioRef.current && !isPlaying) {
+     if (audioRef.current) { // Don't check isPlaying here, always attempt
         audioRef.current.play().then(() => {
-             setIsPlaying(true); // Update state if autoplay succeeds
+             setIsPlaying(true); // Update state ONLY if autoplay succeeds
+             console.log("Autoplay successful.");
         }).catch(error => {
              console.log("Autoplay prevented:", error);
              // Autoplay was prevented, user needs to interact
@@ -150,9 +155,10 @@ export default function Home() {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch(error => console.error("Audio playback failed:", error)); // Basic error handling
+      // Manually triggered play should generally work after interaction or if allowed
+      audioRef.current.play().catch(error => console.error("Audio playback failed:", error));
     }
-    setIsPlaying(!isPlaying);
+    setIsPlaying(!isPlaying); // Toggle state regardless of play success/failure for user feedback
   };
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
@@ -175,21 +181,20 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Portada Section */}
-      <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden"> {/* Removed 'group' class */}
+      <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
         <Image
           src="https://picsum.photos/seed/weddingcover/1440/720"
           alt="Portada de Boda"
-          fill // Use fill instead of layout="fill" in newer Next.js
-          style={{ objectFit: "cover" }} // Use style for objectFit
+          fill
+          style={{ objectFit: "cover" }}
           quality={90}
           priority
-          className="transition-transform duration-500 ease-in-out animate-zoom-loop" // Removed group-hover:scale-105, added animate-zoom-loop
+          className="transition-transform duration-500 ease-in-out animate-zoom-loop"
           data-ai-hint="wedding couple elegant landscape"
         />
          {/* Parallax Logo */}
          <div
             className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
-            // style={{ transform: 'translateZ(-10px) scale(1.1)' }} // Example Parallax effect - Consider performance implications
           >
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-playfair text-white opacity-80 text-center select-none">
                {brideName} <span className="text-3xl md:text-5xl lg:text-7xl">&</span> {groomName}
