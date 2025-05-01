@@ -221,8 +221,8 @@ export default function Home() {
          <div
             className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
           >
-            {/* Increased responsive font sizes */}
-            <h1 className="text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] 2xl:text-[12rem] font-julietta text-white opacity-80 text-center select-none">
+            {/* Increased responsive font sizes, removed font-bold */}
+            <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta text-white opacity-80 text-center select-none w-[85vw] leading-none">
                {brideName}+{groomName}
             </h1>
         </div>
