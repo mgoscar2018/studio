@@ -17,7 +17,8 @@ import PadrinoItem from '@/components/invitation/PadrinoItem';
 import ConfirmationForm from '@/components/invitation/ConfirmationForm';
 import AnimatedSection from '@/components/invitation/AnimatedSection';
 // Mock function, replace with actual data fetching
-import { getMusic, getConfirmation, submitConfirmation, getAssignedPasses } from '@/services/music';
+// Removed getMusic import as audio sources are now handled directly
+import { getConfirmation, submitConfirmation, getAssignedPasses } from '@/services/music';
 
 
 // Placeholder data - Replace with actual data fetching logic
@@ -87,23 +88,48 @@ export default function Home() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [musicData, confirmationData, passesData] = await Promise.all([
-          getMusic(invitationId),
+        // Fetch confirmation and passes data
+        const [confirmationData, passesData] = await Promise.all([
           getConfirmation(invitationId),
           getAssignedPasses(invitationId)
         ]);
 
         if (!isMounted) return; // Exit if component unmounted
 
-        // Setup Audio
-        audioElement = new Audio(musicData.musicUrl);
+        // Setup Audio Element with multiple sources
+        audioElement = document.createElement('audio');
         audioElement.loop = true;
-        audioRef.current = audioElement;
+
+        // Create source elements for different formats
+        const opusSource = document.createElement('source');
+        opusSource.src = '/music/UnPactoConDios.opus';
+        opusSource.type = 'audio/opus';
+        audioElement.appendChild(opusSource);
+
+        const aacSource = document.createElement('source');
+        aacSource.src = '/music/UnPactoConDios.aac';
+        aacSource.type = 'audio/aac';
+        audioElement.appendChild(aacSource);
+
+        const mp3Source = document.createElement('source');
+        mp3Source.src = '/music/UnPactoConDios.mp3';
+        mp3Source.type = 'audio/mpeg';
+        audioElement.appendChild(mp3Source);
+
+        // Fallback text if no source is supported
+        audioElement.appendChild(document.createTextNode('Tu navegador no soporta el elemento de audio.'));
+
+        audioRef.current = audioElement; // Assign the created element to the ref
 
         // Add event listeners BEFORE trying to play
         audioElement.addEventListener('play', handlePlay);
         audioElement.addEventListener('pause', handlePause);
         audioElement.addEventListener('ended', handleEnded); // Listen for ended event
+         audioElement.addEventListener('error', (e) => {
+             console.error("Audio Error:", e);
+             // You could potentially try loading the next format manually here if needed,
+             // but the browser should handle source fallback automatically.
+         });
 
         // Set Confirmation Data
         if (confirmationData) {
@@ -133,7 +159,7 @@ export default function Home() {
         }
 
       } catch (error) {
-        console.error("Error fetching initial data:", error);
+        console.error("Error fetching initial data or setting up audio:", error);
          // Ensure state is false on fetch error, as audio likely didn't load/play
          if (isMounted) setIsPlaying(false);
       } finally {
@@ -152,13 +178,17 @@ export default function Home() {
         currentAudio.removeEventListener('play', handlePlay);
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded); // Remove ended listener
+         currentAudio.removeEventListener('error', (e) => console.error("Cleaned up audio error listener")); // Remove error listener
 
         // Pause audio and release resources on cleanup
         if (!currentAudio.paused) {
           currentAudio.pause();
         }
-        currentAudio.src = ""; // Important to release resource
-        currentAudio.load(); // Helps ensure release
+        // Clear sources to potentially help garbage collection
+        while (currentAudio.firstChild) {
+           currentAudio.removeChild(currentAudio.firstChild);
+        }
+        currentAudio.load(); // Reset the media element
       }
        audioRef.current = null; // Clear the ref
     };
@@ -279,6 +309,13 @@ export default function Home() {
                      Es posible que necesites presionar el botón para iniciar la música en algunos dispositivos.
                    </p>
                  )}
+                 {/* Render the audio element if needed for controls (but hidden usually) */}
+                 {/* <audio ref={audioRef} loop preload="auto" className="hidden">
+                    <source src="/music/UnPactoConDios.opus" type="audio/opus" />
+                    <source src="/music/UnPactoConDios.aac" type="audio/aac" />
+                    <source src="/music/UnPactoConDios.mp3" type="audio/mpeg" />
+                    Tu navegador no soporta el elemento de audio.
+                 </audio> */}
             </AnimatedSection>
 
             <AnimatedSection animationType="slideInRight" className="text-center">
