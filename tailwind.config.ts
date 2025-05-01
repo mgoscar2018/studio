@@ -66,6 +66,12 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+        fontFamily: { // Add custom fonts
+            sans: ['var(--font-lato)', 'sans-serif'],
+            serif: ['var(--font-playfair-display)', 'serif'],
+            lato: ['var(--font-lato)'],
+            playfair: ['var(--font-playfair-display)'],
+        },
   		keyframes: {
   			'accordion-down': {
   				from: {
@@ -82,11 +88,36 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+            'fade-in': { // Added fade-in
+                 from: { opacity: '0' },
+                 to: { opacity: '1' },
+            },
+            'slide-in-left': { // Added slide-in-left
+                from: { transform: 'translateX(-50px)', opacity: '0' },
+                to: { transform: 'translateX(0)', opacity: '1' },
+            },
+            'slide-in-right': { // Added slide-in-right
+                from: { transform: 'translateX(50px)', opacity: '0' },
+                to: { transform: 'translateX(0)', opacity: '1' },
+            },
+            'slide-in-up': { // Added slide-in-up
+                 from: { transform: 'translateY(50px)', opacity: '0' },
+                 to: { transform: 'translateY(0)', opacity: '1' },
+            },
+            'slide-in-down': { // Added slide-in-down
+                from: { transform: 'translateY(-50px)', opacity: '0' },
+                to: { transform: 'translateY(0)', opacity: '1' },
+            },
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+            'fade-in': 'fade-in 1s ease-out forwards', // Added fade-in animation utility
+            'slide-in-left': 'slide-in-left 0.8s ease-out forwards', // Added slide-in-left utility
+            'slide-in-right': 'slide-in-right 0.8s ease-out forwards', // Added slide-in-right utility
+            'slide-in-up': 'slide-in-up 0.8s ease-out forwards', // Added slide-in-up utility
+            'slide-in-down': 'slide-in-down 0.8s ease-out forwards', // Added slide-in-down utility
   		}
   	}
   },
