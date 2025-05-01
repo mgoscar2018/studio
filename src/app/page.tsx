@@ -22,7 +22,8 @@ import { getMusic, getConfirmation, submitConfirmation, getAssignedPasses } from
 
 // Placeholder data - Replace with actual data fetching logic
 const invitationId = 'unique-invitation-id'; // Example ID, should come from URL params or props
-const weddingDate = new Date('2025-07-26T14:00:00'); // Updated wedding date
+// Updated wedding date to include timezone offset for Mexico City (GMT-6)
+const weddingDate = new Date('2025-07-26T14:00:00-06:00');
 const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
 

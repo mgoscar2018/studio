@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { differenceInSeconds, intervalToDuration } from 'date-fns';
 
 interface CountdownProps {
-  targetDate: Date;
+  targetDate: Date; // Accept Date object directly
 }
 
 const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
@@ -22,16 +22,18 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
     setIsClient(true); // Indicate component has mounted on the client
 
     const calculateTimeLeft = () => {
-      const now = new Date();
+      const now = new Date(); // Get current local time
       const secondsDifference = differenceInSeconds(targetDate, now);
 
       if (secondsDifference <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        clearInterval(timer); // Stop the timer when the date is reached
+        if (timer) clearInterval(timer); // Stop the timer when the date is reached
         return;
       }
 
+      // Use intervalToDuration for robust calculation across time units
       const duration = intervalToDuration({ start: now, end: targetDate });
+
       setTimeLeft({
         days: duration.days ?? 0,
         hours: duration.hours ?? 0,
@@ -48,7 +50,7 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate }) => {
 
     // Clear interval on component unmount
     return () => clearInterval(timer);
-  }, [targetDate]);
+  }, [targetDate]); // Rerun effect if targetDate changes
 
   if (!isClient) {
      // Render placeholders or loading state on the server/during hydration
