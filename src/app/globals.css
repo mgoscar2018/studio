@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: 'Julietta Alexart';
-  src: url('/fonts/Julietta Alexart.ttf') format('truetype'); /* Use root-relative path */
+  src: url('/fonts/JuliettaAlexart.ttf') format('truetype'); /* Use root-relative path and updated filename */
   font-weight: normal;
   font-style: normal;
   font-display: swap; /* Ensure text is visible while font loads */
