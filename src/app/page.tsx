@@ -240,9 +240,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Portada Section - Height changed to 70vh */}
-      <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-center">
+      <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-start"> {/* Changed justify-center to justify-start */}
         <Image
-          src="/images/Portada.jpg" // Updated image path
+          src="/images/Portada_2.jpg" // Updated image path to jpg
           alt="Portada de Boda Oscar y Silvia" // Updated alt text
           fill
           style={{ objectFit: "cover" }}
@@ -250,10 +250,11 @@ export default function Home() {
           priority // Load this image first
           className="animate-zoom-loop" // Apply zoom loop animation
         />
-        <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div> {/* Overlay slightly darker */}
+        {/* Overlay removed */}
+        {/* <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div> */}
 
         {/* Container for Names and Title */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center text-white space-y-4 md:space-y-6 pt-8 md:pt-12"> {/* Added padding top */}
+        <div className="relative z-10 flex flex-col items-center justify-start text-center text-white space-y-4 md:space-y-6 pt-12 md:pt-16"> {/* Changed justify-center to justify-start, increased top padding */}
             {/* Names */}
              <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none mb-4 md:mb-6"> {/* Increased opacity, added margin bottom */}
                SilviOscar {/* Updated names with glyph */}
