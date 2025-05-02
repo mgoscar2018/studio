@@ -242,7 +242,7 @@ export default function Home() {
       {/* Portada Section - Height changed to 70vh */}
       <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-start"> {/* Changed justify-center to justify-start */}
         <Image
-          src="/images/Portada_2.jpg" // Updated image path to jpg
+          src="/images/Portada_2.jpeg" // Updated image extension to jpeg
           alt="Portada de Boda Oscar y Silvia" // Updated alt text
           fill
           style={{ objectFit: "cover" }}
@@ -474,3 +474,5 @@ export default function Home() {
     </div>
   );
 }
+
+      
