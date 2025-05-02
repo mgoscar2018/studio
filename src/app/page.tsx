@@ -239,8 +239,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      {/* Portada Section */}
-      <header className="relative h-[50vh] md:h-[60vh] w-full overflow-hidden">
+      {/* Portada Section - Height changed to 70vh */}
+      <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-center">
         <Image
           src="/images/Portada.jpg" // Updated image path
           alt="Portada de Boda Oscar y Silvia" // Updated alt text
@@ -250,33 +250,32 @@ export default function Home() {
           priority // Load this image first
           className="animate-zoom-loop" // Apply zoom loop animation
         />
-         {/* Parallax Logo */}
-         <div
-            className="absolute inset-0 flex items-center justify-center transition-transform duration-300 ease-out"
-          >
-            {/* Increased responsive font sizes, removed font-bold */}
-            <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta text-white opacity-80 text-center select-none w-[85vw] leading-none">
+        <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div> {/* Overlay slightly darker */}
+
+        {/* Container for Names and Title */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center text-white space-y-4 md:space-y-6 pt-8 md:pt-12"> {/* Added padding top */}
+            {/* Names */}
+             <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none mb-4 md:mb-6"> {/* Increased opacity, added margin bottom */}
                SilviOscar {/* Updated names with glyph */}
             </h1>
+
+             {/* "¡Nos casamos!" Section Moved Here */}
+            <AnimatedSection animationType="fade" className="delay-500"> {/* Added delay */}
+              <div className="space-y-2 md:space-y-3">
+                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta">¡Nos casamos!</h2> {/* Smaller font size */}
+                  <p className="text-xl md:text-2xl">Sábado</p>
+                  <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-3 md:p-4 shadow-md"> {/* Adjusted padding, slightly transparent bg */}
+                      <div className="text-5xl md:text-6xl font-bold">26</div>
+                      <div className="text-lg md:text-xl">julio</div>
+                  </div>
+                  <p className="text-xl md:text-2xl mt-1 md:mt-2">2025</p>
+              </div>
+            </AnimatedSection>
         </div>
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div> {/* Overlay */}
       </header>
 
       <main className="container mx-auto px-4 py-12 md:px-8 md:py-16 space-y-16 md:space-y-24">
-        {/* Título de la Boda */}
-         <AnimatedSection animationType="slideInLeft">
-          <div className="text-center space-y-4">
-              <h2 className="text-5xl md:text-7xl font-julietta text-ring">¡Nos casamos!</h2> {/* Apply custom font */}
-              <p className="text-2xl md:text-3xl">Sábado</p>
-              <div className="inline-block bg-primary text-primary-foreground rounded-lg p-4 md:p-6 shadow-md">
-                  <div className="text-6xl md:text-8xl font-bold">26</div>
-                  <div className="text-xl md:text-2xl">julio</div>
-              </div>
-              <p className="text-2xl md:text-3xl mt-2">2025</p>
-          </div>
-        </AnimatedSection>
-
-        <Separator className="my-12 md:my-16" />
+         {/* Title section removed from here */}
 
         {/* Mensaje de los Novios */}
          <AnimatedSection animationType="slideInRight">
