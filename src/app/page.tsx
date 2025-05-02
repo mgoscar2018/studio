@@ -270,17 +270,17 @@ export default function Home() {
            </div>
 
             {/* Content Container */}
-            <div className="relative z-10 flex flex-col items-center justify-between text-center text-primary w-full h-full py-8 md:py-12 px-4">
+            <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4"> {/* Changed text-primary to text-white */}
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6">
-                    <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none [text-shadow:0_0_8px_rgba(255,255,255,0.8)]">
+                    <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)]"> {/* Changed shadow to black */}
                         SilviOscar
                     </h1>
                  </div>
 
                  {/* "¡Nos casamos!" Section - Bottom */}
                  <AnimatedSection animationType="fade" className="delay-500">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_8px_rgba(255,255,255,0.8)]">¡Nos casamos!</h2> {/* Added text shadow */}
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">¡Nos casamos!</h2> {/* Changed shadow to black */}
                  </AnimatedSection>
             </div>
        </header>
