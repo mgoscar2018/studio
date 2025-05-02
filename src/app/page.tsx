@@ -323,7 +323,7 @@ export default function Home() {
 
         {/* Carrousel de Fotos */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">Nuestros Momentos</h3> {/* Applied juliette font */}
+             <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3> {/* Applied juliette font */}
               <Carousel
                   opts={{
                   align: "start",
@@ -366,7 +366,7 @@ export default function Home() {
         {/* Padres y Padrinos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <AnimatedSection animationType="slideInLeft" className="text-center">
-                <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">Nuestros Padres</h3> {/* Applied juliette font */}
+                <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padre</h3> {/* Applied juliette font */}
                 <div className="space-y-2 text-lg">
                 {padres.map((nombre, index) => (
                     <p key={index}>{nombre}</p>
@@ -375,7 +375,7 @@ export default function Home() {
              </AnimatedSection>
 
             <AnimatedSection animationType="slideInRight" className="text-center">
-                <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">Nuestros Padrinos</h3> {/* Applied juliette font */}
+                <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padrino</h3> {/* Applied juliette font */}
                  <div className="space-y-4">
                       {padrinos.map((padrino, index) => (
                            <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
@@ -388,7 +388,7 @@ export default function Home() {
 
         {/* Itinerario */}
          <AnimatedSection animationType="fade">
-            <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">Itinerario</h3> {/* Applied juliette font */}
+            <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">tinerari</h3> {/* Applied juliette font */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {itinerary.map((item, index) => (
                      <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
@@ -467,4 +467,3 @@ export default function Home() {
     </div>
   );
 }
-    
