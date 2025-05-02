@@ -256,7 +256,7 @@ export default function Home() {
           >
             {/* Increased responsive font sizes, removed font-bold */}
             <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta text-white opacity-80 text-center select-none w-[85vw] leading-none">
-               {brideName} &amp; {groomName} {/* Used constants directly */}
+               SilviOscar {/* Updated names with glyph */}
             </h1>
         </div>
         <div className="absolute inset-0 bg-black bg-opacity-30"></div> {/* Overlay */}
@@ -467,3 +467,4 @@ export default function Home() {
     </div>
   );
 }
+    
