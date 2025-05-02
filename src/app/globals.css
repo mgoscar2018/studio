@@ -8,6 +8,14 @@
   font-display: swap; /* Ensure text is visible while font loads */
 }
 
+@font-face {
+  font-family: 'MarrieDream'; /* Added font-family name */
+  src: url('/fonts/MarrieDream.woff2') format('woff2'); /* Added src and format */
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Ensure text is visible while font loads */
+}
+
 
 @tailwind base;
 @tailwind components;
@@ -116,6 +124,9 @@ body {
      /* Apply custom font where needed via class */
     .font-julietta { /* Keep class name for simplicity, but it now points to Joseph Sophia */
         font-family: 'Joseph Sophia', cursive;
+    }
+    .font-marrie-dream {
+        font-family: 'MarrieDream', cursive;
     }
 }
 

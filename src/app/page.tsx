@@ -328,7 +328,7 @@ export default function Home() {
 
         {/* Carrousel de Fotos */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-3xl md:text-4xl font-semibold text-center mb-8">Nuestros Momentos</h3>
+             <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold text-center mb-8">Nuestros Momentos</h3>
               <Carousel
                   opts={{
                   align: "start",
@@ -371,7 +371,7 @@ export default function Home() {
         {/* Padres y Padrinos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <AnimatedSection animationType="slideInLeft" className="text-center">
-                <h3 className="text-3xl md:text-4xl font-semibold mb-6">Nuestros Padres</h3>
+                <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold mb-6">Nuestros Padres</h3>
                 <div className="space-y-2 text-lg">
                 {padres.map((nombre, index) => (
                     <p key={index}>{nombre}</p>
@@ -380,7 +380,7 @@ export default function Home() {
              </AnimatedSection>
 
             <AnimatedSection animationType="slideInRight" className="text-center">
-                <h3 className="text-3xl md:text-4xl font-semibold mb-6">Nuestros Padrinos</h3>
+                <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold mb-6">Nuestros Padrinos</h3>
                  <div className="space-y-4">
                       {padrinos.map((padrino, index) => (
                            <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
@@ -393,7 +393,7 @@ export default function Home() {
 
         {/* Itinerario */}
          <AnimatedSection animationType="fade">
-            <h3 className="text-3xl md:text-4xl font-semibold text-center mb-8">Itinerario</h3>
+            <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold text-center mb-8">Itinerario</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {itinerary.map((item, index) => (
                      <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
@@ -428,7 +428,7 @@ export default function Home() {
 
          {/* Confirmación de Asistencia */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-3xl md:text-4xl font-semibold text-center mb-8">Confirma tu Asistencia</h3>
+             <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold text-center mb-8">Confirma tu Asistencia</h3>
 
              {isRejected ? (
                 <Card className="bg-muted/50 p-6 rounded-lg shadow">

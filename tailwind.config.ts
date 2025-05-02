@@ -72,6 +72,7 @@ export default {
             lato: ['var(--font-lato)'],
             playfair: ['var(--font-playfair-display)'],
             'julietta': ['Joseph Sophia', 'cursive'], // Updated font name
+            'marrie-dream': ['MarrieDream', 'cursive'], // Added MarrieDream font
         },
   		keyframes: {
   			'accordion-down': {
