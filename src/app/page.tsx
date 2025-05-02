@@ -343,7 +343,7 @@ export default function Home() {
                   {/* Row 1 */}
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src="/images/mosaic/Foto_1.jpg" // Updated path
+                          src="/images/mosaic/M1.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 1" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
@@ -353,7 +353,7 @@ export default function Home() {
                   </div>
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                           src="/images/mosaic/Foto_2.jpg" // Updated path
+                           src="/images/mosaic/M2.jpg" // Updated path
                            alt="Oscar y Silvia Mosaico 2" // Updated alt
                            fill
                            style={{ objectFit: "cover" }}
@@ -364,7 +364,7 @@ export default function Home() {
                    {/* Row 2 - Full width */}
                   <div className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg"> {/* Adjust aspect ratio as needed */}
                       <Image
-                          src="/images/mosaic/Foto_3.jpg" // Updated path
+                          src="/images/mosaic/M3.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 3" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
@@ -375,7 +375,7 @@ export default function Home() {
                   {/* Row 3 */}
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src="/images/mosaic/Foto_4.jpg" // Updated path
+                          src="/images/mosaic/M4.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 4" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
@@ -385,7 +385,7 @@ export default function Home() {
                   </div>
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src="/images/mosaic/Foto_5.jpg" // Updated path
+                          src="/images/mosaic/M5.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 5" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
