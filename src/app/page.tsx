@@ -240,34 +240,51 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Portada Section - Height changed to 70vh */}
-      <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center"> {/* Removed justify-start, added items-center */}
-        <Image
-          src="/images/Portada_2.jpeg" // Updated image extension to jpeg
-          alt="Portada de Boda Oscar y Silvia" // Updated alt text
-          fill
-          style={{ objectFit: "cover" }}
-          quality={90}
-          priority // Load this image first
-          className="animate-zoom-loop" // Apply zoom loop animation
-        />
-        {/* Overlay removed */}
-        {/* <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div> */}
+       <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center">
+           {/* Background Image with Mask */}
+           <div className="absolute inset-0 z-0">
+                <Image
+                  src="/images/Portada_2.jpeg"
+                  alt="Portada de Boda Oscar y Silvia"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                  quality={90}
+                  priority
+                  className="animate-zoom-loop"
+                />
+                {/* Apply the torn paper mask */}
+                <div
+                    className="absolute inset-0"
+                    style={{
+                        maskImage: 'url(/images/mask-torn-paper.svg)',
+                        maskSize: 'cover', // Adjust as needed ('cover', 'contain', '100% 100%')
+                        maskRepeat: 'no-repeat',
+                         maskPosition: 'bottom center', // Position the mask at the bottom
+                        WebkitMaskImage: 'url(/images/mask-torn-paper.svg)', // For Safari compatibility
+                        WebkitMaskSize: 'cover',
+                        WebkitMaskRepeat: 'no-repeat',
+                         WebkitMaskPosition: 'bottom center',
+                        backgroundColor: 'hsl(var(--background))', // Match the page background
+                    }}
+                />
+           </div>
 
-        {/* Container for Names and Title - Modified flex properties */}
-        <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4"> {/* Changed justify-start to justify-between, added w-full, h-full and padding */}
-            {/* Names - Top */}
-             <div className="flex flex-col items-center space-y-4 md:space-y-6"> {/* Wrapper for top elements */}
-                 <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none"> {/* Removed mb-4 md:mb-6 */}
-                   SilviOscar {/* Updated names with glyph */}
-                </h1>
-             </div>
+            {/* Content Container */}
+            <div className="relative z-10 flex flex-col items-center justify-between text-center text-primary w-full h-full py-8 md:py-12 px-4">
+                 {/* Names - Top */}
+                 <div className="flex flex-col items-center space-y-4 md:space-y-6">
+                    <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none [text-shadow:0_0_8px_rgba(255,255,255,0.8)]">
+                        SilviOscar
+                    </h1>
+                 </div>
 
-             {/* "¡Nos casamos!" Section - Bottom */}
-            <AnimatedSection animationType="fade" className="delay-500"> {/* Added delay */}
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta">¡Nos casamos!</h2> {/* Smaller font size */}
-            </AnimatedSection>
-        </div>
-      </header>
+                 {/* "¡Nos casamos!" Section - Bottom */}
+                 <AnimatedSection animationType="fade" className="delay-500">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_8px_rgba(255,255,255,0.8)]">¡Nos casamos!</h2> {/* Added text shadow */}
+                 </AnimatedSection>
+            </div>
+       </header>
+
 
       {/* Constrain main content width on larger screens */}
       <div className="container mx-auto px-4 md:px-8 max-w-2xl"> {/* Added max-w-2xl */}
