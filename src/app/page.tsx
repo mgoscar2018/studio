@@ -240,7 +240,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Portada Section - Height changed to 70vh */}
-      <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center justify-start"> {/* Changed justify-center to justify-start */}
+      <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center"> {/* Removed justify-start, added items-center */}
         <Image
           src="/images/Portada_2.jpeg" // Updated image extension to jpeg
           alt="Portada de Boda Oscar y Silvia" // Updated alt text
@@ -253,14 +253,16 @@ export default function Home() {
         {/* Overlay removed */}
         {/* <div className="absolute inset-0 bg-black bg-opacity-40 z-0"></div> */}
 
-        {/* Container for Names and Title */}
-        <div className="relative z-10 flex flex-col items-center justify-start text-center text-white space-y-4 md:space-y-6 pt-12 md:pt-16"> {/* Changed justify-center to justify-start, increased top padding */}
-            {/* Names */}
-             <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none mb-4 md:mb-6"> {/* Increased opacity, added margin bottom */}
-               SilviOscar {/* Updated names with glyph */}
-            </h1>
+        {/* Container for Names and Title - Modified flex properties */}
+        <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4"> {/* Changed justify-start to justify-between, added w-full, h-full and padding */}
+            {/* Names - Top */}
+             <div className="flex flex-col items-center space-y-4 md:space-y-6"> {/* Wrapper for top elements */}
+                 <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none"> {/* Removed mb-4 md:mb-6 */}
+                   SilviOscar {/* Updated names with glyph */}
+                </h1>
+             </div>
 
-             {/* "¡Nos casamos!" Section Moved Here */}
+             {/* "¡Nos casamos!" Section - Bottom */}
             <AnimatedSection animationType="fade" className="delay-500"> {/* Added delay */}
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta">¡Nos casamos!</h2> {/* Smaller font size */}
             </AnimatedSection>
@@ -474,5 +476,3 @@ export default function Home() {
     </div>
   );
 }
-
-      
