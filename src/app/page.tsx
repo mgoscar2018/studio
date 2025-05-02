@@ -17,13 +17,13 @@ import PadrinoItem from '@/components/invitation/PadrinoItem';
 import ConfirmationForm from '@/components/invitation/ConfirmationForm';
 import AnimatedSection from '@/components/invitation/AnimatedSection';
 // Mock function, replace with actual data fetching
-// Removed getMusic import as audio sources are now handled directly
+// Import functions for data fetching
 import { getConfirmation, submitConfirmation, getAssignedPasses } from '@/services/music';
 
 
 // Placeholder data - Replace with actual data fetching logic
 const invitationId = 'unique-invitation-id'; // Example ID, should come from URL params or props
-// Updated wedding date to include timezone offset for Mexico City (GMT-6)
+// Wedding date with Mexico City timezone offset (GMT-6)
 const weddingDate = new Date('2025-07-26T14:00:00-06:00');
 const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
@@ -90,10 +90,10 @@ export default function Home() {
       try {
         // Fetch confirmation and passes data
         const [confirmationData, passesData] = await Promise.all([
-          getConfirmation(invitationId),
-          getAssignedPasses(invitationId)
+            getConfirmation(invitationId),
+            getAssignedPasses(invitationId)
         ]);
-
+        // Removed getNames call as it doesn't exist
         if (!isMounted) return; // Exit if component unmounted
 
         // Setup Audio Element with multiple sources
@@ -254,7 +254,7 @@ export default function Home() {
           >
             {/* Increased responsive font sizes, removed font-bold */}
             <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta text-white opacity-80 text-center select-none w-[85vw] leading-none">
-               SiviOscar
+               {brideName}{groomName} {/* Used constants directly */}
             </h1>
         </div>
         <div className="absolute inset-0 bg-black bg-opacity-30"></div> {/* Overlay */}
@@ -264,7 +264,7 @@ export default function Home() {
         {/* Título de la Boda */}
          <AnimatedSection animationType="slideInLeft">
           <div className="text-center space-y-4">
-              <h2 className="text-5xl md:text-7xl font-julietta">¡Nos casamos!</h2> {/* Apply custom font */}
+              <h2 className="text-5xl md:text-7xl font-julietta text-ring">¡Nos casamos !</h2> {/* Apply custom font */}
               <p className="text-2xl md:text-3xl">Sábado</p>
               <div className="inline-block bg-primary text-primary-foreground rounded-lg p-4 md:p-6 shadow-md">
                   <div className="text-6xl md:text-8xl font-bold">26</div>
@@ -281,7 +281,7 @@ export default function Home() {
             <Card className="shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
                 <CardContent>
                 <p className="text-lg md:text-xl text-center italic">
-                    "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante de nosotros."
+                    "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
                 </p>
                 </CardContent>
             </Card>
@@ -309,13 +309,6 @@ export default function Home() {
                      Es posible que necesites presionar el botón para iniciar la música en algunos dispositivos.
                    </p>
                  )}
-                 {/* Render the audio element if needed for controls (but hidden usually) */}
-                 {/* <audio ref={audioRef} loop preload="auto" className="hidden">
-                    <source src="/music/UnPactoConDios.opus" type="audio/opus" />
-                    <source src="/music/UnPactoConDios.aac" type="audio/aac" />
-                    <source src="/music/UnPactoConDios.mp3" type="audio/mpeg" />
-                    Tu navegador no soporta el elemento de audio.
-                 </audio> */}
             </AnimatedSection>
 
             <AnimatedSection animationType="slideInRight" className="text-center">
@@ -328,7 +321,7 @@ export default function Home() {
 
         {/* Carrousel de Fotos */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold text-center mb-8">Nuestros Momentos</h3>
+             <h3 className="text-5xl md:text-6xl font-marrie-dream text-center mb-8 text-ring">Nuestros Momentos</h3> {/* Applied MarrieDream font */}
               <Carousel
                   opts={{
                   align: "start",
@@ -371,7 +364,7 @@ export default function Home() {
         {/* Padres y Padrinos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <AnimatedSection animationType="slideInLeft" className="text-center">
-                <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold mb-6">Nuestros Padres</h3>
+                <h3 className="text-5xl md:text-6xl font-marrie-dream mb-6 text-ring">Nuestros Padres</h3> {/* Applied MarrieDream font */}
                 <div className="space-y-2 text-lg">
                 {padres.map((nombre, index) => (
                     <p key={index}>{nombre}</p>
@@ -380,7 +373,7 @@ export default function Home() {
              </AnimatedSection>
 
             <AnimatedSection animationType="slideInRight" className="text-center">
-                <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold mb-6">Nuestros Padrinos</h3>
+                <h3 className="text-5xl md:text-6xl font-marrie-dream mb-6 text-ring">Nuestros Padrinos</h3> {/* Applied MarrieDream font */}
                  <div className="space-y-4">
                       {padrinos.map((padrino, index) => (
                            <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
@@ -393,7 +386,7 @@ export default function Home() {
 
         {/* Itinerario */}
          <AnimatedSection animationType="fade">
-            <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold text-center mb-8">Itinerario</h3>
+            <h3 className="text-5xl md:text-6xl font-marrie-dream text-center mb-8 text-ring">Itinerario</h3> {/* Applied MarrieDream font */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {itinerary.map((item, index) => (
                      <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
@@ -428,7 +421,7 @@ export default function Home() {
 
          {/* Confirmación de Asistencia */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-3xl md:text-4xl font-marrie-dream font-semibold text-center mb-8">Confirma tu Asistencia</h3>
+             <h3 className="text-4xl md:text-5xl font-marrie-dream text-center mb-8 text-ring">Confirma tu Asistencia</h3> {/* Applied MarrieDream font */}
 
              {isRejected ? (
                 <Card className="bg-muted/50 p-6 rounded-lg shadow">
@@ -467,7 +460,7 @@ export default function Home() {
 
       <footer className="text-center py-8 bg-muted/50 mt-16">
           {/* Updated Footer Text */}
-          <p className="text-muted-foreground">{brideName} & {groomName} - 26 julio 2025.</p>
+          <p className="text-muted-foreground">{brideName} & {groomName} - 26 julio 2025</p>
       </footer>
     </div>
   );

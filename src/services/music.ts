@@ -84,3 +84,18 @@ export async function getAssignedPasses(invitationId: string): Promise<number> {
      console.warn(`Fetching placeholder assigned passes for invitation ID: ${invitationId}`);
      return 4; // Placeholder
 }
+
+/**
+ * Fetches the names associated with the invitation (groom and bride).
+ * @param invitationId The ID of the invitation.
+ * @returns A promise resolving to an object with groom and bride names.
+ */
+export async function getNames(invitationId: string): Promise<{ groom: string | null, bride: string | null }> {
+    // TODO: Implement backend API call to fetch names based on invitationId
+    console.warn(`Fetching placeholder names for invitation ID: ${invitationId}`);
+    // Placeholder data
+    return {
+        groom: "Oscar",
+        bride: "Silvia",
+    };
+}
