@@ -341,7 +341,7 @@ export default function Home() {
               <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3>
               <div className="grid grid-cols-2 gap-2 md:gap-4">
                   {/* Row 1 */}
-                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                  <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
                           src="/images/mosaic/M1.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 1" // Updated alt
@@ -350,8 +350,8 @@ export default function Home() {
                           className="animate-zoom-loop-short"
                           sizes="(max-width: 768px) 50vw, 33vw"
                       />
-                  </div>
-                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                  </AnimatedSection>
+                  <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
                            src="/images/mosaic/M2.jpg" // Updated path
                            alt="Oscar y Silvia Mosaico 2" // Updated alt
@@ -360,9 +360,9 @@ export default function Home() {
                            className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 50vw, 33vw"
                       />
-                  </div>
+                  </AnimatedSection>
                    {/* Row 2 - Full width */}
-                  <div className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg"> {/* Adjust aspect ratio as needed */}
+                  <AnimatedSection animationType="fade" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg"> {/* Adjust aspect ratio as needed */}
                       <Image
                           src="/images/mosaic/M3.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 3" // Updated alt
@@ -371,9 +371,9 @@ export default function Home() {
                           className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 100vw, 66vw"
                       />
-                  </div>
+                  </AnimatedSection>
                   {/* Row 3 */}
-                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                  <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
                           src="/images/mosaic/M4.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 4" // Updated alt
@@ -382,8 +382,8 @@ export default function Home() {
                           className="animate-zoom-loop-short"
                           sizes="(max-width: 768px) 50vw, 33vw"
                       />
-                  </div>
-                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                  </AnimatedSection>
+                  <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
                           src="/images/mosaic/M5.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 5" // Updated alt
@@ -392,7 +392,7 @@ export default function Home() {
                           className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 50vw, 33vw"
                       />
-                  </div>
+                  </AnimatedSection>
               </div>
           </AnimatedSection>
 
