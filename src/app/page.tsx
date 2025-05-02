@@ -267,202 +267,205 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12 md:px-8 md:py-16 space-y-16 md:space-y-24">
+      {/* Constrain main content width on larger screens */}
+      <div className="container mx-auto px-4 md:px-8 max-w-2xl"> {/* Added max-w-2xl */}
+        <main className="py-12 md:py-16 space-y-16 md:space-y-24">
 
-         {/* Date Section - Moved Outside Header */}
-         <AnimatedSection animationType="fade" className="text-center mb-16">
-             <div className="space-y-2 md:space-y-3">
-                  <p className="text-xl md:text-2xl">Sábado</p>
-                  <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-3 md:p-4 shadow-md"> {/* Adjusted padding, slightly transparent bg */}
-                      <div className="text-5xl md:text-6xl font-bold">26</div>
-                      <div className="text-lg md:text-xl">julio</div>
-                  </div>
-                  <p className="text-xl md:text-2xl mt-1 md:mt-2">2025</p>
-              </div>
-         </AnimatedSection>
-
-
-        {/* Mensaje de los Novios */}
-         <AnimatedSection animationType="slideInRight">
-            <Card className="shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
-                <CardContent className="pt-6"> {/* Added pt-6 to CardContent for padding */}
-                <p className="text-lg md:text-xl text-center italic">
-                    "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
-                </p>
-                </CardContent>
-            </Card>
-         </AnimatedSection>
-
-        <Separator className="my-12 md:my-16" />
-
-        {/* Música y Cuenta Regresiva */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-           <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-4">
-                <h3 className="text-2xl md:text-3xl font-semibold mb-4">Música de Fondo</h3>
-                <Button
-                variant="outline"
-                size="icon"
-                className="rounded-full h-16 w-16 border-2 border-primary hover:bg-primary/10"
-                onClick={togglePlayPause}
-                aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
-                >
-                {/* Use Volume2 for playing and VolumeX for paused/muted */}
-                 {isPlaying ? <Volume2 className="h-8 w-8 text-primary" /> : <VolumeX className="h-8 w-8 text-muted-foreground" />}
-                </Button>
-                {/* Inform user interaction might be needed */}
-                 {!isPlaying && !isLoading && (
-                   <p className="text-xs text-muted-foreground text-center max-w-xs">
-                     Es posible que necesites presionar el botón para iniciar la música en algunos dispositivos.
-                   </p>
-                 )}
-            </AnimatedSection>
-
-            <AnimatedSection animationType="slideInRight" className="text-center">
-                <h3 className="text-2xl md:text-3xl font-semibold mb-4">Sólo Faltan</h3>
-                <Countdown targetDate={weddingDate} />
-            </AnimatedSection>
-        </div>
-
-        <Separator className="my-12 md:my-16" />
-
-        {/* Carrousel de Fotos */}
-         <AnimatedSection animationType="fade">
-             <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3> {/* Applied juliette font */}
-              <Carousel
-                  opts={{
-                  align: "start",
-                  loop: true,
-                  }}
-                  plugins={[ // Add the Autoplay plugin
-                      Autoplay({
-                          delay: 5000, // 5 seconds delay
-                          stopOnInteraction: false, // Don't stop on manual interaction
-                          stopOnMouseEnter: true, // Pause on hover
-                      }),
-                  ]}
-                  className="w-full max-w-4xl mx-auto"
-              >
-                  <CarouselContent>
-                  {photos.map((photo, index) => (
-                      <CarouselItem key={index} className="opacity-0 animate-carousel-fade-in"> {/* Added fade-in animation */}
-                           <Card className="overflow-hidden border-none shadow-lg">
-                              <CardContent className="p-0 aspect-video relative">
-                                  <Image
-                                      src={photo.src} // Path relative to /public
-                                      alt={photo.alt}
-                                      fill // Use fill for responsive layout
-                                      style={{ objectFit: "cover" }} // Use style for objectFit
-                                      className="animate-zoom-loop-short" // Apply short zoom loop animation
-                                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
-                                  />
-                              </CardContent>
-                           </Card>
-                      </CarouselItem>
-                  ))}
-                  </CarouselContent>
-                   <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 hidden md:flex" />
-                   <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 hidden md:flex" />
-              </Carousel>
-         </AnimatedSection>
-
-        <Separator className="my-12 md:my-16" />
-
-        {/* Padres y Padrinos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <AnimatedSection animationType="slideInLeft" className="text-center">
-                <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padre</h3> {/* Applied juliette font */}
-                <div className="space-y-2 text-lg">
-                {padres.map((nombre, index) => (
-                    <p key={index}>{nombre}</p>
-                ))}
+           {/* Date Section - Moved Outside Header */}
+           <AnimatedSection animationType="fade" className="text-center mb-16">
+               <div className="space-y-2 md:space-y-3">
+                    <p className="text-xl md:text-2xl">Sábado</p>
+                    <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-3 md:p-4 shadow-md"> {/* Adjusted padding, slightly transparent bg */}
+                        <div className="text-5xl md:text-6xl font-bold">26</div>
+                        <div className="text-lg md:text-xl">julio</div>
+                    </div>
+                    <p className="text-xl md:text-2xl mt-1 md:mt-2">2025</p>
                 </div>
-             </AnimatedSection>
-
-            <AnimatedSection animationType="slideInRight" className="text-center">
-                <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padrino</h3> {/* Applied juliette font */}
-                 <div className="space-y-4">
-                      {padrinos.map((padrino, index) => (
-                           <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
-                      ))}
-                 </div>
-             </AnimatedSection>
-        </div>
-
-        <Separator className="my-12 md:my-16" />
-
-        {/* Itinerario */}
-         <AnimatedSection animationType="fade">
-            <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">tinerari</h3> {/* Applied juliette font */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {itinerary.map((item, index) => (
-                     <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
-                ))}
-            </div>
-        </AnimatedSection>
-
-        <Separator className="my-12 md:my-16" />
-
-        {/* Ubicación */}
-         <AnimatedSection animationType="slideInUp"> {/* Using a different animation for variety */}
-            <Card className="text-center shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
-                 <CardHeader>
-                    <CardTitle className="text-3xl md:text-4xl font-semibold flex items-center justify-center gap-2">
-                        <MapPin className="h-8 w-8 text-primary" />
-                        Ubicación - Jardín Margaty {/* Updated Title */}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-6"> {/* Added pt-6 to CardContent for padding */}
-                    <p className="text-lg">{locationAddress}</p>
-                     <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
-                        <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
-                             Abrir en GPS
-                        </a>
-                     </Button>
-                </CardContent>
-            </Card>
-         </AnimatedSection>
+           </AnimatedSection>
 
 
-        <Separator className="my-12 md:my-16" />
-
-         {/* Confirmación de Asistencia */}
-         <AnimatedSection animationType="fade">
-             <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">onfirma  tu  asistenci</h3> {/* Updated Confirmation title with glyphs */}
-
-             {isRejected ? (
-                <Card className="bg-muted/50 p-6 rounded-lg shadow">
-                  <CardContent className="flex items-center gap-4 pt-6"> {/* Added pt-6 to CardContent for padding */}
-                    <XCircle className="h-8 w-8 text-destructive" />
-                    <p className="text-muted-foreground">Lamentamos no poder contar con tu presencia y agradecemos mucho tu respuesta, ya que con ello podremos organizar óptimamente los lugares.</p>
+          {/* Mensaje de los Novios */}
+           <AnimatedSection animationType="slideInRight">
+              <Card className="shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
+                  <CardContent className="pt-6"> {/* Added pt-6 to CardContent for padding */}
+                  <p className="text-lg md:text-xl text-center italic">
+                      "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
+                  </p>
                   </CardContent>
-                </Card>
-             ) : confirmedGuests.length > 0 ? (
-                 <Card className="bg-secondary/10 p-6 rounded-lg shadow">
-                     <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-2xl text-primary">
-                            <CheckCircle className="h-6 w-6" />
-                            ¡Confirmación Recibida!
-                           </CardTitle>
-                      </CardHeader>
-                      <CardContent className="pt-6"> {/* Added pt-6 to CardContent for padding */}
-                          <p className="mb-4">Gracias por confirmar. Has reservado lugar para:</p>
-                          <ul className="list-disc list-inside space-y-1">
-                             {confirmedGuests.map((guest, index) => (
-                                <li key={index}>{guest}</li>
-                             ))}
-                          </ul>
-                      </CardContent>
-                 </Card>
-             ) : (
-                 <ConfirmationForm
-                    invitationId={invitationId}
-                    assignedPasses={assignedPasses}
-                    onConfirm={handleConfirmation}
-                 />
-             )}
-        </AnimatedSection>
+              </Card>
+           </AnimatedSection>
 
-      </main>
+          <Separator className="my-12 md:my-16" />
+
+          {/* Música y Cuenta Regresiva */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+             <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-4">
+                  <h3 className="text-2xl md:text-3xl font-semibold mb-4">Música de Fondo</h3>
+                  <Button
+                  variant="outline"
+                  size="icon"
+                  className="rounded-full h-16 w-16 border-2 border-primary hover:bg-primary/10"
+                  onClick={togglePlayPause}
+                  aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
+                  >
+                  {/* Use Volume2 for playing and VolumeX for paused/muted */}
+                   {isPlaying ? <Volume2 className="h-8 w-8 text-primary" /> : <VolumeX className="h-8 w-8 text-muted-foreground" />}
+                  </Button>
+                  {/* Inform user interaction might be needed */}
+                   {!isPlaying && !isLoading && (
+                     <p className="text-xs text-muted-foreground text-center max-w-xs">
+                       Es posible que necesites presionar el botón para iniciar la música en algunos dispositivos.
+                     </p>
+                   )}
+              </AnimatedSection>
+
+              <AnimatedSection animationType="slideInRight" className="text-center">
+                  <h3 className="text-2xl md:text-3xl font-semibold mb-4">Sólo Faltan</h3>
+                  <Countdown targetDate={weddingDate} />
+              </AnimatedSection>
+          </div>
+
+          <Separator className="my-12 md:my-16" />
+
+          {/* Carrousel de Fotos */}
+           <AnimatedSection animationType="fade">
+               <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3> {/* Applied juliette font */}
+                <Carousel
+                    opts={{
+                    align: "start",
+                    loop: true,
+                    }}
+                    plugins={[ // Add the Autoplay plugin
+                        Autoplay({
+                            delay: 5000, // 5 seconds delay
+                            stopOnInteraction: false, // Don't stop on manual interaction
+                            stopOnMouseEnter: true, // Pause on hover
+                        }),
+                    ]}
+                    className="w-full max-w-4xl mx-auto"
+                >
+                    <CarouselContent>
+                    {photos.map((photo, index) => (
+                        <CarouselItem key={index} className="opacity-0 animate-carousel-fade-in"> {/* Added fade-in animation */}
+                             <Card className="overflow-hidden border-none shadow-lg">
+                                <CardContent className="p-0 aspect-video relative">
+                                    <Image
+                                        src={photo.src} // Path relative to /public
+                                        alt={photo.alt}
+                                        fill // Use fill for responsive layout
+                                        style={{ objectFit: "cover" }} // Use style for objectFit
+                                        className="animate-zoom-loop-short" // Apply short zoom loop animation
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
+                                    />
+                                </CardContent>
+                             </Card>
+                        </CarouselItem>
+                    ))}
+                    </CarouselContent>
+                     <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 hidden md:flex" />
+                     <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 hidden md:flex" />
+                </Carousel>
+           </AnimatedSection>
+
+          <Separator className="my-12 md:my-16" />
+
+          {/* Padres y Padrinos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <AnimatedSection animationType="slideInLeft" className="text-center">
+                  <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padre</h3> {/* Applied juliette font */}
+                  <div className="space-y-2 text-lg">
+                  {padres.map((nombre, index) => (
+                      <p key={index}>{nombre}</p>
+                  ))}
+                  </div>
+               </AnimatedSection>
+
+              <AnimatedSection animationType="slideInRight" className="text-center">
+                  <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padrino</h3> {/* Applied juliette font */}
+                   <div className="space-y-4">
+                        {padrinos.map((padrino, index) => (
+                             <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
+                        ))}
+                   </div>
+               </AnimatedSection>
+          </div>
+
+          <Separator className="my-12 md:my-16" />
+
+          {/* Itinerario */}
+           <AnimatedSection animationType="fade">
+              <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">tinerari</h3> {/* Applied juliette font */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                  {itinerary.map((item, index) => (
+                       <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
+                  ))}
+              </div>
+          </AnimatedSection>
+
+          <Separator className="my-12 md:my-16" />
+
+          {/* Ubicación */}
+           <AnimatedSection animationType="slideInUp"> {/* Using a different animation for variety */}
+              <Card className="text-center shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
+                   <CardHeader>
+                      <CardTitle className="text-3xl md:text-4xl font-semibold flex items-center justify-center gap-2">
+                          <MapPin className="h-8 w-8 text-primary" />
+                          Ubicación - Jardín Margaty {/* Updated Title */}
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 pt-6"> {/* Added pt-6 to CardContent for padding */}
+                      <p className="text-lg">{locationAddress}</p>
+                       <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
+                          <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
+                               Abrir en GPS
+                          </a>
+                       </Button>
+                  </CardContent>
+              </Card>
+           </AnimatedSection>
+
+
+          <Separator className="my-12 md:my-16" />
+
+           {/* Confirmación de Asistencia */}
+           <AnimatedSection animationType="fade">
+               <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">onfirma  tu  asistenci</h3> {/* Updated Confirmation title with glyphs */}
+
+               {isRejected ? (
+                  <Card className="bg-muted/50 p-6 rounded-lg shadow">
+                    <CardContent className="flex items-center gap-4 pt-6"> {/* Added pt-6 to CardContent for padding */}
+                      <XCircle className="h-8 w-8 text-destructive" />
+                      <p className="text-muted-foreground">Lamentamos no poder contar con tu presencia y agradecemos mucho tu respuesta, ya que con ello podremos organizar óptimamente los lugares.</p>
+                    </CardContent>
+                  </Card>
+               ) : confirmedGuests.length > 0 ? (
+                   <Card className="bg-secondary/10 p-6 rounded-lg shadow">
+                       <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-2xl text-primary">
+                              <CheckCircle className="h-6 w-6" />
+                              ¡Confirmación Recibida!
+                             </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-6"> {/* Added pt-6 to CardContent for padding */}
+                            <p className="mb-4">Gracias por confirmar. Has reservado lugar para:</p>
+                            <ul className="list-disc list-inside space-y-1">
+                               {confirmedGuests.map((guest, index) => (
+                                  <li key={index}>{guest}</li>
+                               ))}
+                            </ul>
+                        </CardContent>
+                   </Card>
+               ) : (
+                   <ConfirmationForm
+                      invitationId={invitationId}
+                      assignedPasses={assignedPasses}
+                      onConfirm={handleConfirmation}
+                   />
+               )}
+          </AnimatedSection>
+
+        </main>
+      </div> {/* Close max-w-2xl container */}
 
       <footer className="text-center py-8 bg-muted/50 mt-16">
           {/* Updated Footer Text */}
