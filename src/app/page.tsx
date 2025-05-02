@@ -27,15 +27,7 @@ const weddingDate = new Date('2025-07-26T14:00:00-06:00');
 const groomName = "Oscar"; // Replace with actual groom name
 const brideName = "Silvia"; // Replace with actual bride name
 
-// Updated photos array to use local images from /public/images/carousel
-// Ensure files Foto_1.jpg, Foto_2.jpg, etc. exist in public/images/carousel/
-const photos = [
-  { src: "/images/carousel/Foto_1.jpg", alt: "Oscar y Silvia Foto 1" },
-  { src: "/images/carousel/Foto_2.jpg", alt: "Oscar y Silvia Foto 2" },
-  { src: "/images/carousel/Foto_3.jpg", alt: "Oscar y Silvia Foto 3" },
-  { src: "/images/carousel/Foto_4.jpg", alt: "Oscar y Silvia Foto 4" },
-  { src: "/images/carousel/Foto_5.jpg", alt: "Oscar y Silvia Foto 5" },
-];
+// Removed photos array as it's no longer used for the mosaic
 
 const padres = [
   "MA. ARELI GONGORA OCAMPO",
@@ -351,8 +343,8 @@ export default function Home() {
                   {/* Row 1 */}
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src={photos[0].src}
-                          alt={photos[0].alt}
+                          src="/images/mosaic/Foto_1.jpg" // Updated path
+                          alt="Oscar y Silvia Mosaico 1" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
@@ -361,19 +353,19 @@ export default function Home() {
                   </div>
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src={photos[1].src}
-                          alt={photos[1].alt}
-                          fill
-                          style={{ objectFit: "cover" }}
-                          className="animate-zoom-loop-short"
-                          sizes="(max-width: 768px) 50vw, 33vw"
+                           src="/images/mosaic/Foto_2.jpg" // Updated path
+                           alt="Oscar y Silvia Mosaico 2" // Updated alt
+                           fill
+                           style={{ objectFit: "cover" }}
+                           className="animate-zoom-loop-short"
+                           sizes="(max-width: 768px) 50vw, 33vw"
                       />
                   </div>
                    {/* Row 2 - Full width */}
                   <div className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg"> {/* Adjust aspect ratio as needed */}
                       <Image
-                          src={photos[2].src}
-                          alt={photos[2].alt}
+                          src="/images/mosaic/Foto_3.jpg" // Updated path
+                          alt="Oscar y Silvia Mosaico 3" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
@@ -383,8 +375,8 @@ export default function Home() {
                   {/* Row 3 */}
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src={photos[3].src}
-                          alt={photos[3].alt}
+                          src="/images/mosaic/Foto_4.jpg" // Updated path
+                          alt="Oscar y Silvia Mosaico 4" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
@@ -393,8 +385,8 @@ export default function Home() {
                   </div>
                   <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                          src={photos[4].src}
-                          alt={photos[4].alt}
+                          src="/images/mosaic/Foto_5.jpg" // Updated path
+                          alt="Oscar y Silvia Mosaico 5" // Updated alt
                           fill
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
