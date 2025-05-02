@@ -47,10 +47,10 @@ const padres = [
 ];
 
 const padrinos = [
-  { icon: BookOpen, names: "Ricardo & Adriana", role: "Padrinos de Biblia" },
+  { icon: BookOpen, names: "Ricardo Garcia & Adriana Sotelo", role: "Padrinos de Biblia" },
   { icon: Gem, names: "Lorena & Eduardo", role: "Padrinos de Anillos" }, // Changed Ring to Gem
-  { icon: Diamond, names: "Roberto & Claudia", role: "Padrinos de Arras" },
-  { icon: HandHeart, names: "Polly & Minerva", role: "Padrinos de Lazo" },
+  { icon: Diamond, names: "Roberto de León & Claudia Valencia", role: "Padrinos de Arras" },
+  { icon: HandHeart, names: "Polly Lagunas & Minerva Gongora", role: "Padrinos de Lazo" },
   { icon: Sofa, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" }, // Added padrinos de cojines
 ];
 
@@ -423,7 +423,7 @@ export default function Home() {
 
          {/* Confirmación de Asistencia */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">Confirma tu Asistencia</h3> {/* Applied juliette font */}
+             <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">onfirma  tu  asistenci</h3> {/* Updated Confirmation title with glyphs */}
 
              {isRejected ? (
                 <Card className="bg-muted/50 p-6 rounded-lg shadow">
