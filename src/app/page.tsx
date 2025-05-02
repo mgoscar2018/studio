@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 // Replaced Ring with Gem as Ring does not exist in lucide-react
-import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; // Added Volume icons
+// Added Sofa icon for cojines
+import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX, Sofa } from 'lucide-react'; // Added Volume icons and Sofa
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay"; // Import Autoplay plugin
 import Countdown from '@/components/invitation/Countdown';
@@ -39,17 +40,18 @@ const photos = [
 ];
 
 const padres = [
-  "MA. ARACELI GONGORA",
-  "SILVIANO GARCIA X.",
+  "MA. ARELI GONGORA OCAMPO",
+  "SILVIANO GARCIA AYALA",
   "ELIA GOMEZ MORENO",
   "MARIO MIRANDA SALGADO"
 ];
 
 const padrinos = [
-  { icon: BookOpen, names: "Sandra & Pedro", role: "Padrinos de Biblia" },
+  { icon: BookOpen, names: "Ricardo & Adriana", role: "Padrinos de Biblia" },
   { icon: Gem, names: "Lorena & Eduardo", role: "Padrinos de Anillos" }, // Changed Ring to Gem
-  { icon: Diamond, names: "Fernanda & Luis", role: "Padrinos de Aras" },
-  { icon: HandHeart, names: "María & Daniel", role: "Padrinos de Lazo" },
+  { icon: Diamond, names: "Roberto & Claudia", role: "Padrinos de Arras" },
+  { icon: HandHeart, names: "Polly & Minerva", role: "Padrinos de Lazo" },
+  { icon: Sofa, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" }, // Added padrinos de cojines
 ];
 
 const itinerary = [
@@ -254,7 +256,7 @@ export default function Home() {
           >
             {/* Increased responsive font sizes, removed font-bold */}
             <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta text-white opacity-80 text-center select-none w-[85vw] leading-none">
-               Silvia &amp; {groomName} {/* Used constants directly */}
+               {brideName} &amp; {groomName} {/* Used constants directly */}
             </h1>
         </div>
         <div className="absolute inset-0 bg-black bg-opacity-30"></div> {/* Overlay */}
@@ -421,7 +423,7 @@ export default function Home() {
 
          {/* Confirmación de Asistencia */}
          <AnimatedSection animationType="fade">
-             <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">&#x{28}onfirma tu asistencia</h3> {/* Applied juliette font */}
+             <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">Confirma tu Asistencia</h3> {/* Applied juliette font */}
 
              {isRejected ? (
                 <Card className="bg-muted/50 p-6 rounded-lg shadow">
