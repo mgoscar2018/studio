@@ -189,13 +189,14 @@ html {
   animation: zoomLoopShort 5s ease-in-out infinite; /* 5s total duration */
 }
 
-
-/* Carousel Fade-in Animation */
+/* Removed Carousel Fade-in Animation as it's no longer needed */
+/*
 @keyframes carouselFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
 .animate-carousel-fade-in {
-    animation: carouselFadeIn 1.5s ease-out forwards; /* Duration for fade-in */
+    animation: carouselFadeIn 1.5s ease-out forwards;
 }
+*/

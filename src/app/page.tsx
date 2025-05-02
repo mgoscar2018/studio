@@ -10,8 +10,6 @@ import { Separator } from '@/components/ui/separator';
 // Replaced Ring with Gem as Ring does not exist in lucide-react
 // Added Sofa icon for cojines
 import { Play, BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX, Sofa } from 'lucide-react'; // Added Volume icons and Sofa
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay"; // Import Autoplay plugin
 import Countdown from '@/components/invitation/Countdown';
 import ItineraryItem from '@/components/invitation/ItineraryItem';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
@@ -346,45 +344,66 @@ export default function Home() {
 
           <Separator className="my-12 md:my-16" />
 
-          {/* Carrousel de Fotos */}
-           <AnimatedSection animationType="fade">
-               <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3> {/* Applied juliette font */}
-                <Carousel
-                    opts={{
-                    align: "start",
-                    loop: true,
-                    }}
-                    plugins={[ // Add the Autoplay plugin
-                        Autoplay({
-                            delay: 5000, // 5 seconds delay
-                            stopOnInteraction: false, // Don't stop on manual interaction
-                            stopOnMouseEnter: true, // Pause on hover
-                        }),
-                    ]}
-                    className="w-full max-w-4xl mx-auto"
-                >
-                    <CarouselContent>
-                    {photos.map((photo, index) => (
-                        <CarouselItem key={index} className="opacity-0 animate-carousel-fade-in"> {/* Added fade-in animation */}
-                             <Card className="overflow-hidden border-none shadow-lg">
-                                <CardContent className="p-0 aspect-video relative">
-                                    <Image
-                                        src={photo.src} // Path relative to /public
-                                        alt={photo.alt}
-                                        fill // Use fill for responsive layout
-                                        style={{ objectFit: "cover" }} // Use style for objectFit
-                                        className="animate-zoom-loop-short" // Apply short zoom loop animation
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Example sizes for optimization
-                                    />
-                                </CardContent>
-                             </Card>
-                        </CarouselItem>
-                    ))}
-                    </CarouselContent>
-                     <CarouselPrevious className="absolute left-[-50px] top-1/2 -translate-y-1/2 hidden md:flex" />
-                     <CarouselNext className="absolute right-[-50px] top-1/2 -translate-y-1/2 hidden md:flex" />
-                </Carousel>
-           </AnimatedSection>
+          {/* Nuestros Momentos - Image Mosaic */}
+          <AnimatedSection animationType="fade">
+              <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3>
+              <div className="grid grid-cols-2 gap-2 md:gap-4">
+                  {/* Row 1 */}
+                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                      <Image
+                          src={photos[0].src}
+                          alt={photos[0].alt}
+                          fill
+                          style={{ objectFit: "cover" }}
+                          className="animate-zoom-loop-short"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                  </div>
+                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                      <Image
+                          src={photos[1].src}
+                          alt={photos[1].alt}
+                          fill
+                          style={{ objectFit: "cover" }}
+                          className="animate-zoom-loop-short"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                  </div>
+                   {/* Row 2 - Full width */}
+                  <div className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg"> {/* Adjust aspect ratio as needed */}
+                      <Image
+                          src={photos[2].src}
+                          alt={photos[2].alt}
+                          fill
+                          style={{ objectFit: "cover" }}
+                          className="animate-zoom-loop-short"
+                           sizes="(max-width: 768px) 100vw, 66vw"
+                      />
+                  </div>
+                  {/* Row 3 */}
+                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                      <Image
+                          src={photos[3].src}
+                          alt={photos[3].alt}
+                          fill
+                          style={{ objectFit: "cover" }}
+                          className="animate-zoom-loop-short"
+                          sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                  </div>
+                  <div className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                      <Image
+                          src={photos[4].src}
+                          alt={photos[4].alt}
+                          fill
+                          style={{ objectFit: "cover" }}
+                          className="animate-zoom-loop-short"
+                           sizes="(max-width: 768px) 50vw, 33vw"
+                      />
+                  </div>
+              </div>
+          </AnimatedSection>
+
 
           <Separator className="my-12 md:my-16" />
 
