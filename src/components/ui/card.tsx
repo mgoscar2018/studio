@@ -30,37 +30,41 @@ const CardHeader = React.forwardRef<
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
+  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLHeadingElement to HTMLDivElement
 >(({ className, ...props }, ref) => (
+  // Changed from h3 to div to avoid semantic issues if used inside another heading
   <div
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "text-2xl font-semibold leading-none tracking-tight", // Kept styling classes
       className
     )}
-    {...props}
+    {...props} // Spread remaining props
   />
 ))
 CardTitle.displayName = "CardTitle"
 
+
 const CardDescription = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
+  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
+  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLParagraphElement to HTMLDivElement
 >(({ className, ...props }, ref) => (
+  // Changed from p to div
   <div
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
+    className={cn("text-sm text-muted-foreground", className)} // Kept styling classes
+    {...props} // Spread remaining props
   />
 ))
 CardDescription.displayName = "CardDescription"
+
 
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  <div ref={ref} className={cn("p-6", className)} {...props} /> // Removed pt-0
 ))
 CardContent.displayName = "CardContent"
 

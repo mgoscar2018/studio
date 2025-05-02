@@ -261,8 +261,16 @@ export default function Home() {
 
              {/* "¡Nos casamos!" Section Moved Here */}
             <AnimatedSection animationType="fade" className="delay-500"> {/* Added delay */}
-              <div className="space-y-2 md:space-y-3">
-                  <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta">¡Nos casamos!</h2> {/* Smaller font size */}
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta">¡Nos casamos!</h2> {/* Smaller font size */}
+            </AnimatedSection>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-12 md:px-8 md:py-16 space-y-16 md:space-y-24">
+
+         {/* Date Section - Moved Outside Header */}
+         <AnimatedSection animationType="fade" className="text-center mb-16">
+             <div className="space-y-2 md:space-y-3">
                   <p className="text-xl md:text-2xl">Sábado</p>
                   <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-3 md:p-4 shadow-md"> {/* Adjusted padding, slightly transparent bg */}
                       <div className="text-5xl md:text-6xl font-bold">26</div>
@@ -270,17 +278,13 @@ export default function Home() {
                   </div>
                   <p className="text-xl md:text-2xl mt-1 md:mt-2">2025</p>
               </div>
-            </AnimatedSection>
-        </div>
-      </header>
+         </AnimatedSection>
 
-      <main className="container mx-auto px-4 py-12 md:px-8 md:py-16 space-y-16 md:space-y-24">
-         {/* Title section removed from here */}
 
         {/* Mensaje de los Novios */}
          <AnimatedSection animationType="slideInRight">
             <Card className="shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
-                <CardContent>
+                <CardContent className="pt-6"> {/* Added pt-6 to CardContent for padding */}
                 <p className="text-lg md:text-xl text-center italic">
                     "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
                 </p>
@@ -406,7 +410,7 @@ export default function Home() {
                         Ubicación - Jardín Margaty {/* Updated Title */}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-4 pt-6"> {/* Added pt-6 to CardContent for padding */}
                     <p className="text-lg">{locationAddress}</p>
                      <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
                         <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
@@ -426,7 +430,7 @@ export default function Home() {
 
              {isRejected ? (
                 <Card className="bg-muted/50 p-6 rounded-lg shadow">
-                  <CardContent className="flex items-center gap-4">
+                  <CardContent className="flex items-center gap-4 pt-6"> {/* Added pt-6 to CardContent for padding */}
                     <XCircle className="h-8 w-8 text-destructive" />
                     <p className="text-muted-foreground">Lamentamos no poder contar con tu presencia y agradecemos mucho tu respuesta, ya que con ello podremos organizar óptimamente los lugares.</p>
                   </CardContent>
@@ -439,7 +443,7 @@ export default function Home() {
                             ¡Confirmación Recibida!
                            </CardTitle>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="pt-6"> {/* Added pt-6 to CardContent for padding */}
                           <p className="mb-4">Gracias por confirmar. Has reservado lugar para:</p>
                           <ul className="list-disc list-inside space-y-1">
                              {confirmedGuests.map((guest, index) => (
