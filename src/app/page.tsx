@@ -264,7 +264,7 @@ export default function Home() {
         {/* Título de la Boda */}
          <AnimatedSection animationType="slideInLeft">
           <div className="text-center space-y-4">
-              <h2 className="text-5xl md:text-7xl font-playfair">¡Nos casamos!</h2>
+              <h2 className="text-5xl md:text-7xl font-julietta">¡Nos casamos!</h2> {/* Apply custom font */}
               <p className="text-2xl md:text-3xl">Sábado</p>
               <div className="inline-block bg-primary text-primary-foreground rounded-lg p-4 md:p-6 shadow-md">
                   <div className="text-6xl md:text-8xl font-bold">26</div>
