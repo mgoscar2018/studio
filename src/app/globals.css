@@ -200,3 +200,18 @@ html {
     animation: carouselFadeIn 1.5s ease-out forwards;
 }
 */
+
+/* Removed torn paper mask styles as they are no longer used */
+/*
+.torn-paper-mask {
+    mask-image: url('/images/mask-torn-paper.svg');
+    mask-size: cover;
+    mask-repeat: no-repeat;
+    mask-position: bottom center;
+    -webkit-mask-image: url('/images/mask-torn-paper.svg');
+    -webkit-mask-size: cover;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: bottom center;
+    background-color: hsl(var(--background));
+}
+*/

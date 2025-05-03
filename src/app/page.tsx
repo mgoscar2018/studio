@@ -15,7 +15,6 @@ import ItineraryItem from '@/components/invitation/ItineraryItem';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
 import ConfirmationForm from '@/components/invitation/ConfirmationForm';
 import AnimatedSection from '@/components/invitation/AnimatedSection';
-// Mock function, replace with actual data fetching
 // Import functions for data fetching
 import { getConfirmation, submitConfirmation, getAssignedPasses } from '@/services/music';
 
@@ -232,7 +231,7 @@ export default function Home() {
     <div className="min-h-screen text-foreground overflow-x-hidden">
       {/* Portada Section - Height changed to 70vh */}
        <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center">
-           {/* Background Image with Mask */}
+           {/* Background Image */}
            <div className="absolute inset-0 z-0">
                 <Image
                   src="/images/Portada_2.jpeg"
@@ -242,21 +241,6 @@ export default function Home() {
                   quality={90}
                   priority
                   className="animate-zoom-loop"
-                />
-                {/* Apply the torn paper mask */}
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        maskImage: 'url(/images/mask-torn-paper.svg)',
-                        maskSize: 'cover', // Adjust as needed ('cover', 'contain', '100% 100%')
-                        maskRepeat: 'no-repeat',
-                         maskPosition: 'bottom center', // Position the mask at the bottom
-                        WebkitMaskImage: 'url(/images/mask-torn-paper.svg)', // For Safari compatibility
-                        WebkitMaskSize: 'cover',
-                        WebkitMaskRepeat: 'no-repeat',
-                         WebkitMaskPosition: 'bottom center',
-                        backgroundColor: 'hsl(var(--background))', // Match the page background
-                    }}
                 />
            </div>
 
