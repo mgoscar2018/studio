@@ -249,7 +249,8 @@ export default function Home() {
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6">
                      {/* Adjusted text size to text-7xl to better fit container */}
-                     <h1 className="text-[15vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-7xl font-julietta opacity-90 select-none leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)] w-[90vw] max-w-full">
+                     {/* Use viewport width for responsive text size, clamped with max */}
+                     <h1 className="text-[15vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-7xl font-julietta opacity-90 select-none leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)] w-[90%] max-w-full">
                          SilviOscar
                     </h1>
                  </div>
@@ -391,7 +392,8 @@ export default function Home() {
           <Separator className="my-12 md:my-16" />
 
           {/* Padres y Padrinos */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          {/* Changed md:grid-cols-2 to grid-cols-1 to stack vertically */}
+          <div className="grid grid-cols-1 gap-12">
               <AnimatedSection animationType="slideInLeft" className="text-center">
                   <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padre</h3> {/* Applied juliette font */}
                   <div className="space-y-2 text-lg">
