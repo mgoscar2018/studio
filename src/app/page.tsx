@@ -17,6 +17,7 @@ import ConfirmationForm from '@/components/invitation/ConfirmationForm';
 import AnimatedSection from '@/components/invitation/AnimatedSection';
 // Import functions for data fetching
 import { getConfirmation, submitConfirmation, getAssignedPasses } from '@/services/music';
+import { cn } from '@/lib/utils'; // Import cn utility
 
 
 // Placeholder data - Replace with actual data fetching logic
@@ -265,14 +266,22 @@ export default function Home() {
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6 mt-4"> {/* Added mt-4 */}
                      {/* Adjusted text size using clamp with rem units for better scaling within the container */}
-                     <h1 className="text-[clamp(2.5rem,12vw,4rem)] font-julietta opacity-90 select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full">
+                     <h1 className={cn(
+                         "text-6xl font-julietta select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full",
+                         !isPortrait && "opacity-50" // Add opacity when landscape
+                     )}>
                          SilviOscar
                     </h1>
                  </div>
 
                  {/* "¡Nos casamos!" Section - Bottom */}
                  <AnimatedSection animationType="fade" className="delay-500 mb-4"> {/* Added mb-4 */}
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_10px_rgba(0,0,0,0.8)]">¡Nos casamos!</h2>
+                    <h2 className={cn(
+                        "text-4xl font-julietta [text-shadow:0_0_10px_rgba(0,0,0,0.9)]",
+                         !isPortrait && "opacity-50" // Add opacity when landscape
+                    )}>
+                         ¡Nos casamos!
+                    </h2>
                  </AnimatedSection>
             </div>
        </header>
