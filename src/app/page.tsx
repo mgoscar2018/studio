@@ -248,8 +248,8 @@ export default function Home() {
             <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4"> {/* Changed text-primary to text-white */}
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6">
-                     {/* Adjusted text size for better fit on various screens */}
-                     <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">
+                     {/* Adjusted text size for better fit on various screens. Removed vw units and w-[85vw] */}
+                     <h1 className="text-8xl font-julietta opacity-90 select-none leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">
                          SilviOscar
                     </h1>
                  </div>
