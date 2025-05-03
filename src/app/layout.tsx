@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Playfair_Display, Lato } from 'next/font/google';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster" // Import Toaster
+import { cn } from '@/lib/utils'; // Import cn utility
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -28,8 +29,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${playfair.variable} ${lato.variable} font-lato antialiased`}>
-        {children}
+      {/* Apply background to body to fill space outside the main container */}
+      <body className={cn(
+        `${playfair.variable} ${lato.variable} font-lato antialiased`,
+        "bg-muted/30" // Light gray background for the body
+      )}>
+        {/* Main container to simulate mobile viewport */}
+        <div className="relative mx-auto flex min-h-screen max-w-md flex-col overflow-hidden bg-background shadow-xl">
+          {children}
+        </div>
         <Toaster /> {/* Add Toaster here */}
       </body>
     </html>

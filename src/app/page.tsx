@@ -228,7 +228,8 @@ export default function Home() {
    }
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    // Root container - no width constraint needed here anymore
+    <div className="min-h-screen text-foreground overflow-x-hidden">
       {/* Portada Section - Height changed to 70vh */}
        <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center">
            {/* Background Image with Mask */}
@@ -263,8 +264,9 @@ export default function Home() {
             <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4"> {/* Changed text-primary to text-white */}
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6">
-                    <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)]"> {/* Changed shadow to black */}
-                        SilviOscar
+                     {/* Adjusted text size for better fit on various screens */}
+                     <h1 className="text-[min(18vw,10rem)] md:text-[min(15vw,12rem)] lg:text-[min(14vw,14rem)] xl:text-[min(12vw,16rem)] 2xl:text-[18rem] font-julietta opacity-90 select-none w-[85vw] leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">
+                         SilviOscar
                     </h1>
                  </div>
 
@@ -276,9 +278,8 @@ export default function Home() {
        </header>
 
 
-      {/* Constrain main content width on larger screens */}
-      <div className="container mx-auto px-4 md:px-8 max-w-2xl"> {/* Added max-w-2xl */}
-        <main className="py-12 md:py-16 space-y-16 md:space-y-24">
+      {/* Remove container and max-width from here, it's handled in layout */}
+      <main className="px-4 md:px-8 py-12 md:py-16 space-y-16 md:space-y-24">
 
            {/* Date Section - Moved Outside Header */}
            <AnimatedSection animationType="fade" className="text-center mb-16">
@@ -349,6 +350,7 @@ export default function Home() {
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
                           sizes="(max-width: 768px) 50vw, 33vw"
+                          data-ai-hint="pareja abrazados playa"
                       />
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
@@ -359,6 +361,7 @@ export default function Home() {
                            style={{ objectFit: "cover" }}
                            className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 50vw, 33vw"
+                           data-ai-hint="pareja sonriendo parque"
                       />
                   </AnimatedSection>
                    {/* Row 2 - Full width */}
@@ -370,6 +373,7 @@ export default function Home() {
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 100vw, 66vw"
+                           data-ai-hint="pareja caminando ciudad"
                       />
                   </AnimatedSection>
                   {/* Row 3 */}
@@ -378,9 +382,10 @@ export default function Home() {
                           src="/images/mosaic/M4.jpg" // Updated path
                           alt="Oscar y Silvia Mosaico 4" // Updated alt
                           fill
-                          style={{ objectFit: "cover" }}
+                           style={{ objectFit: "cover", objectPosition: "top" }} // Adjust object position
                           className="animate-zoom-loop-short"
                           sizes="(max-width: 768px) 50vw, 33vw"
+                          data-ai-hint="pareja riendo atardecer"
                       />
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
@@ -391,6 +396,7 @@ export default function Home() {
                           style={{ objectFit: "cover" }}
                           className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 50vw, 33vw"
+                           data-ai-hint="detalle manos anillos"
                       />
                   </AnimatedSection>
               </div>
@@ -495,7 +501,7 @@ export default function Home() {
           </AnimatedSection>
 
         </main>
-      </div> {/* Close max-w-2xl container */}
+
 
       <footer className="text-center py-8 bg-muted/50 mt-16">
           {/* Updated Footer Text */}
