@@ -245,18 +245,18 @@ export default function Home() {
            </div>
 
             {/* Content Container */}
-            <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4"> {/* Changed text-primary to text-white */}
+            <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4">
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6">
                      {/* Adjusted text size to text-7xl to better fit container */}
-                     <h1 className="text-7xl font-julietta opacity-90 select-none leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">
+                     <h1 className="text-[15vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-7xl font-julietta opacity-90 select-none leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)] w-[90vw] max-w-full">
                          SilviOscar
                     </h1>
                  </div>
 
                  {/* "¡Nos casamos!" Section - Bottom */}
                  <AnimatedSection animationType="fade" className="delay-500">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">¡Nos casamos!</h2> {/* Changed shadow to black */}
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">¡Nos casamos!</h2>
                  </AnimatedSection>
             </div>
        </header>
@@ -292,7 +292,8 @@ export default function Home() {
           <Separator className="my-12 md:my-16" />
 
           {/* Música y Cuenta Regresiva */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Changed grid-cols-2 to grid-cols-1 to stack items vertically */}
+          <div className="grid grid-cols-1 gap-12 items-center">
              <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-4">
                   <h3 className="text-2xl md:text-3xl font-semibold mb-4">Música de Fondo</h3>
                   <Button
