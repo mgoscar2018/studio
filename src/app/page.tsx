@@ -66,7 +66,11 @@ export default function Home() {
   // Handle screen orientation changes
   useEffect(() => {
     const handleResize = () => {
-      setIsPortrait(window.innerHeight > window.innerWidth);
+      // Use the container width if available, otherwise fallback to window width
+      // This helps determine orientation relative to the simulated mobile view
+      const containerWidth = document.querySelector('.mx-auto.max-w-md')?.clientWidth ?? window.innerWidth;
+      const containerHeight = window.innerHeight; // Use full window height
+      setIsPortrait(containerHeight > containerWidth);
     };
     window.addEventListener('resize', handleResize);
     handleResize(); // Check on initial load
@@ -245,28 +249,29 @@ export default function Home() {
            {/* Background Image */}
            <div className="absolute inset-0 z-0">
                 <Image
+                  // Use the isPortrait state to switch between images
                   src={isPortrait ? "/images/Portada_2.jpeg" : "/images/Portada_h.jpg"}
                   alt="Portada de Boda Oscar y Silvia"
                   fill
                   style={{ objectFit: 'cover' }}
                   quality={90}
-                  priority
-                  className="animate-zoom-loop"
+                  priority // Load this image first
+                  className="animate-zoom-loop" // Apply zoom animation
                 />
            </div>
 
             {/* Content Container */}
             <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4">
                  {/* Names - Top */}
-                 <div className="flex flex-col items-center space-y-4 md:space-y-6">
-                     {/* Adjusted text size using vw units clamped with a max size */}
-                     <h1 className="text-[clamp(2rem,18vw,6rem)] font-julietta opacity-90 select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full">
+                 <div className="flex flex-col items-center space-y-4 md:space-y-6 mt-4"> {/* Added mt-4 */}
+                     {/* Adjusted text size using clamp with rem units for better scaling within the container */}
+                     <h1 className="text-[clamp(2.5rem,12vw,4rem)] font-julietta opacity-90 select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full">
                          SilviOscar
                     </h1>
                  </div>
 
                  {/* "¡Nos casamos!" Section - Bottom */}
-                 <AnimatedSection animationType="fade" className="delay-500">
+                 <AnimatedSection animationType="fade" className="delay-500 mb-4"> {/* Added mb-4 */}
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_10px_rgba(0,0,0,0.8)]">¡Nos casamos!</h2>
                  </AnimatedSection>
             </div>
