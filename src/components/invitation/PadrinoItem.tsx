@@ -10,13 +10,14 @@ interface PadrinoItemProps {
 
 const PadrinoItem: React.FC<PadrinoItemProps> = ({ icon: Icon, names, role }) => {
   return (
-    <div className="flex items-center space-x-4 p-3 bg-background rounded-lg shadow-sm hover:bg-secondary/5 transition-colors duration-200">
+    // Reduced padding from p-3 to p-2 and space-x-4 to space-x-3
+    <div className="flex items-center space-x-3 p-2 bg-background rounded-lg shadow-sm hover:bg-secondary/5 transition-colors duration-200">
       <div className="flex-shrink-0 text-primary">
-        <Icon className="h-6 w-6 md:h-7 md:w-7" />
+        <Icon className="h-5 w-5 md:h-6 md:w-6" /> {/* Slightly reduced icon size */}
       </div>
       <div className="text-left">
-        <p className="font-semibold text-base md:text-lg">{names}</p>
-        <p className="text-sm md:text-base text-muted-foreground">{role}</p>
+        <p className="font-semibold text-sm md:text-base">{names}</p>
+        <p className="text-xs md:text-sm text-muted-foreground">{role}</p>
       </div>
     </div>
   );

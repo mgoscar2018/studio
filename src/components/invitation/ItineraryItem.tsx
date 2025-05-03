@@ -11,11 +11,12 @@ interface ItineraryItemProps {
 
 const ItineraryItem: React.FC<ItineraryItemProps> = ({ icon: Icon, time, description }) => {
   return (
-    <Card className="text-center p-4 md:p-6 shadow-md border-none bg-background transition-transform hover:scale-105 duration-300">
-      <CardContent className="flex flex-col items-center space-y-3">
-        <Icon className="h-10 w-10 md:h-12 md:w-12 text-primary mb-2" />
-        <p className="text-lg md:text-xl font-semibold">{time}</p>
-        <p className="text-base md:text-lg text-muted-foreground">{description}</p>
+    // Reduced padding from p-4 md:p-6 to p-4
+    <Card className="text-center p-4 shadow-md border-none bg-background transition-transform hover:scale-105 duration-300">
+      <CardContent className="flex flex-col items-center space-y-2"> {/* Reduced space-y */}
+        <Icon className="h-8 w-8 md:h-10 md:w-10 text-primary mb-1" /> {/* Reduced icon size and margin */}
+        <p className="text-base md:text-lg font-semibold">{time}</p>
+        <p className="text-sm md:text-base text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
   );

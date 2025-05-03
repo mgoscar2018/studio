@@ -60,7 +60,18 @@ export default function Home() {
   const [isRejected, setIsRejected] = useState<boolean>(false); // State for rejection status
   const [assignedPasses, setAssignedPasses] = useState<number>(0); // State for assigned passes
   const [isLoading, setIsLoading] = useState(true); // Loading state for initial data fetch
+  const [isPortrait, setIsPortrait] = useState(true); // State for orientation
   const audioRef = useRef<HTMLAudioElement | null>(null); // Ref to manage the audio element directly
+
+  // Handle screen orientation changes
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Check on initial load
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
 
   // Combined useEffect for fetching initial data and setting up audio
@@ -234,7 +245,7 @@ export default function Home() {
            {/* Background Image */}
            <div className="absolute inset-0 z-0">
                 <Image
-                  src="/images/Portada_2.jpeg"
+                  src={isPortrait ? "/images/Portada_2.jpeg" : "/images/Portada_h.jpg"}
                   alt="Portada de Boda Oscar y Silvia"
                   fill
                   style={{ objectFit: 'cover' }}
@@ -248,26 +259,26 @@ export default function Home() {
             <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4">
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6">
-                     {/* Adjusted text size to text-7xl to better fit container */}
-                     {/* Use viewport width for responsive text size, clamped with max */}
-                     <h1 className="text-[15vw] sm:text-[10vw] md:text-[8vw] lg:text-[6vw] xl:text-7xl font-julietta opacity-90 select-none leading-none [text-shadow:0_0_8px_rgba(0,0,0,0.7)] w-[90%] max-w-full">
+                     {/* Adjusted text size using vw units clamped with a max size */}
+                     <h1 className="text-[clamp(2rem,18vw,6rem)] font-julietta opacity-90 select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full">
                          SilviOscar
                     </h1>
                  </div>
 
                  {/* "¡Nos casamos!" Section - Bottom */}
                  <AnimatedSection animationType="fade" className="delay-500">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_8px_rgba(0,0,0,0.7)]">¡Nos casamos!</h2>
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-julietta [text-shadow:0_0_10px_rgba(0,0,0,0.8)]">¡Nos casamos!</h2>
                  </AnimatedSection>
             </div>
        </header>
 
 
       {/* Remove container and max-width from here, it's handled in layout */}
-      <main className="px-4 md:px-8 py-12 md:py-16 space-y-16 md:space-y-24">
+      {/* Reduced vertical spacing */}
+      <main className="px-4 md:px-8 py-12 space-y-12 md:space-y-16">
 
            {/* Date Section - Moved Outside Header */}
-           <AnimatedSection animationType="fade" className="text-center mb-16">
+           <AnimatedSection animationType="fade" className="text-center mb-12"> {/* Reduced bottom margin */}
                <div className="space-y-2 md:space-y-3">
                     <p className="text-xl md:text-2xl">Sábado</p>
                     <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-3 md:p-4 shadow-md"> {/* Adjusted padding, slightly transparent bg */}
@@ -290,11 +301,11 @@ export default function Home() {
               </Card>
            </AnimatedSection>
 
-          <Separator className="my-12 md:my-16" />
+          <Separator className="my-8 md:my-12" /> {/* Reduced separator margin */}
 
           {/* Música y Cuenta Regresiva */}
           {/* Changed grid-cols-2 to grid-cols-1 to stack items vertically */}
-          <div className="grid grid-cols-1 gap-12 items-center">
+          <div className="grid grid-cols-1 gap-8 items-center"> {/* Reduced gap */}
              <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-4">
                   <h3 className="text-2xl md:text-3xl font-semibold mb-4">Música de Fondo</h3>
                   <Button
@@ -321,11 +332,11 @@ export default function Home() {
               </AnimatedSection>
           </div>
 
-          <Separator className="my-12 md:my-16" />
+          <Separator className="my-8 md:my-12" /> {/* Reduced separator margin */}
 
           {/* Nuestros Momentos - Image Mosaic */}
           <AnimatedSection animationType="fade">
-              <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">uestros momento</h3>
+              <h3 className="text-5xl font-julietta text-center mb-6 text-ring">uestros momento</h3> {/* Reduced bottom margin */}
               <div className="grid grid-cols-2 gap-2 md:gap-4">
                   {/* Row 1 */}
                   <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
@@ -389,13 +400,13 @@ export default function Home() {
           </AnimatedSection>
 
 
-          <Separator className="my-12 md:my-16" />
+          <Separator className="my-8 md:my-12" /> {/* Reduced separator margin */}
 
           {/* Padres y Padrinos */}
           {/* Changed md:grid-cols-2 to grid-cols-1 to stack vertically */}
-          <div className="grid grid-cols-1 gap-12">
+          <div className="grid grid-cols-1 gap-8"> {/* Reduced gap */}
               <AnimatedSection animationType="slideInLeft" className="text-center">
-                  <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padre</h3> {/* Applied juliette font */}
+                  <h3 className="text-5xl font-julietta mb-4 text-ring">uestros Padre</h3> {/* Reduced bottom margin */}
                   <div className="space-y-2 text-lg">
                   {padres.map((nombre, index) => (
                       <p key={index}>{nombre}</p>
@@ -404,7 +415,7 @@ export default function Home() {
                </AnimatedSection>
 
               <AnimatedSection animationType="slideInRight" className="text-center">
-                  <h3 className="text-5xl md:text-6xl font-julietta mb-6 text-ring">uestros Padrino</h3> {/* Applied juliette font */}
+                  <h3 className="text-5xl font-julietta mb-4 text-ring">uestros Padrino</h3> {/* Reduced bottom margin */}
                    <div className="space-y-4">
                         {padrinos.map((padrino, index) => (
                              <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
@@ -413,19 +424,19 @@ export default function Home() {
                </AnimatedSection>
           </div>
 
-          <Separator className="my-12 md:my-16" />
+          <Separator className="my-8 md:my-12" /> {/* Reduced separator margin */}
 
           {/* Itinerario */}
            <AnimatedSection animationType="fade">
-              <h3 className="text-5xl md:text-6xl font-julietta text-center mb-8 text-ring">tinerari</h3> {/* Applied juliette font */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <h3 className="text-5xl font-julietta text-center mb-6 text-ring">tinerari</h3> {/* Reduced bottom margin */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"> {/* Reduced gap */}
                   {itinerary.map((item, index) => (
                        <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
                   ))}
               </div>
           </AnimatedSection>
 
-          <Separator className="my-12 md:my-16" />
+          <Separator className="my-8 md:my-12" /> {/* Reduced separator margin */}
 
           {/* Ubicación */}
            <AnimatedSection animationType="slideInUp"> {/* Using a different animation for variety */}
@@ -448,11 +459,11 @@ export default function Home() {
            </AnimatedSection>
 
 
-          <Separator className="my-12 md:my-16" />
+          <Separator className="my-8 md:my-12" /> {/* Reduced separator margin */}
 
            {/* Confirmación de Asistencia */}
            <AnimatedSection animationType="fade">
-               <h3 className="text-4xl md:text-5xl font-julietta text-center mb-8 text-ring">onfirma  tu  asistenci</h3> {/* Updated Confirmation title with glyphs */}
+               <h3 className="text-4xl font-julietta text-center mb-6 text-ring">onfirma  tu  asistenci</h3> {/* Reduced bottom margin */}
 
                {isRejected ? (
                   <Card className="bg-muted/50 p-6 rounded-lg shadow">
@@ -490,12 +501,10 @@ export default function Home() {
         </main>
 
 
-      <footer className="text-center py-8 bg-muted/50 mt-16">
+      <footer className="text-center py-8 bg-muted/50 mt-12"> {/* Reduced top margin */}
           {/* Updated Footer Text */}
           <p className="text-muted-foreground">Silvia &amp; Oscar - 26 julio 2025</p>
       </footer>
     </div>
   );
 }
-
-    
