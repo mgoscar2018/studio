@@ -148,7 +148,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {assignedPasses > 0 ? (
               <div className="space-y-4">
-                <Label className="text-lg">Nombre(s) de los asistentes ({fields.length}/{assignedPasses} pases):</Label>
+                <Label className="text-lg">Nombre de los asistentes:</Label> {/* Changed label text */}
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
                     <Input
