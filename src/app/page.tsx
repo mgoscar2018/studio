@@ -290,7 +290,7 @@ function InvitationPageContent() {
                  {/* Names - Top (or bottom in landscape) */}
                  <div className={cn("flex flex-col items-center space-y-4 md:space-y-6", isPortrait ? "mt-4" : "mb-4")}> {/* Adjust margin based on orientation */}
                      <h1 className={cn(
-                         "text-6xl font-julietta select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full", // Ensure width constraint
+                         "text-6xl font-julietta text-white select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full", // Ensure width constraint and explicit text-white
                          !isPortrait && "opacity-50" // Add opacity when landscape
                      )}>
                          SilviOscar
@@ -300,7 +300,7 @@ function InvitationPageContent() {
                  {/* "¡Nos casamos!" Section - Bottom (or just above names in landscape) */}
                  <AnimatedSection animationType="fade" className="delay-500 mb-4">
                     <h2 className={cn(
-                        "text-4xl font-julietta [text-shadow:0_0_10px_rgba(0,0,0,0.9)]",
+                        "text-4xl font-julietta text-white [text-shadow:0_0_10px_rgba(0,0,0,0.9)]", // Explicit text-white
                          !isPortrait && "opacity-50" // Add opacity when landscape
                     )}>
                          ¡Nos casamos!
