@@ -31,7 +31,7 @@ const padres = [
 
 const padrinos = [
   { icon: BookOpen, names: "Ricardo Garcia & Adriana Sotelo", role: "Padrinos de Biblia" },
-  { icon: Gem, names: "Lorena & Eduardo", role: "Padrinos de Anillos" },
+  { icon: Gem, names: "Tomás Castillo & Aracely Ortega", role: "Padrinos de Anillos" },
   { icon: Diamond, names: "Roberto de León & Claudia Valencia", role: "Padrinos de Arras" },
   { icon: HandHeart, names: "Polly Lagunas & Minerva Gongora", role: "Padrinos de Lazo" },
   { icon: Sofa, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" },
