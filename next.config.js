@@ -1,7 +1,5 @@
-
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -21,15 +19,24 @@ const nextConfig: NextConfig = {
   },
   // Add webpack configuration to handle Node.js modules on the client-side
   webpack: (config, { isServer }) => {
-    // Exclude 'child_process' from the client bundle
+    // Exclude server-only modules from the client bundle
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        child_process: false, // Provide an empty mock for child_process
-        fs: false, // Also common to exclude fs if needed by other server-only packages
-        net: false, // Exclude net
-        tls: false, // Exclude tls
-        dns: false, // Exclude dns
+        'mongodb-client-encryption': false, // Needed by MongoDB driver >= 4.0.0
+        'aws4': false, // Potentially needed by MongoDB driver for AWS integration
+        'kerberos': false, // Potentially needed by MongoDB driver for Kerberos auth
+        'snappy': false, // Potentially needed by MongoDB driver for compression
+        '@mongodb-js/zstd': false, // Potentially needed by MongoDB driver for compression
+        '@aws-sdk/credential-providers': false, // Potentially needed by MongoDB driver
+        'socks': false, // Potentially needed by MongoDB driver
+
+        // Core Node modules that might be pulled in by dependencies
+        child_process: false,
+        fs: false,
+        net: false,
+        tls: false,
+        dns: false,
       };
     }
 
@@ -38,4 +45,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;

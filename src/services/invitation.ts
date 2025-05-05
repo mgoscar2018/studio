@@ -1,4 +1,6 @@
 // src/services/invitation.ts
+'use server'; // Ensure this code runs only on the server
+
 import clientPromise from '@/lib/mongodb';
 import type { ObjectId } from 'mongodb'; // Import ObjectId type
 
@@ -40,10 +42,16 @@ export async function getInvitationData(invitationId: string): Promise<Invitatio
         if (invitation) {
             console.log(`Found invitation data for BodaID: ${invitationId}`);
             // Ensure _id is converted to string for serialization
+            // Important: Create a plain object to pass to client components
             const plainInvitation: InvitationData = {
-                ...invitation,
                 _id: invitation._id.toString(), // Convert ObjectId to string
-            } as InvitationData; // Cast necessary if fields might differ slightly
+                BodaID: invitation.BodaID,
+                Nombre: invitation.Nombre,
+                Confirmado: invitation.Confirmado,
+                PasesAsignados: invitation.PasesAsignados, // Use PasesAsignados
+                PasesConfirmados: invitation.PasesConfirmados, // Use PasesConfirmados
+                Asistentes: invitation.Asistentes || [], // Default to empty array if null/undefined
+            };
             return plainInvitation;
         } else {
             console.log(`No invitation data found for BodaID: ${invitationId}`);
@@ -118,3 +126,6 @@ export async function submitConfirmation(invitationId: string, data: Confirmatio
         throw new Error('Failed to submit confirmation data to database.');
     }
 }
+
+// Removed Google Sheets related functions as they are no longer used.
+// Removed getMusic as it's handled client-side.
