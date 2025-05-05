@@ -554,8 +554,3 @@ export default function Home() {
     </Suspense>
   );
 }
-```
-
-</change>
-  <change>
-    <file>src/components
