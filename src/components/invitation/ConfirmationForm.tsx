@@ -107,6 +107,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
   };
 
    const handleInitialChoice = async (attend: boolean) => {
+        // e.preventDefault(); // REMOVED: Allow default button behavior (no scroll jump)
         setShowInitialChoice(false); // Hide initial buttons
         if (attend) {
             setShowAttendanceForm(true); // Show the guest entry form
@@ -132,10 +133,12 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
       <CardContent>
        {showInitialChoice ? (
            <div className="flex justify-center gap-4 mt-4 mb-6">
+                {/* Pass attend=true */}
                <Button size="lg" onClick={() => handleInitialChoice(true)} disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Sí, asistiré
                 </Button>
+                 {/* Pass attend=false */}
                <Button size="lg" variant="outline" onClick={() => handleInitialChoice(false)} disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     No podré asistir

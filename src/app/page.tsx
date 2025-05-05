@@ -55,14 +55,18 @@ function InvitationPageContent() {
   const [invitationData, setInvitationData] = useState<InvitationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Separate state for submission loading
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // State derived from invitationData
+  // State derived from invitationData - used to control form/confirmation display
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]);
   const [isRejected, setIsRejected] = useState<boolean>(false);
+  const [isAlreadyConfirmed, setIsAlreadyConfirmed] = useState<boolean>(false); // Track initial confirmed state
+
+  // Other state from invitationData
   const [assignedPasses, setAssignedPasses] = useState<number>(0);
   const [invitationName, setInvitationName] = useState<string>('');
   const [groomName, setGroomName] = useState<string>('Novio'); // Default placeholder
@@ -70,8 +74,21 @@ function InvitationPageContent() {
 
   // Update invitationId if URL changes
   useEffect(() => {
-    setInvitationId(searchParams.get('id'));
-  }, [searchParams]);
+    const newId = searchParams.get('id');
+    if (newId !== invitationId) {
+      setInvitationId(newId);
+      // Reset states when ID changes
+      setInvitationData(null);
+      setIsLoading(true);
+      setError(null);
+      setIsPlaying(false);
+      setConfirmedGuests([]);
+      setIsRejected(false);
+      setIsAlreadyConfirmed(false);
+      setAssignedPasses(0);
+      setInvitationName('');
+    }
+  }, [searchParams, invitationId]);
 
   // Handle screen orientation changes
   useEffect(() => {
@@ -114,67 +131,88 @@ function InvitationPageContent() {
         if (!data) {
           console.log(`Invitation ID ${invitationId} not found in database.`);
           setError("Invitación no encontrada. Por favor, verifica el enlace.");
-          setInvitationData(null);
-          setIsLoading(false);
+          setInvitationData(null); // Explicitly set to null
+           setIsLoading(false);
+           // Update confirmation states as well
+           setIsAlreadyConfirmed(false);
+           setIsRejected(false);
+           setConfirmedGuests([]);
+           setAssignedPasses(0);
+           setInvitationName('');
           return; // Stop further processing
         }
 
         console.log("Invitation data fetched successfully:", data);
-        setInvitationData(data);
+        setInvitationData(data); // Set the full fetched data
 
         // Update state based on fetched data
         setInvitationName(data.Nombre || 'Invitado/a');
         setAssignedPasses(data.PasesAsignados || 0);
-        setConfirmedGuests(data.Asistentes || []);
-        // Determine rejection status based on Confirmado and PasesConfirmados
+
+        // Set confirmation status based *directly* on fetched data
+        setIsAlreadyConfirmed(data.Confirmado);
         setIsRejected(data.Confirmado && data.PasesConfirmados === 0);
-        // Set Groom/Bride names (assuming they are part of the data or fetched separately)
-        // If not available in this fetch, you might need another service call or adjust InvitationData interface
-        // For now, using placeholders if not directly in `data`
-        // setGroomName(data.groomName || 'Oscar'); // Example: Adjust if names are in data
-        // setBrideName(data.brideName || 'Silvia'); // Example: Adjust if names are in data
+        setConfirmedGuests(data.Asistentes || []);
+
+
+        // Set Groom/Bride names
         setGroomName('Oscar'); // Keeping static for now
         setBrideName('Silvia'); // Keeping static for now
 
 
-        // Setup Audio Element
-        audioElement = document.createElement('audio');
-        audioElement.loop = true;
-        const opusSource = document.createElement('source');
-        opusSource.src = '/music/UnPactoConDios.opus';
-        opusSource.type = 'audio/opus';
-        audioElement.appendChild(opusSource);
-        const aacSource = document.createElement('source');
-        aacSource.src = '/music/UnPactoConDios.aac';
-        aacSource.type = 'audio/aac';
-        audioElement.appendChild(aacSource);
-        const mp3Source = document.createElement('source');
-        mp3Source.src = '/music/UnPactoConDios.mp3';
-        mp3Source.type = 'audio/mpeg';
-        audioElement.appendChild(mp3Source);
-        audioElement.appendChild(document.createTextNode('Tu navegador no soporta el elemento de audio.'));
-        audioRef.current = audioElement;
+        // Setup Audio Element only if not already created and invitation is valid
+        if (!audioRef.current && data) {
+            audioElement = document.createElement('audio');
+            audioElement.loop = true;
+            const opusSource = document.createElement('source');
+            opusSource.src = '/music/UnPactoConDios.opus';
+            opusSource.type = 'audio/opus';
+            audioElement.appendChild(opusSource);
+            const aacSource = document.createElement('source');
+            aacSource.src = '/music/UnPactoConDios.aac';
+            aacSource.type = 'audio/aac';
+            audioElement.appendChild(aacSource);
+            const mp3Source = document.createElement('source');
+            mp3Source.src = '/music/UnPactoConDios.mp3';
+            mp3Source.type = 'audio/mpeg';
+            audioElement.appendChild(mp3Source);
+            audioElement.appendChild(document.createTextNode('Tu navegador no soporta el elemento de audio.'));
+            audioRef.current = audioElement;
 
-        audioElement.addEventListener('play', handlePlay);
-        audioElement.addEventListener('pause', handlePause);
-        audioElement.addEventListener('ended', handleEnded);
-        audioElement.addEventListener('error', handleError);
+            audioElement.addEventListener('play', handlePlay);
+            audioElement.addEventListener('pause', handlePause);
+            audioElement.addEventListener('ended', handleEnded);
+            audioElement.addEventListener('error', handleError);
 
-        // Attempt Autoplay
-        try {
-          await audioElement.play();
-          console.log("Autoplay initiated.");
-          if (isMounted) setIsPlaying(true);
-        } catch (error) {
-          console.log("Autoplay prevented by browser:", error);
-          if (isMounted) setIsPlaying(false);
+            // Attempt Autoplay
+            const playPromise = audioElement.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log("Autoplay initiated.");
+                    if (isMounted) setIsPlaying(true);
+                }).catch(error => {
+                    console.log("Autoplay prevented by browser:", error);
+                     if (isMounted) {
+                         setIsPlaying(false);
+                         // Add a user interaction hint if autoplay fails
+                         // e.g., display a message "Click the play button to start music"
+                     }
+                });
+            }
         }
 
       } catch (err) {
         console.error("Error in fetchData:", err);
         if (isMounted) {
           setError("Error al cargar los datos de la invitación.");
+          setInvitationData(null); // Ensure data is null on error
           setIsPlaying(false); // Ensure playing state is false on error
+           // Reset confirmation states on error too
+           setIsAlreadyConfirmed(false);
+           setIsRejected(false);
+           setConfirmedGuests([]);
+           setAssignedPasses(0);
+           setInvitationName('');
         }
       } finally {
         if (isMounted) setIsLoading(false);
@@ -185,23 +223,19 @@ function InvitationPageContent() {
 
     return () => {
       isMounted = false;
-      if (audioRef.current) {
-        const currentAudio = audioRef.current;
+      // Don't destroy the audio element here, only remove listeners
+      // This prevents re-creation on every state change
+      const currentAudio = audioRef.current;
+      if (currentAudio) {
         currentAudio.removeEventListener('play', handlePlay);
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded);
         currentAudio.removeEventListener('error', handleError);
-        if (!currentAudio.paused) {
-          currentAudio.pause();
-        }
-        while (currentAudio.firstChild) {
-          currentAudio.removeChild(currentAudio.firstChild);
-        }
-        currentAudio.load();
+        // Don't pause or reset src here if we want it to persist across renders
       }
-      audioRef.current = null;
+      // No need to set audioRef.current = null here if we want it to persist
     };
-  }, [invitationId]); // Re-run when invitationId changes
+  }, [invitationId]); // Re-run ONLY when invitationId changes
 
 
   const togglePlayPause = () => {
@@ -210,28 +244,33 @@ function InvitationPageContent() {
     if (currentAudio.paused) {
       currentAudio.play().catch(error => {
         console.error("Audio playback failed on toggle:", error);
+        // Maybe show a toast to the user if play fails
       });
     } else {
       currentAudio.pause();
     }
+    // State update (isPlaying) is handled by the event listeners ('play', 'pause')
   };
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
      if (!invitationId) {
         console.error("Cannot submit confirmation without a valid invitation ID.");
         setError("Error: ID de invitación no válido.");
-        return;
+        return; // Early return if no ID
      }
-     setIsLoading(true); // Indicate submission process
-     setError(null);
+     setIsSubmitting(true); // Use separate submitting state
+     setError(null); // Clear previous errors
      try {
         await submitConfirmation(invitationId, { guests, rejected });
         console.log("Confirmation submitted successfully:", { guests, rejected });
 
-        // Update local state to immediately reflect the change
-        setConfirmedGuests(guests);
-        setIsRejected(rejected);
-        // Update the main invitation data state as well
+        // Update local state immediately to reflect the change WITHOUT re-fetching
+        setIsAlreadyConfirmed(true); // Mark as confirmed
+        setIsRejected(rejected); // Set rejection status
+        setConfirmedGuests(guests); // Update guest list
+        // Update the PasesConfirmados in the main data state if needed, though it's less critical
+        // as we are primarily using the derived states (isAlreadyConfirmed, isRejected, confirmedGuests)
+        // for display logic after submission.
         setInvitationData(prevData => prevData ? ({
             ...prevData,
             Confirmado: true,
@@ -239,11 +278,15 @@ function InvitationPageContent() {
             Asistentes: guests
         }) : null);
 
+
      } catch (error) {
          console.error("Failed to submit confirmation:", error);
          setError("Error al enviar la confirmación. Inténtalo de nuevo.");
+         // Revert optimistic updates might be needed here if the submission fails,
+         // but for simplicity, we'll rely on the user retrying or a potential refresh.
+         // For a more robust solution, store the previous state and revert on error.
      } finally {
-       setIsLoading(false);
+       setIsSubmitting(false); // Stop submitting indicator
      }
   };
 
@@ -251,48 +294,60 @@ function InvitationPageContent() {
        <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center">
            <div className="absolute inset-0 z-0">
                 <Image
+                  // Use different images based on orientation
                   src={isPortrait ? "/images/Portada_2.jpeg" : "/images/Portada_h.jpg"}
                   alt="Portada de Boda Oscar y Silvia"
                   fill
                   style={{ objectFit: 'cover' }}
                   quality={90}
                   priority
-                  className="animate-zoom-loop"
+                  className="animate-zoom-loop" // Apply zoom loop animation
                 />
            </div>
             <div className={cn(
                 "relative z-10 flex flex-col items-center text-center text-white w-full h-full py-8 md:py-12 px-4",
-                isPortrait ? "justify-between" : "justify-end"
+                // Adjust layout based on orientation
+                 isPortrait ? "justify-between" : "justify-end pb-8" // Add padding-bottom in landscape
             )}>
-                 <div className={cn("flex flex-col items-center space-y-4 md:space-y-6", isPortrait ? "mt-4" : "mb-4")}>
+                 {/* Names Container */}
+                 <div className={cn(
+                      "flex flex-col items-center w-[90%] max-w-full", // Use 90% width
+                      isPortrait ? "mt-4" : "mb-auto" // Push names to top in portrait, bottom in landscape (implicitly via justify-end parent)
+                 )}>
                      <h1 className={cn(
-                         "text-6xl font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,0.9)] w-[90%] max-w-full", // Increased shadow, explicit white
-                         !isPortrait && "opacity-50"
+                         "font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,0.9)]", // Increased shadow, explicit white
+                         "text-[18vw] sm:text-[15vw] md:text-[12vw] lg:text-[10vw]", // Responsive font size based on viewport width
+                         !isPortrait && "opacity-50" // Dim in landscape
                      )}>
                          SilviOscar
                     </h1>
                  </div>
-                 <AnimatedSection animationType="fade" className="delay-500 mb-4">
+                {/* "Nos Casamos" Container */}
+                <AnimatedSection animationType="fade" className={cn(
+                    "delay-500",
+                    isPortrait ? "mb-4" : "mt-auto w-full" // Bottom in portrait, take full width and push up in landscape
+                )}>
                     <h2 className={cn(
                         "text-4xl font-julietta text-white [text-shadow:0_0_15px_rgba(0,0,0,1)]", // Increased shadow, explicit white
-                         !isPortrait && "opacity-50"
+                         !isPortrait && "opacity-50" // Dim in landscape
                     )}>
                          ¡Nos casamos!
                     </h2>
-                 </AnimatedSection>
+                </AnimatedSection>
             </div>
        </header>
    );
 
-   if (isLoading) {
+   // Initial Loading State
+   if (isLoading && !invitationData && !error) { // Show loading only on initial load
      return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
    }
 
-   // Render error / not found message if applicable
-   if (error || !invitationData) {
+   // Render error / not found message if applicable AFTER initial load attempt
+   if (error || (!isLoading && !invitationData)) { // Check !isLoading here
        return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
-                {renderHeader()}
+                {renderHeader()} {/* Still show header */}
                 <div className="flex flex-col items-center justify-center text-center p-4 mt-8">
                     <h2 className="text-2xl font-semibold mb-4">Invitación no encontrada</h2>
                     <p className="text-muted-foreground">{error || "Por favor, verifica el enlace o contacta a los novios."}</p>
@@ -301,68 +356,68 @@ function InvitationPageContent() {
        );
    }
 
-    // Main content render now assumes invitationData is available
-    const isAlreadyConfirmed = invitationData.Confirmado;
+   // Main content render now assumes invitationData is available (or was attempted)
+   // We use the derived states `isAlreadyConfirmed` and `isRejected` for the confirmation section logic
 
 
   return (
     <div className="min-h-screen text-foreground overflow-x-hidden">
       {renderHeader()}
-      <main className="px-4 md:px-8 py-12 space-y-12 md:space-y-16">
+      <main className="px-4 md:px-6 py-10 space-y-10 md:space-y-12"> {/* Reduced padding/spacing */}
 
-           <AnimatedSection animationType="fade" className="text-center mb-12">
-               <div className="space-y-2 md:space-y-3">
-                    <p className="text-xl md:text-2xl">Sábado</p>
-                    <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-3 md:p-4 shadow-md">
-                        <div className="text-5xl md:text-6xl font-bold">26</div>
-                        <div className="text-lg md:text-xl">julio</div>
+           <AnimatedSection animationType="fade" className="text-center mb-10">
+               <div className="space-y-1 md:space-y-2"> {/* Reduced spacing */}
+                    <p className="text-lg md:text-xl">Sábado</p> {/* Reduced text size */}
+                    <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-2 md:p-3 shadow-md"> {/* Reduced padding */}
+                        <div className="text-4xl md:text-5xl font-bold">26</div> {/* Reduced text size */}
+                        <div className="text-base md:text-lg">julio</div> {/* Reduced text size */}
                     </div>
-                    <p className="text-xl md:text-2xl mt-1 md:mt-2">2025</p>
+                    <p className="text-lg md:text-xl mt-1">2025</p> {/* Reduced text size */}
                 </div>
            </AnimatedSection>
 
            <AnimatedSection animationType="slideInRight">
-              <Card className="shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
-                  <CardContent className="pt-6">
-                  <p className="text-lg md:text-xl text-center italic">
+              <Card className="shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg"> {/* Reduced padding */}
+                  <CardContent className="pt-4"> {/* Adjusted padding top */}
+                  <p className="text-base md:text-lg text-center italic"> {/* Reduced text size */}
                       "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
                   </p>
                   </CardContent>
               </Card>
            </AnimatedSection>
 
-          <Separator className="my-8 md:my-12" />
+          <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
-          <div className="grid grid-cols-1 gap-8 items-center">
-             <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-4">
-                  <h3 className="text-2xl md:text-3xl font-semibold mb-4">Música de Fondo</h3>
+          <div className="grid grid-cols-1 gap-6"> {/* Reduced gap */}
+             <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-3"> {/* Reduced spacing */}
+                  <h3 className="text-xl md:text-2xl font-semibold mb-2">Música de Fondo</h3> {/* Reduced text size and margin */}
                   <Button
                   variant="outline"
                   size="icon"
-                  className="rounded-full h-16 w-16 border-2 border-primary hover:bg-primary/10"
+                  className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10" // Slightly smaller
                   onClick={togglePlayPause}
                   aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
                   >
-                   {isPlaying ? <Volume2 className="h-8 w-8 text-primary" /> : <VolumeX className="h-8 w-8 text-muted-foreground" />}
+                   {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />} {/* Slightly smaller icons */}
                   </Button>
-                   {!isPlaying && (
+                   {!isPlaying && !isLoading && audioRef.current?.paused && ( // Show hint only if paused and not loading
                      <p className="text-xs text-muted-foreground text-center max-w-xs">
-                       Es posible que necesites presionar el botón para iniciar la música en algunos dispositivos.
+                       Haz clic para iniciar la música.
                      </p>
                    )}
               </AnimatedSection>
 
               <AnimatedSection animationType="slideInRight" className="text-center">
-                  <h3 className="text-2xl md:text-3xl font-semibold mb-4">Sólo Faltan</h3>
+                  <h3 className="text-xl md:text-2xl font-semibold mb-3">Sólo Faltan</h3> {/* Reduced text size and margin */}
                   <Countdown targetDate={weddingDate} />
               </AnimatedSection>
           </div>
 
-          <Separator className="my-8 md:my-12" />
+          <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
           <AnimatedSection animationType="fade">
-              <h3 className="text-5xl font-julietta text-center mb-6 text-primary">uestros momento</h3>
-              <div className="grid grid-cols-2 gap-2 md:gap-4">
+              <h3 className="text-4xl font-julietta text-center mb-4 text-primary">uestros momento</h3> {/* Reduced margin */}
+              <div className="grid grid-cols-2 gap-2 md:gap-3"> {/* Reduced gap */}
                   {/* Row 1 */}
                   <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
@@ -386,6 +441,7 @@ function InvitationPageContent() {
                            data-ai-hint="pareja sonriendo parque"
                       />
                   </AnimatedSection>
+                  {/* Row 2 */}
                   <AnimatedSection animationType="fade" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg">
                       <Image
                           src="/images/mosaic/M3.jpg"
@@ -397,6 +453,7 @@ function InvitationPageContent() {
                            data-ai-hint="pareja caminando ciudad"
                       />
                   </AnimatedSection>
+                   {/* Row 3 */}
                   <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
                           src="/images/mosaic/M4.jpg"
@@ -422,12 +479,12 @@ function InvitationPageContent() {
               </div>
           </AnimatedSection>
 
-          <Separator className="my-8 md:my-12" />
+          <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
-          <div className="grid grid-cols-1 gap-8">
+          <div className="grid grid-cols-1 gap-6"> {/* Reduced gap */}
               <AnimatedSection animationType="slideInLeft" className="text-center">
-                  <h3 className="text-5xl font-julietta mb-4 text-primary">uestros Padre</h3>
-                  <div className="space-y-2 text-lg">
+                  <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padre</h3> {/* Reduced margin */}
+                  <div className="space-y-1 text-base md:text-lg"> {/* Reduced spacing and text size */}
                   {padres.map((nombre, index) => (
                       <p key={index}>{nombre}</p>
                   ))}
@@ -435,8 +492,8 @@ function InvitationPageContent() {
                </AnimatedSection>
 
               <AnimatedSection animationType="slideInRight" className="text-center">
-                  <h3 className="text-5xl font-julietta mb-4 text-primary">uestros Padrino</h3>
-                   <div className="space-y-4">
+                  <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padrino</h3> {/* Reduced margin */}
+                   <div className="space-y-3"> {/* Reduced spacing */}
                         {padrinos.map((padrino, index) => (
                              <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
                         ))}
@@ -444,29 +501,29 @@ function InvitationPageContent() {
                </AnimatedSection>
           </div>
 
-          <Separator className="my-8 md:my-12" />
+          <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
            <AnimatedSection animationType="fade">
-              <h3 className="text-5xl font-julietta text-center mb-6 text-primary">tinerari</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <h3 className="text-4xl font-julietta text-center mb-4 text-primary">tinerari</h3> {/* Reduced margin */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"> {/* Adjusted gap */}
                   {itinerary.map((item, index) => (
                        <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
                   ))}
               </div>
           </AnimatedSection>
 
-          <Separator className="my-8 md:my-12" />
+          <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
            <AnimatedSection animationType="slideInUp">
-              <Card className="text-center shadow-lg border-none bg-secondary/10 p-6 md:p-8 rounded-lg">
-                   <CardHeader>
-                      <CardTitle className="text-3xl md:text-4xl font-semibold flex items-center justify-center gap-2">
-                          <MapPin className="h-8 w-8 text-primary" />
+              <Card className="text-center shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg"> {/* Reduced padding */}
+                   <CardHeader className="p-0 pb-2"> {/* Removed padding */}
+                      <CardTitle className="text-2xl md:text-3xl font-semibold flex items-center justify-center gap-2"> {/* Reduced text size */}
+                          <MapPin className="h-6 w-6 md:h-7 md:w-7 text-primary" /> {/* Reduced icon size */}
                           Ubicación - Jardín Margaty
                       </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4 pt-6">
-                      <p className="text-lg">{locationAddress}</p>
+                  <CardContent className="space-y-3 pt-4"> {/* Reduced spacing */}
+                      <p className="text-base md:text-lg">{locationAddress}</p> {/* Reduced text size */}
                        <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
                           <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
                                Abrir en GPS
@@ -476,45 +533,45 @@ function InvitationPageContent() {
               </Card>
            </AnimatedSection>
 
-          <Separator className="my-8 md:my-12" />
+          <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
            <AnimatedSection animationType="fade">
-               <h3 className="text-4xl font-julietta text-center mb-6 text-primary">onfirma  tu  asistenci</h3>
+               <h3 className="text-4xl font-julietta text-center mb-4 text-primary">onfirma  tu  asistenci</h3> {/* Reduced margin */}
 
                 {/* Display Invitation Name and Assigned Passes */}
                 <div className="text-center mb-4">
-                     <p className="text-lg text-muted-foreground">Invitación para:</p>
-                     <p className="text-2xl font-semibold text-foreground">{invitationName}</p>
-                     <p className="text-sm text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p>
+                     <p className="text-sm text-muted-foreground">Invitación para:</p> {/* Reduced text size */}
+                     <p className="text-xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p> {/* Reduced text size */}
+                     <p className="text-xs text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p> {/* Reduced text size */}
                 </div>
 
                {/* Confirmation Status/Form */}
-               {isAlreadyConfirmed ? ( // Check if already confirmed (based on DB initially)
-                    isRejected ? ( // Check if confirmation was a rejection
-                        <Card className="bg-muted/50 p-6 rounded-lg shadow">
-                            <CardContent className="flex items-center gap-4 pt-6">
-                            <XCircle className="h-8 w-8 text-destructive" />
-                            <p className="text-muted-foreground">Lamentamos no poder contar con tu presencia y agradecemos mucho tu respuesta.</p>
+               {isAlreadyConfirmed ? ( // Use state derived from DB
+                    isRejected ? ( // Use state derived from DB
+                        <Card className="bg-muted/50 p-4 rounded-lg shadow"> {/* Reduced padding */}
+                            <CardContent className="flex items-center gap-3 pt-4"> {/* Reduced gap, adjusted padding */}
+                            <XCircle className="h-6 w-6 md:h-7 md:w-7 text-destructive" /> {/* Reduced icon size */}
+                            <p className="text-sm md:text-base text-muted-foreground">Lamentamos no poder contar con tu presencia y agradecemos mucho tu respuesta, ya que con ello podremos organizar óptimamente los lugares.</p> {/* Reduced text size and updated message */}
                             </CardContent>
                         </Card>
                     ) : ( // Confirmed attendance
-                        <Card className="bg-secondary/10 p-6 rounded-lg shadow">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-2xl text-primary">
-                                <CheckCircle className="h-6 w-6" />
+                        <Card className="bg-secondary/10 p-4 rounded-lg shadow"> {/* Reduced padding */}
+                            <CardHeader className="p-0 pb-2"> {/* Removed padding */}
+                                <CardTitle className="flex items-center gap-2 text-xl md:text-2xl text-primary"> {/* Reduced text size */}
+                                <CheckCircle className="h-5 w-5 md:h-6 md:w-6" /> {/* Reduced icon size */}
                                 ¡Confirmación Recibida!
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="pt-6">
-                                <p className="mb-4">Gracias por confirmar. Has reservado lugar para:</p>
+                            <CardContent className="pt-4"> {/* Adjusted padding top */}
+                                <p className="mb-3 text-sm md:text-base">Gracias por confirmar. Has reservado lugar para:</p> {/* Reduced margin and text size */}
                                 {confirmedGuests.length > 0 ? (
-                                    <ul className="list-disc list-inside space-y-1">
+                                    <ul className="list-disc list-inside space-y-1 text-sm md:text-base"> {/* Reduced spacing and text size */}
                                         {confirmedGuests.map((guest, index) => (
                                             <li key={index}>{guest}</li>
                                         ))}
                                     </ul>
                                 ) : (
-                                    <p className="italic text-muted-foreground">(No se registraron nombres)</p> // Should ideally not happen if PasesConfirmados > 0
+                                    <p className="italic text-muted-foreground text-sm md:text-base">(No se registraron nombres)</p> // Should ideally not happen if PasesConfirmados > 0
                                 )}
 
                             </CardContent>
@@ -525,13 +582,13 @@ function InvitationPageContent() {
                       invitationId={invitationId ?? ''} // Pass the ID to the form
                       assignedPasses={assignedPasses}
                       onConfirm={handleConfirmation}
-                      isLoading={isLoading} // Pass loading state for disabling during submission
+                      isLoading={isSubmitting} // Pass submission loading state
                    />
                )}
 
                {/* Display submission error if any */}
-               {error && !isLoading && ( // Show error only if not currently loading
-                   <p className="text-center text-destructive mt-4">{error}</p>
+               {error && !isSubmitting && ( // Show error only if not currently submitting
+                   <p className="text-center text-destructive mt-3 text-sm">{error}</p> // Reduced margin/text size
                )}
 
           </AnimatedSection>
@@ -539,8 +596,8 @@ function InvitationPageContent() {
         </main>
 
 
-      <footer className="text-center py-8 bg-muted/50 mt-12">
-          <p className="text-muted-foreground">Silvia &amp; Oscar - 26 julio 2025</p>
+      <footer className="text-center py-6 bg-muted/50 mt-10"> {/* Reduced padding/margin */}
+          <p className="text-muted-foreground text-sm">Silvia &amp; Oscar - 26 julio 2025</p> {/* Reduced text size */}
       </footer>
     </div>
   );
