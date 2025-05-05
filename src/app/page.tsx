@@ -318,7 +318,7 @@ function InvitationPageContent() {
                  )}>
                      <h1 className={cn(
                          "font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,1)]", // Increased shadow, explicit white
-                         "text-[18vw]", // Responsive font size based on viewport width - REMOVED RESPONSIVE SIZING
+                         "text-7xl", // Fixed font size
                          !isPortrait && "opacity-50" // Dim in landscape
                      )}>
                          SilviOscar
