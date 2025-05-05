@@ -265,26 +265,7 @@ function InvitationPageContent() {
      }
   };
 
-   if (isLoading) {
-     // Optional: Render a loading indicator while fetching data
-     return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
-   }
-
-   // Handle case where no valid ID was provided
-   if (!invitationId || invitationId === 'default-invite') {
-       return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
-                <h2 className="text-2xl font-semibold mb-4">Invitación no encontrada</h2>
-                <p className="text-muted-foreground">Por favor, verifica el enlace o contacta a los novios.</p>
-            </div>
-       );
-   }
-
-
-  return (
-    // Root container - no width constraint needed here anymore
-    <div className="min-h-screen text-foreground overflow-x-hidden">
-      {/* Portada Section - Height changed to 70vh */}
+   const renderHeader = () => (
        <header className="relative h-[70vh] w-full overflow-hidden flex flex-col items-center">
            {/* Background Image */}
            <div className="absolute inset-0 z-0">
@@ -306,19 +287,18 @@ function InvitationPageContent() {
                 // Apply specific justification based on orientation
                 isPortrait ? "justify-between" : "justify-end" // Justify end (bottom) for landscape
             )}>
-                 {/* Names - Top */}
-                 <div className="flex flex-col items-center space-y-4 md:space-y-6 mt-4"> {/* Added mt-4 */}
-                     {/* Adjusted text size using clamp with rem units for better scaling within the container */}
+                 {/* Names - Top (or bottom in landscape) */}
+                 <div className={cn("flex flex-col items-center space-y-4 md:space-y-6", isPortrait ? "mt-4" : "mb-4")}> {/* Adjust margin based on orientation */}
                      <h1 className={cn(
-                         "text-6xl font-julietta select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full",
+                         "text-6xl font-julietta select-none leading-none [text-shadow:0_0_10px_rgba(0,0,0,0.8)] w-[90%] max-w-full", // Ensure width constraint
                          !isPortrait && "opacity-50" // Add opacity when landscape
                      )}>
                          SilviOscar
                     </h1>
                  </div>
 
-                 {/* "¡Nos casamos!" Section - Bottom */}
-                 <AnimatedSection animationType="fade" className="delay-500 mb-4"> {/* Added mb-4 */}
+                 {/* "¡Nos casamos!" Section - Bottom (or just above names in landscape) */}
+                 <AnimatedSection animationType="fade" className="delay-500 mb-4">
                     <h2 className={cn(
                         "text-4xl font-julietta [text-shadow:0_0_10px_rgba(0,0,0,0.9)]",
                          !isPortrait && "opacity-50" // Add opacity when landscape
@@ -328,7 +308,33 @@ function InvitationPageContent() {
                  </AnimatedSection>
             </div>
        </header>
+   );
 
+   if (isLoading) {
+     // Optional: Render a loading indicator while fetching data
+     return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
+   }
+
+   // Handle case where no valid ID was provided
+   if (!invitationId || invitationId === 'default-invite') {
+       return (
+            // Render only the header and the error message
+            <div className="min-h-screen text-foreground overflow-x-hidden">
+                {renderHeader()}
+                <div className="flex flex-col items-center justify-center text-center p-4 mt-8"> {/* Added mt-8 */}
+                    <h2 className="text-2xl font-semibold mb-4">Invitación no encontrada</h2>
+                    <p className="text-muted-foreground">Por favor, verifica el enlace o contacta a los novios.</p>
+                </div>
+            </div>
+       );
+   }
+
+
+  return (
+    // Root container - no width constraint needed here anymore
+    <div className="min-h-screen text-foreground overflow-x-hidden">
+      {/* Portada Section - Height changed to 70vh */}
+      {renderHeader()}
 
       {/* Remove container and max-width from here, it's handled in layout */}
       {/* Reduced vertical spacing */}
