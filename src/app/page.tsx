@@ -316,8 +316,8 @@ function InvitationPageContent() {
                       isPortrait ? "mt-4" : "mb-auto" // Push names to top in portrait, bottom in landscape (implicitly via justify-end parent)
                  )}>
                      <h1 className={cn(
-                         "font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,0.9)]", // Increased shadow, explicit white
-                         "text-[18vw] sm:text-[15vw] md:text-[12vw] lg:text-[10vw]", // Responsive font size based on viewport width
+                         "font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,1)]", // Increased shadow, explicit white
+                         "text-[18vw]", // Responsive font size based on viewport width - REMOVED RESPONSIVE SIZING
                          !isPortrait && "opacity-50" // Dim in landscape
                      )}>
                          SilviOscar
@@ -542,7 +542,8 @@ function InvitationPageContent() {
                 {/* Display Invitation Name */}
                 <div className="text-center mb-4">
                      <p className="text-sm text-muted-foreground">Invitación para:</p> {/* Reduced text size */}
-                     <p className="text-xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p> {/* Reduced text size */}
+                     {/* Updated invitation name style */}
+                     <p className="text-4xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p>
 
                      {/* Conditionally display pass count */}
                      {!isAlreadyConfirmed && ( // Show ASSIGNED passes ONLY if NOT confirmed yet
@@ -621,3 +622,4 @@ export default function Home() {
     </Suspense>
   );
 }
+
