@@ -29,15 +29,15 @@ const CardHeader = React.forwardRef<
 ))
 CardHeader.displayName = "CardHeader"
 
+// Updated CardTitle to default to div, allow 'as' prop for custom tag
 const CardTitle = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLHeadingElement to HTMLDivElement
->(({ className, ...props }, ref) => (
-  // Changed from h3 to div to avoid semantic issues if used inside another heading
-  <div
+  HTMLHeadingElement, // Keep semantic ref type
+  React.HTMLAttributes<HTMLHeadingElement> & { as?: React.ElementType } // Add 'as' prop
+>(({ className, as: Component = 'div', ...props }, ref) => (
+  <Component // Use the dynamic component type
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight", // Kept styling classes
+      "text-2xl font-semibold leading-none tracking-tight", // Style remains
       className
     )}
     {...props} // Spread remaining props
@@ -45,15 +45,14 @@ const CardTitle = React.forwardRef<
 ))
 CardTitle.displayName = "CardTitle"
 
-
+// Updated CardDescription to default to div, allow 'as' prop
 const CardDescription = React.forwardRef<
-  HTMLDivElement, // Changed from HTMLParagraphElement to HTMLDivElement
-  React.HTMLAttributes<HTMLDivElement> // Changed from HTMLParagraphElement to HTMLDivElement
->(({ className, ...props }, ref) => (
-  // Changed from p to div
-  <div
+  HTMLParagraphElement, // Keep semantic ref type
+  React.HTMLAttributes<HTMLParagraphElement> & { as?: React.ElementType } // Add 'as' prop
+>(({ className, as: Component = 'div', ...props }, ref) => (
+  <Component // Use the dynamic component type
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)} // Kept styling classes
+    className={cn("text-sm text-muted-foreground", className)} // Style remains
     {...props} // Spread remaining props
   />
 ))

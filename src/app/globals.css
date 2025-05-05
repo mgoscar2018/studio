@@ -116,6 +116,7 @@ body {
      /* Apply custom font where needed via class */
     .font-julietta { /* Keep class name for simplicity, but it now points to Joseph Sophia */
         font-family: "Joseph Sophia", cursive; /* Use double quotes for font name with space */
+        @apply text-primary; /* Apply primary color to elements with this font */
     }
 }
 
@@ -188,30 +189,3 @@ html {
 .animate-zoom-loop-short {
   animation: zoomLoopShort 5s ease-in-out infinite; /* 5s total duration */
 }
-
-/* Removed Carousel Fade-in Animation as it's no longer needed */
-/*
-@keyframes carouselFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.animate-carousel-fade-in {
-    animation: carouselFadeIn 1.5s ease-out forwards;
-}
-*/
-
-/* Removed torn paper mask styles as they are no longer used */
-/*
-.torn-paper-mask {
-    mask-image: url('/images/mask-torn-paper.svg');
-    mask-size: cover;
-    mask-repeat: no-repeat;
-    mask-position: bottom center;
-    -webkit-mask-image: url('/images/mask-torn-paper.svg');
-    -webkit-mask-size: cover;
-    -webkit-mask-repeat: no-repeat;
-    -webkit-mask-position: bottom center;
-    background-color: hsl(var(--background));
-}
-*/

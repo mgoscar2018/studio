@@ -3,6 +3,7 @@
 
 import type React from 'react';
 import { useState, useEffect, useRef } from 'react'; // Import useRef
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +22,7 @@ import { cn } from '@/lib/utils'; // Import cn utility
 
 
 // Placeholder data - Replace with actual data fetching logic
-const invitationId = 'unique-invitation-id'; // Example ID, should come from URL params or props
+// const invitationId = 'unique-invitation-id'; // Example ID, will be read from URL params
 // Wedding date with Mexico City timezone offset (GMT-6)
 const weddingDate = new Date('2025-07-26T14:00:00-06:00');
 const groomName = "Oscar"; // Replace with actual groom name
@@ -55,7 +56,14 @@ const locationAddress = "Av. Jiutepec #87, esquina Paseo de las Rosas. Colonia A
 // Updated Google Maps URL to the specific one requested
 const googleMapsUrl = "https://maps.app.goo.gl/RCKCQHaGdfsZZzpz9";
 
-export default function Home() {
+
+// Wrap the component content with a Suspense boundary or ensure it's rendered client-side
+// Since the whole component is 'use client', we can use useSearchParams directly
+function InvitationPageContent() {
+  const searchParams = useSearchParams();
+  const initialInvitationId = searchParams.get('id') || 'default-invite'; // Get 'id' param or use default
+  const [invitationId, setInvitationId] = useState(initialInvitationId);
+
   const [isPlaying, setIsPlaying] = useState(false); // State managed by audio events
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]); // State for confirmed guests
   const [isRejected, setIsRejected] = useState<boolean>(false); // State for rejection status
@@ -63,6 +71,13 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true); // Loading state for initial data fetch
   const [isPortrait, setIsPortrait] = useState(true); // State for orientation
   const audioRef = useRef<HTMLAudioElement | null>(null); // Ref to manage the audio element directly
+
+
+  // Update invitationId if URL changes (though unlikely in this setup without navigation)
+  useEffect(() => {
+    setInvitationId(searchParams.get('id') || 'default-invite');
+  }, [searchParams]);
+
 
   // Handle screen orientation changes
   useEffect(() => {
@@ -81,6 +96,14 @@ export default function Home() {
 
   // Combined useEffect for fetching initial data and setting up audio
   useEffect(() => {
+    // Skip fetch if invitationId is the default or hasn't been set properly yet
+    if (!invitationId || invitationId === 'default-invite') {
+        setIsLoading(false); // Stop loading if no valid ID
+        console.warn("No valid invitation ID found in URL.");
+        // Optionally display a message to the user
+        return;
+    }
+
     let audioElement: HTMLAudioElement | null = null;
     let isMounted = true; // Flag to prevent state updates on unmounted component
 
@@ -95,7 +118,7 @@ export default function Home() {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch confirmation and passes data
+        // Fetch confirmation and passes data using the current invitationId
         const [confirmationData, passesData] = await Promise.all([
             getConfirmation(invitationId),
             getAssignedPasses(invitationId)
@@ -199,7 +222,7 @@ export default function Home() {
       }
        audioRef.current = null; // Clear the ref
     };
-  }, [invitationId]); // Re-run only if invitationId changes
+  }, [invitationId]); // Re-run when invitationId changes
 
 
   const togglePlayPause = () => {
@@ -226,6 +249,11 @@ export default function Home() {
 
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
+     if (!invitationId || invitationId === 'default-invite') {
+        console.error("Cannot submit confirmation without a valid invitation ID.");
+        // Optionally show a toast message
+        return;
+     }
      try {
         await submitConfirmation(invitationId, { guests, rejected });
         console.log("Confirmation submitted:", { guests, rejected });
@@ -241,6 +269,17 @@ export default function Home() {
      // Optional: Render a loading indicator while fetching data
      return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
    }
+
+   // Handle case where no valid ID was provided
+   if (!invitationId || invitationId === 'default-invite') {
+       return (
+            <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+                <h2 className="text-2xl font-semibold mb-4">Invitación no encontrada</h2>
+                <p className="text-muted-foreground">Por favor, verifica el enlace o contacta a los novios.</p>
+            </div>
+       );
+   }
+
 
   return (
     // Root container - no width constraint needed here anymore
@@ -262,7 +301,11 @@ export default function Home() {
            </div>
 
             {/* Content Container */}
-            <div className="relative z-10 flex flex-col items-center justify-between text-center text-white w-full h-full py-8 md:py-12 px-4">
+            <div className={cn(
+                "relative z-10 flex flex-col items-center text-center text-white w-full h-full py-8 md:py-12 px-4",
+                // Apply specific justification based on orientation
+                isPortrait ? "justify-between" : "justify-end" // Justify end (bottom) for landscape
+            )}>
                  {/* Names - Top */}
                  <div className="flex flex-col items-center space-y-4 md:space-y-6 mt-4"> {/* Added mt-4 */}
                      {/* Adjusted text size using clamp with rem units for better scaling within the container */}
@@ -350,7 +393,7 @@ export default function Home() {
 
           {/* Nuestros Momentos - Image Mosaic */}
           <AnimatedSection animationType="fade">
-              <h3 className="text-5xl font-julietta text-center mb-6 text-ring">uestros momento</h3> {/* Reduced bottom margin */}
+              <h3 className="text-5xl font-julietta text-center mb-6 text-primary">uestros momento</h3> {/* Reduced bottom margin, changed color to primary */}
               <div className="grid grid-cols-2 gap-2 md:gap-4">
                   {/* Row 1 */}
                   <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
@@ -420,7 +463,7 @@ export default function Home() {
           {/* Changed md:grid-cols-2 to grid-cols-1 to stack vertically */}
           <div className="grid grid-cols-1 gap-8"> {/* Reduced gap */}
               <AnimatedSection animationType="slideInLeft" className="text-center">
-                  <h3 className="text-5xl font-julietta mb-4 text-ring">uestros Padre</h3> {/* Reduced bottom margin */}
+                  <h3 className="text-5xl font-julietta mb-4 text-primary">uestros Padre</h3> {/* Reduced bottom margin, changed color to primary */}
                   <div className="space-y-2 text-lg">
                   {padres.map((nombre, index) => (
                       <p key={index}>{nombre}</p>
@@ -429,7 +472,7 @@ export default function Home() {
                </AnimatedSection>
 
               <AnimatedSection animationType="slideInRight" className="text-center">
-                  <h3 className="text-5xl font-julietta mb-4 text-ring">uestros Padrino</h3> {/* Reduced bottom margin */}
+                  <h3 className="text-5xl font-julietta mb-4 text-primary">uestros Padrino</h3> {/* Reduced bottom margin, changed color to primary */}
                    <div className="space-y-4">
                         {padrinos.map((padrino, index) => (
                              <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
@@ -442,7 +485,7 @@ export default function Home() {
 
           {/* Itinerario */}
            <AnimatedSection animationType="fade">
-              <h3 className="text-5xl font-julietta text-center mb-6 text-ring">tinerari</h3> {/* Reduced bottom margin */}
+              <h3 className="text-5xl font-julietta text-center mb-6 text-primary">tinerari</h3> {/* Reduced bottom margin, changed color to primary */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"> {/* Reduced gap */}
                   {itinerary.map((item, index) => (
                        <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
@@ -477,7 +520,14 @@ export default function Home() {
 
            {/* Confirmación de Asistencia */}
            <AnimatedSection animationType="fade">
-               <h3 className="text-4xl font-julietta text-center mb-6 text-ring">onfirma  tu  asistenci</h3> {/* Reduced bottom margin */}
+               <h3 className="text-4xl font-julietta text-center mb-6 text-primary">onfirma  tu  asistenci</h3> {/* Reduced bottom margin, changed color to primary */}
+
+                {/* Display Invitation ID */}
+                <div className="text-center mb-4 text-muted-foreground">
+                     <p>Invitación válida para:</p>
+                     <p className="font-semibold text-foreground">{invitationId}</p>
+                </div>
+
 
                {isRejected ? (
                   <Card className="bg-muted/50 p-6 rounded-lg shadow">
@@ -520,5 +570,21 @@ export default function Home() {
           <p className="text-muted-foreground">Silvia &amp; Oscar - 26 julio 2025</p>
       </footer>
     </div>
+  );
+}
+
+
+// Need to wrap the component using useSearchParams with React.Suspense
+// if used within a Server Component parent or during SSR.
+// Since layout.tsx is likely a Server Component, we wrap Home here.
+// Alternatively, make the entire RootLayout client-side, but this is less ideal.
+import React, { Suspense } from 'react';
+
+export default function Home() {
+  return (
+    // You could add a fallback UI here for when params are loading
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>}>
+      <InvitationPageContent />
+    </Suspense>
   );
 }
