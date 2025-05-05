@@ -151,6 +151,7 @@ function InvitationPageContent() {
 
         // Set confirmation status based *directly* on fetched data
         setIsAlreadyConfirmed(data.Confirmado);
+        // Set rejection status only if confirmed AND confirmed passes are 0
         setIsRejected(data.Confirmado && data.PasesConfirmados === 0);
         setConfirmedGuests(data.Asistentes || []);
 
@@ -542,8 +543,8 @@ function InvitationPageContent() {
                 {/* Display Invitation Name */}
                 <div className="text-center mb-4">
                      <p className="text-sm text-muted-foreground">Invitación para:</p> {/* Reduced text size */}
-                     {/* Updated invitation name style */}
-                     <p className="text-4xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p>
+                     {/* Updated invitation name style - Removed font-julietta */}
+                     <p className="text-3xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p> {/* Reduced to 3xl */}
 
                      {/* Conditionally display pass count */}
                      {!isAlreadyConfirmed && ( // Show ASSIGNED passes ONLY if NOT confirmed yet
@@ -622,4 +623,3 @@ export default function Home() {
     </Suspense>
   );
 }
-
