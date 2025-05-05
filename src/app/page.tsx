@@ -105,7 +105,7 @@ function InvitationPageContent() {
    // Fetch Invitation Data from MongoDB and Setup Audio
    useEffect(() => {
     if (!invitationId) {
-      setError("ID de invitación no proporcionado en la URL.");
+      setError("Por favor, verifica el enlace o contacta a los novios."); // Updated error message
       setIsLoading(false);
       return;
     }
@@ -548,7 +548,7 @@ function InvitationPageContent() {
                      {!isAlreadyConfirmed && ( // Show ASSIGNED passes ONLY if NOT confirmed yet
                          <p className="text-xs text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p>
                      )}
-                     {isAlreadyConfirmed && !isRejected && invitationData?.PasesConfirmados !== undefined && ( // Show CONFIRMED passes if confirmed and NOT rejected
+                     {isAlreadyConfirmed && !isRejected && invitationData?.PasesConfirmados !== undefined && invitationData.PasesConfirmados > 0 && ( // Show CONFIRMED passes if confirmed and NOT rejected AND > 0
                         <p className="text-xs text-muted-foreground mt-1">{invitationData.PasesConfirmados === 1 ? '1 Pase Confirmado' : `${invitationData.PasesConfirmados} Pases Confirmados`}</p>
                      )}
                      {/* If rejected (isAlreadyConfirmed is true and isRejected is true), no pass count is shown */}
