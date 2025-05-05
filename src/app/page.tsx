@@ -271,10 +271,11 @@ function InvitationPageContent() {
         // Update the PasesConfirmados in the main data state if needed, though it's less critical
         // as we are primarily using the derived states (isAlreadyConfirmed, isRejected, confirmedGuests)
         // for display logic after submission.
+        // IMPORTANT: Also update PasesConfirmados in the main data state
         setInvitationData(prevData => prevData ? ({
             ...prevData,
             Confirmado: true,
-            PasesConfirmados: rejected ? 0 : guests.length,
+            PasesConfirmados: rejected ? 0 : guests.length, // Update this value
             Asistentes: guests
         }) : null);
 
@@ -538,11 +539,20 @@ function InvitationPageContent() {
            <AnimatedSection animationType="fade">
                <h3 className="text-4xl font-julietta text-center mb-4 text-primary">onfirma  tu  asistenci</h3> {/* Reduced margin */}
 
-                {/* Display Invitation Name and Assigned Passes */}
+                {/* Display Invitation Name */}
                 <div className="text-center mb-4">
                      <p className="text-sm text-muted-foreground">Invitación para:</p> {/* Reduced text size */}
                      <p className="text-xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p> {/* Reduced text size */}
-                     <p className="text-xs text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p> {/* Reduced text size */}
+
+                     {/* Conditionally display pass count */}
+                     {!isAlreadyConfirmed && ( // Show ASSIGNED passes ONLY if NOT confirmed yet
+                         <p className="text-xs text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p>
+                     )}
+                     {isAlreadyConfirmed && !isRejected && invitationData?.PasesConfirmados !== undefined && ( // Show CONFIRMED passes if confirmed and NOT rejected
+                        <p className="text-xs text-muted-foreground mt-1">{invitationData.PasesConfirmados === 1 ? '1 Pase Confirmado' : `${invitationData.PasesConfirmados} Pases Confirmados`}</p>
+                     )}
+                     {/* If rejected (isAlreadyConfirmed is true and isRejected is true), no pass count is shown */}
+
                 </div>
 
                {/* Confirmation Status/Form */}
