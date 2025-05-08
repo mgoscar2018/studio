@@ -8,13 +8,17 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-// Updated Lucide imports - removed BookOpen, Gem, Diamond, HandHeart
-import { MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX, Heart } from 'lucide-react'; 
+// Updated Lucide imports - removed Clock, Users
+import { MapPin, CalendarDays, Music, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; 
 // Import new react-icons
 import { FaBible } from 'react-icons/fa';
 import { PiHandCoins } from 'react-icons/pi';
-import { GiLinkedRings, GiPillow } from 'react-icons/gi'; // GiPillow was already here, added GiLinkedRings
-import { IoDiamond } from 'react-icons/io5'; // Added IoDiamond
+import { GiLinkedRings, GiPillow, GiPartyPopper } from 'react-icons/gi'; 
+import { IoDiamond } from 'react-icons/io5'; 
+import { MdChurch } from 'react-icons/md';
+import { LiaCocktailSolid } from 'react-icons/lia';
+import { IoIosRestaurant } from 'react-icons/io';
+
 
 import Countdown from '@/components/invitation/Countdown';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
@@ -46,11 +50,11 @@ const padrinos = [
 ];
 
 const itinerary = [
-  { icon: CalendarDays, time: "2:00 p.m.", description: "Ceremonia" },
-  { icon: Clock, time: "3:00 p.m.", description: "Cóctel de Bienvenida" },
-  { icon: Users, time: "4:30 p.m.", description: "Banquete" },
+  { icon: MdChurch, time: "2:00 p.m.", description: "Ceremonia" },
+  { icon: LiaCocktailSolid, time: "3:00 p.m.", description: "Cóctel de Bienvenida" },
+  { icon: IoIosRestaurant, time: "4:30 p.m.", description: "Banquete" },
   { icon: Music, time: "5:30 p.m.", description: "Bailes Oficiales" },
-  { icon: Music, time: "6:00 p.m.", description: "Inicia la Fiesta" },
+  { icon: GiPartyPopper, time: "6:00 p.m.", description: "Inicia la Fiesta" },
 ];
 
 const locationAddress = "Av. Jiutepec #87, esquina Paseo de las Rosas. Colonia Atlacomulco, C.P. 62560, Jiutepec, Morelos.";
@@ -443,7 +447,7 @@ function InvitationPageContent() {
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                           src="/images/mosaic/M6.jpg"
+                           src="/images/mosaic/M2.jpg" // Corrected from M6.jpg
                            alt="Oscar y Silvia Mosaico 2"
                            fill
                            style={{ objectFit: "cover" }}
@@ -628,4 +632,3 @@ export default function Home() {
     </Suspense>
   );
 }
-

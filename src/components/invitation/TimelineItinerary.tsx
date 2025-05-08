@@ -2,12 +2,11 @@
 'use client';
 
 import type React from 'react';
-import type { LucideIcon } from 'lucide-react';
-import { Heart } from 'lucide-react'; // Using Lucide Heart, will fill with CSS or use SVG if needed for solid fill
+// Removed LucideIcon import as it's replaced by React.ElementType
 import { cn } from '@/lib/utils';
 
 interface ItineraryItem {
-  icon: LucideIcon;
+  icon: React.ElementType; // Changed from LucideIcon to support any React component icon
   time: string;
   description: string;
 }
