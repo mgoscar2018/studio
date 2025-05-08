@@ -447,7 +447,7 @@ function InvitationPageContent() {
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                           src="/images/mosaic/M2.jpg" // Corrected from M6.jpg
+                           src="/images/mosaic/M6.jpg" // Corrected from M2.jpg to M6.jpg
                            alt="Oscar y Silvia Mosaico 2"
                            fill
                            style={{ objectFit: "cover" }}
@@ -632,3 +632,4 @@ export default function Home() {
     </Suspense>
   );
 }
+
