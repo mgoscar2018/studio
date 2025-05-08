@@ -8,7 +8,8 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX, Sofa } from 'lucide-react'; // Added Volume icons and Sofa
+import { BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; // Added Volume icons
+import { GiPillow } from 'react-icons/gi'; // Import GiPillow
 import Countdown from '@/components/invitation/Countdown';
 import ItineraryItem from '@/components/invitation/ItineraryItem';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
@@ -34,7 +35,7 @@ const padrinos = [
   { icon: Gem, names: "Tomás Castillo & Aracely Ortega", role: "Padrinos de Anillos" },
   { icon: Diamond, names: "Roberto de León & Claudia Valencia", role: "Padrinos de Arras" },
   { icon: HandHeart, names: "Polly Lagunas & Minerva Gongora", role: "Padrinos de Lazo" },
-  { icon: Sofa, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" },
+  { icon: GiPillow, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" },
 ];
 
 const itinerary = [
@@ -434,7 +435,7 @@ function InvitationPageContent() {
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                           src="/images/mosaic/M2.jpg"
+                           src="/images/mosaic/M6.jpg"
                            alt="Oscar y Silvia Mosaico 2"
                            fill
                            style={{ objectFit: "cover" }}
@@ -623,3 +624,4 @@ export default function Home() {
     </Suspense>
   );
 }
+

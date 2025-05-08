@@ -1,9 +1,9 @@
 // src/components/invitation/PadrinoItem.tsx
 import type React from 'react';
-import type { LucideIcon } from 'lucide-react';
+// import type { LucideIcon } from 'lucide-react'; // No longer strictly LucideIcon
 
 interface PadrinoItemProps {
-  icon: LucideIcon;
+  icon: React.ElementType; // Changed to React.ElementType to accept any icon component
   names: string;
   role: string;
 }
