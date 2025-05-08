@@ -8,8 +8,14 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { BookOpen, Gem, Diamond, HandHeart, MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; // Added Volume icons
-import { GiPillow } from 'react-icons/gi'; // Import GiPillow
+// Updated Lucide imports - removed BookOpen, Gem, Diamond, HandHeart
+import { MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; 
+// Import new react-icons
+import { FaBible } from 'react-icons/fa';
+import { PiHandCoins } from 'react-icons/pi';
+import { GiLinkedRings, GiPillow } from 'react-icons/gi'; // GiPillow was already here, added GiLinkedRings
+import { IoDiamond } from 'react-icons/io5'; // Added IoDiamond
+
 import Countdown from '@/components/invitation/Countdown';
 import ItineraryItem from '@/components/invitation/ItineraryItem';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
@@ -30,11 +36,12 @@ const padres = [
   "MARIO MIRANDA SALGADO"
 ];
 
+// Updated padrinos array with new icons
 const padrinos = [
-  { icon: BookOpen, names: "Ricardo Garcia & Adriana Sotelo", role: "Padrinos de Biblia" },
-  { icon: Gem, names: "Tomás Castillo & Aracely Ortega", role: "Padrinos de Anillos" },
-  { icon: Diamond, names: "Roberto de León & Claudia Valencia", role: "Padrinos de Arras" },
-  { icon: HandHeart, names: "Polly Lagunas & Minerva Gongora", role: "Padrinos de Lazo" },
+  { icon: FaBible, names: "Ricardo Garcia & Adriana Sotelo", role: "Padrinos de Biblia" },
+  { icon: IoDiamond, names: "Tomás Castillo & Aracely Ortega", role: "Padrinos de Anillos" },
+  { icon: PiHandCoins, names: "Roberto de León & Claudia Valencia", role: "Padrinos de Arras" },
+  { icon: GiLinkedRings, names: "Polly Lagunas & Minerva Gongora", role: "Padrinos de Lazo" },
   { icon: GiPillow, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" },
 ];
 
