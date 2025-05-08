@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 // Updated Lucide imports - removed BookOpen, Gem, Diamond, HandHeart
-import { MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX } from 'lucide-react'; 
+import { MapPin, CalendarDays, Clock, Music, Users, CheckCircle, XCircle, Volume2, VolumeX, Heart } from 'lucide-react'; 
 // Import new react-icons
 import { FaBible } from 'react-icons/fa';
 import { PiHandCoins } from 'react-icons/pi';
@@ -17,10 +17,10 @@ import { GiLinkedRings, GiPillow } from 'react-icons/gi'; // GiPillow was alread
 import { IoDiamond } from 'react-icons/io5'; // Added IoDiamond
 
 import Countdown from '@/components/invitation/Countdown';
-import ItineraryItem from '@/components/invitation/ItineraryItem';
 import PadrinoItem from '@/components/invitation/PadrinoItem';
 import ConfirmationForm from '@/components/invitation/ConfirmationForm';
 import AnimatedSection from '@/components/invitation/AnimatedSection';
+import TimelineItinerary from '@/components/invitation/TimelineItinerary'; // Import new TimelineItinerary
 // Import MongoDB service functions
 import { getInvitationData, submitConfirmation, type InvitationData } from '@/services/invitation';
 import { cn } from '@/lib/utils'; // Import cn utility
@@ -516,11 +516,7 @@ function InvitationPageContent() {
 
            <AnimatedSection animationType="fade">
               <h3 className="text-4xl font-julietta text-center mb-4 text-primary">tinerari</h3> {/* Reduced margin */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"> {/* Adjusted gap */}
-                  {itinerary.map((item, index) => (
-                       <ItineraryItem key={index} icon={item.icon} time={item.time} description={item.description} />
-                  ))}
-              </div>
+              <TimelineItinerary items={itinerary} />
           </AnimatedSection>
 
           <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
