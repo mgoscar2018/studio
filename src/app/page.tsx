@@ -47,9 +47,10 @@ const padrinos = [
 
 const itinerary = [
   { icon: CalendarDays, time: "2:00 p.m.", description: "Ceremonia" },
-  { icon: Clock, time: "3:00 p.m.", description: "Cóctel" },
-  { icon: Users, time: "4:00 p.m.", description: "Banquete" },
-  { icon: Music, time: "5:00 p.m.", description: "Inicia la Fiesta" },
+  { icon: Clock, time: "3:00 p.m.", description: "Cóctel de Bienvenida" },
+  { icon: Users, time: "4:30 p.m.", description: "Banquete" },
+  { icon: Music, time: "5:30 p.m.", description: "Bailes Oficiales" },
+  { icon: Music, time: "6:00 p.m.", description: "Inicia la Fiesta" },
 ];
 
 const locationAddress = "Av. Jiutepec #87, esquina Paseo de las Rosas. Colonia Atlacomulco, C.P. 62560, Jiutepec, Morelos.";
