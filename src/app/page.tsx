@@ -398,17 +398,6 @@ function InvitationPageContent() {
                  )}
             </AnimatedSection>
 
-           <AnimatedSection animationType="fade" className="text-center mb-10">
-               <div className="space-y-1 md:space-y-2"> {/* Reduced spacing */}
-                    <p className="text-lg md:text-xl">Sábado</p> {/* Reduced text size */}
-                    <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-2 md:p-3 shadow-md"> {/* Reduced padding */}
-                        <div className="text-4xl md:text-5xl font-bold">26</div> {/* Reduced text size */}
-                        <div className="text-base md:text-lg">julio</div> {/* Reduced text size */}
-                    </div>
-                    <p className="text-lg md:text-xl mt-1">2025</p> {/* Reduced text size */}
-                </div>
-           </AnimatedSection>
-
            <AnimatedSection animationType="slideInRight">
               <Card className="shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg"> {/* Reduced padding */}
                   <CardContent className="pt-4"> {/* Adjusted padding top */}
@@ -421,7 +410,18 @@ function InvitationPageContent() {
 
           <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
           
-          <AnimatedSection animationType="slideInRight" className="text-center">
+           <AnimatedSection animationType="fade" className="text-center mb-10"> {/* Date Section MOVED HERE */}
+               <div className="space-y-1 md:space-y-2"> {/* Reduced spacing */}
+                    <p className="text-lg md:text-xl">Sábado</p> {/* Reduced text size */}
+                    <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-2 md:p-3 shadow-md"> {/* Reduced padding */}
+                        <div className="text-4xl md:text-5xl font-bold">26</div> {/* Reduced text size */}
+                        <div className="text-base md:text-lg">julio</div> {/* Reduced text size */}
+                    </div>
+                    <p className="text-lg md:text-xl mt-1">2025</p> {/* Reduced text size */}
+                </div>
+           </AnimatedSection>
+
+          <AnimatedSection animationType="slideInRight" className="text-center"> {/* Countdown Section */}
               <h3 className="text-xl md:text-2xl font-semibold mb-3">Sólo Faltan</h3> {/* Reduced text size and margin */}
               <Countdown targetDate={weddingDate} />
           </AnimatedSection>
