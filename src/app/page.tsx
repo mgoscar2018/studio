@@ -380,6 +380,24 @@ function InvitationPageContent() {
       {renderHeader()}
       <main className="px-4 md:px-6 py-10 space-y-10 md:space-y-12"> {/* Reduced padding/spacing */}
 
+            <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-3"> {/* Reduced spacing */}
+                <h3 className="text-xl md:text-2xl font-semibold mb-2">Música de Fondo</h3> {/* Reduced text size and margin */}
+                <Button
+                variant="outline"
+                size="icon"
+                className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10" // Slightly smaller
+                onClick={togglePlayPause}
+                aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
+                >
+                 {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />} {/* Slightly smaller icons */}
+                </Button>
+                 {!isPlaying && !isLoading && audioRef.current?.paused && ( // Show hint only if paused and not loading
+                   <p className="text-xs text-muted-foreground text-center max-w-xs">
+                     Haz clic para iniciar la música.
+                   </p>
+                 )}
+            </AnimatedSection>
+
            <AnimatedSection animationType="fade" className="text-center mb-10">
                <div className="space-y-1 md:space-y-2"> {/* Reduced spacing */}
                     <p className="text-lg md:text-xl">Sábado</p> {/* Reduced text size */}
@@ -402,31 +420,12 @@ function InvitationPageContent() {
            </AnimatedSection>
 
           <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
+          
+          <AnimatedSection animationType="slideInRight" className="text-center">
+              <h3 className="text-xl md:text-2xl font-semibold mb-3">Sólo Faltan</h3> {/* Reduced text size and margin */}
+              <Countdown targetDate={weddingDate} />
+          </AnimatedSection>
 
-          <div className="grid grid-cols-1 gap-6"> {/* Reduced gap */}
-             <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-3"> {/* Reduced spacing */}
-                  <h3 className="text-xl md:text-2xl font-semibold mb-2">Música de Fondo</h3> {/* Reduced text size and margin */}
-                  <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10" // Slightly smaller
-                  onClick={togglePlayPause}
-                  aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
-                  >
-                   {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />} {/* Slightly smaller icons */}
-                  </Button>
-                   {!isPlaying && !isLoading && audioRef.current?.paused && ( // Show hint only if paused and not loading
-                     <p className="text-xs text-muted-foreground text-center max-w-xs">
-                       Haz clic para iniciar la música.
-                     </p>
-                   )}
-              </AnimatedSection>
-
-              <AnimatedSection animationType="slideInRight" className="text-center">
-                  <h3 className="text-xl md:text-2xl font-semibold mb-3">Sólo Faltan</h3> {/* Reduced text size and margin */}
-                  <Countdown targetDate={weddingDate} />
-              </AnimatedSection>
-          </div>
 
           <Separator className="my-6 md:my-8" /> {/* Reduced margin */}
 
