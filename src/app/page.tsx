@@ -88,7 +88,7 @@ function InvitationPageContent() {
       setIsAlreadyConfirmed(false);
       setAssignedPasses(0);
       setInvitationName('');
-      setIsPlaying(false);
+      setIsPlaying(false); // Reset playing state
       setAudioReady(false);
       if (audioRef.current) {
         audioRef.current.pause();
@@ -248,12 +248,12 @@ function InvitationPageContent() {
     if (currentAudio.paused) {
       currentAudio.play().catch(error => {
         console.error("Audio playback failed on toggle:", error);
-        setIsPlaying(false); // Ensure state reflects reality
+        // setIsPlaying(false); // State will be updated by event listener
       });
     } else {
       currentAudio.pause();
     }
-     // State is updated by 'play'/'pause' event listeners
+     // State is updated by 'play'/'pause' event listeners attached in useEffect
   };
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
@@ -438,13 +438,13 @@ function InvitationPageContent() {
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                           src="/images/mosaic/M6.jpg"
-                           alt="Oscar y Silvia Mosaico 2"
+                           src="/images/mosaic/M8.jpeg" // Changed from M6.jpg to M8.jpeg
+                           alt="Oscar y Silvia Mosaico 2" // Consider updating alt text if image content changed significantly
                            fill
                            style={{ objectFit: "cover" }}
                            className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 50vw, 33vw"
-                           data-ai-hint="pareja sonriendo parque"
+                           data-ai-hint="pareja sonriendo exterior" // Updated hint
                       />
                   </AnimatedSection>
                   <AnimatedSection animationType="fade" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg">
@@ -609,3 +609,4 @@ export default function Home() {
     </Suspense>
   );
 }
+
