@@ -73,8 +73,6 @@ function InvitationPageContent() {
   const [isAlreadyConfirmed, setIsAlreadyConfirmed] = useState<boolean>(false);
   const [assignedPasses, setAssignedPasses] = useState<number>(0);
   const [invitationName, setInvitationName] = useState<string>('');
-  const [groomName, setGroomName] = useState<string>('Oscar');
-  const [brideName, setBrideName] = useState<string>('Silvia');
   const [audioReady, setAudioReady] = useState(false);
 
 
@@ -94,6 +92,7 @@ function InvitationPageContent() {
       setAudioReady(false);
       if (audioRef.current) {
         audioRef.current.pause();
+        audioRef.current.currentTime = 0; // Reset audio
       }
     }
   }, [searchParams, invitationId]);
@@ -115,13 +114,19 @@ function InvitationPageContent() {
 
       const handlePlay = () => { if (isEffectMounted) setIsPlaying(true); };
       const handlePause = () => { if (isEffectMounted) setIsPlaying(false); };
-      const handleEnded = () => { if (isEffectMounted) setIsPlaying(false); }; 
+      const handleEnded = () => { 
+        if (isEffectMounted) {
+            setIsPlaying(false); 
+            if(audioRef.current) audioRef.current.currentTime = 0; // Reset on end for potential replay
+        }
+      }; 
       const handleAudioError = (e: Event) => { 
         console.error("Audio Element Error:", e); 
         if (isEffectMounted) setIsPlaying(false);
       };
 
     const fetchDataAndSetupAudio = async () => {
+      if (!isEffectMounted) return;
       setAudioReady(false); 
 
       if (!invitationId) {
@@ -142,30 +147,21 @@ function InvitationPageContent() {
           console.log(`Invitation ID ${invitationId} not found in database.`);
           setError("Por favor, verifica el enlace o contacta a los novios.");
           setInvitationData(null);
-          setIsAlreadyConfirmed(false);
-          setIsRejected(false);
-          setConfirmedGuests([]);
-          setAssignedPasses(0);
-          setInvitationName('');
-          setIsLoading(false);
-          if(isEffectMounted) setAudioReady(false);
-          return;
+        } else {
+            console.log("Invitation data fetched successfully:", data);
+            setInvitationData(data);
+            setInvitationName(data.Nombre || 'Invitado/a');
+            setAssignedPasses(data.PasesAsignados || 0);
+            setIsAlreadyConfirmed(data.Confirmado);
+            setIsRejected(data.Confirmado && data.PasesConfirmados === 0); 
+            setConfirmedGuests(data.Asistentes || []);
         }
 
-        console.log("Invitation data fetched successfully:", data);
-        setInvitationData(data);
-        setInvitationName(data.Nombre || 'Invitado/a');
-        setAssignedPasses(data.PasesAsignados || 0);
-        setIsAlreadyConfirmed(data.Confirmado);
-        setIsRejected(data.Confirmado && data.PasesConfirmados === 0); 
-        setConfirmedGuests(data.Asistentes || []);
-        setGroomName('Oscar');
-        setBrideName('Silvia');
 
         if (!audioRef.current) {
           console.log("Creating new audio element and adding listeners.");
           const audioElement = document.createElement('audio');
-          audioElement.loop = true;
+          audioElement.loop = true; // Keep loop for continuous play after initial start
           
           const opusSource = document.createElement('source');
           opusSource.src = '/music/UnPactoConDios.opus';
@@ -190,14 +186,22 @@ function InvitationPageContent() {
           audioElement.addEventListener('error', handleAudioError);
           audioRef.current = audioElement;
         }
+
         if (isEffectMounted) {
             setAudioReady(true);
-            // Attempt to autoplay when audio is ready and component is mounted
-            if (audioRef.current) {
-              audioRef.current.play().catch(e => {
+            // Attempt to autoplay when audio is ready, data is loaded, and component is mounted
+            if (data && audioRef.current) { // Only try to play if invitation data is valid
+              console.log("Attempting to autoplay music...");
+              audioRef.current.play().then(() => {
+                 if(isEffectMounted) setIsPlaying(true);
+                 console.log("Audio playback started successfully.");
+              }).catch(e => {
                 console.warn("Autoplay attempt failed. User interaction might be needed to start music initially.", e);
-                // isPlaying state will be updated by the 'play' event listener if successful
+                if(isEffectMounted) setIsPlaying(false); 
               });
+            } else if (!data && isEffectMounted) { // If no data, ensure audio is not playing
+                if (audioRef.current) audioRef.current.pause();
+                setIsPlaying(false);
             }
         }
         
@@ -205,14 +209,9 @@ function InvitationPageContent() {
         console.error("Error in fetchDataAndSetupAudio:", err);
         if (isEffectMounted) {
           setError(err instanceof Error ? err.message : "Error al cargar los datos de la invitación.");
-          setInvitationData(null);
+          setInvitationData(null); // Clear data on error
+          if (audioRef.current) audioRef.current.pause();
           setIsPlaying(false); 
-          setIsAlreadyConfirmed(false);
-          setIsRejected(false);
-          setConfirmedGuests([]);
-          setAssignedPasses(0);
-          setInvitationName('');
-          setAudioReady(false);
         }
       } finally {
         if (isEffectMounted) setIsLoading(false);
@@ -232,21 +231,29 @@ function InvitationPageContent() {
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded);
         currentAudio.removeEventListener('error', handleAudioError);
+        // Do not set audioRef.current to null here if it's intended to persist across re-renders (e.g. page navigation within app)
+        // However, for a full unmount/cleanup, nulling might be desired if audio instance is recreated.
+        // For this specific component, if it's the main page, the audio element can persist.
       }
     };
-  }, [invitationId]);
+  }, [invitationId]); // Re-run when invitationId changes
 
 
   const togglePlayPause = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioReady) {
+        console.warn("Audio not ready or not initialized. Cannot toggle play/pause.");
+        return;
+    }
     const currentAudio = audioRef.current;
     if (currentAudio.paused) {
       currentAudio.play().catch(error => {
         console.error("Audio playback failed on toggle:", error);
+        setIsPlaying(false); // Ensure state reflects reality
       });
     } else {
       currentAudio.pause();
     }
+     // State is updated by 'play'/'pause' event listeners
   };
 
   const handleConfirmation = async (guests: string[], rejected: boolean) => {
@@ -260,6 +267,8 @@ function InvitationPageContent() {
      try {
         await submitConfirmation(invitationId, { guests, rejected });
         console.log("Confirmation submitted successfully:", { guests, rejected });
+        
+        // Update local state to reflect changes immediately
         setIsAlreadyConfirmed(true);
         setIsRejected(rejected);
         setConfirmedGuests(guests);
@@ -269,6 +278,7 @@ function InvitationPageContent() {
             PasesConfirmados: rejected ? 0 : guests.length,
             Asistentes: guests
         }) : null);
+
      } catch (error) {
          console.error("Failed to submit confirmation:", error);
          setError("Error al enviar la confirmación. Inténtalo de nuevo.");
@@ -292,27 +302,27 @@ function InvitationPageContent() {
            </div>
             <div className={cn(
                 "relative z-10 flex flex-col items-center text-center text-white w-full h-full py-8 md:py-12 px-4",
-                 isPortrait ? "justify-between" : "justify-end pb-8"
+                 isPortrait ? "justify-between" : "justify-end pb-8" // Place content at bottom for horizontal
             )}>
                  <div className={cn(
-                      "flex flex-col items-center w-[90%] max-w-full",
+                      "flex flex-col items-center w-full", // Use full width
                       isPortrait ? "mt-4" : "mb-auto" 
                  )}>
                      <h1 className={cn(
                          "font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,1)]",
                          "text-7xl", 
-                         !isPortrait && "opacity-50"
+                         !isPortrait && "opacity-50" // Dim if horizontal
                      )}>
                          SilviOscar
                     </h1>
                  </div>
                 <AnimatedSection animationType="fade" className={cn(
                     "delay-500",
-                    isPortrait ? "mb-4" : "mt-auto w-full"
+                    isPortrait ? "mb-4" : "mt-auto w-full" // Ensure it's at bottom for horizontal
                 )}>
                     <h2 className={cn(
                         "text-4xl font-julietta text-white [text-shadow:0_0_15px_rgba(0,0,0,1)]",
-                         !isPortrait && "opacity-50"
+                         !isPortrait && "opacity-50" // Dim if horizontal
                     )}>
                          ¡Nos casamos!
                     </h2>
@@ -325,7 +335,7 @@ function InvitationPageContent() {
      return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
    }
 
-   if (error || (!isLoading && !invitationId) || (!isLoading && invitationId && !invitationData) ) {
+   if (error || (!isLoading && !invitationId) || (!isLoading && invitationId && !invitationData && audioReady) ) {
        return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
                 {renderHeader()}
@@ -337,7 +347,23 @@ function InvitationPageContent() {
        );
    }
    
-  if (!invitationData) {
+  if (!invitationData && !isLoading && !audioReady && invitationId) { // Still loading audio or initial data
+    return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
+  }
+
+  if (!invitationData && !isLoading && audioReady && invitationId) { // Should be caught by error block above, but as safety
+    return (
+            <div className="min-h-screen text-foreground overflow-x-hidden">
+                {renderHeader()}
+                <div className="flex flex-col items-center justify-center text-center p-4 mt-8">
+                    <h2 className="text-2xl font-semibold mb-4">Invitación no encontrada</h2>
+                    <p className="text-muted-foreground">{"Por favor, verifica el enlace o contacta a los novios."}</p>
+                </div>
+            </div>
+       );
+  }
+
+  if (!invitationData) { // Final fallback if data is null after loading attempts.
     return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
   }
 
@@ -356,9 +382,13 @@ function InvitationPageContent() {
                 className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10"
                 onClick={togglePlayPause}
                 aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
+                disabled={!audioReady} // Disable button if audio not ready
                 >
                  {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />}
                 </Button>
+                {!isPlaying && audioReady && (
+                    <p className="text-sm text-muted-foreground mt-2">Haz clic para iniciar la música.</p>
+                )}
             </AnimatedSection>
 
            <AnimatedSection animationType="slideInRight">
@@ -455,7 +485,7 @@ function InvitationPageContent() {
 
           <Separator className="my-6 md:my-8" />
 
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10"> {/* Adjusted for desktop view */}
               <AnimatedSection animationType="slideInLeft" className="text-center">
                   <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padre</h3>
                   <div className="space-y-1 text-base md:text-lg">
