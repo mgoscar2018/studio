@@ -21,10 +21,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bodasilviaoscar.sit
 
 export const metadata: Metadata = {
   title: 'Boda Silvia y Oscar', // Updated title
-  description: 'Invitación digital interactiva para nuestra boda.',
+  description: '¡Acompáñanos a celebrar nuestra boda!', // Updated description
   openGraph: {
     title: 'Boda Silvia y Oscar', // Updated title
-    description: 'Invitación digital interactiva para nuestra boda.',
+    description: '¡Acompáñanos a celebrar nuestra boda!', // Updated description
     url: siteUrl,
     siteName: 'Boda Silvia y Oscar', // Updated siteName
     images: [
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Boda Silvia y Oscar', // Updated title
-    description: 'Invitación digital interactiva para nuestra boda.',
+    description: '¡Acompáñanos a celebrar nuestra boda!', // Updated description
     images: [`${siteUrl}/images/Portada_h.jpg`], // Absolute URL for the image
   },
 };
