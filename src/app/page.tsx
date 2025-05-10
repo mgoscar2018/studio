@@ -103,30 +103,37 @@ function InvitationPageContent() {
   }, []);
   
   useEffect(() => {
+    const currentAudioElement = audioRef.current; // Capture for use in handler & cleanup
+
     const handleFirstScrollToPlay = () => {
-        if (isPlaying || !audioRef.current || !audioRef.current.paused) {
+        // Guard conditions:
+        // - isPlaying: if true, music is already playing or intended to be playing.
+        // - !currentAudioElement: if audio element doesn't exist.
+        // - !currentAudioElement.paused: if audio is not paused (i.e., it's playing or in an intermediate state).
+        if (isPlaying || !currentAudioElement || !currentAudioElement.paused) {
             return;
         }
         console.log("Attempting to play audio due to scroll interaction.");
-        audioRef.current.play().catch(e => {
+        currentAudioElement.play().catch(e => {
             console.error("Play attempt after scroll interaction failed:", e);
         });
-        // The 'play' event on audioRef will set isPlaying to true.
-        // This effect's re-run (due to isPlaying changing) will then lead to the cleanup of this listener.
+        // Note: The 'play' event on audioRef (setup in fetchDataAndSetupAudio) 
+        // will call setIsPlaying(true). This effect will then re-run.
+        // The re-run will cause the old listener to be cleaned up.
     };
 
-    if (!isPlaying && audioRef.current) {
+    // Add listener if audio is ready and not currently playing.
+    if (!isPlaying && currentAudioElement) {
         console.log("Adding scroll listener for initial play.");
-        // Add the scroll listener. It will be cleaned up once isPlaying becomes true or component unmounts.
         document.addEventListener('scroll', handleFirstScrollToPlay, { capture: true });
     }
 
+    // Cleanup function for this effect.
     return () => {
-        // Cleanup: always remove the listener when the effect re-runs or component unmounts.
-        console.log("Cleaning up scroll listener for initial play.");
+        console.log("Cleaning up scroll listener for initial play (due to deps change or unmount).");
         document.removeEventListener('scroll', handleFirstScrollToPlay, { capture: true });
     };
-  }, [isPlaying, audioRef]); // Depend on isPlaying and audioRef (its .current value)
+  }, [isPlaying, audioRef.current]); // DEPEND ON audioRef.current and isPlaying
 
 
   useEffect(() => {
@@ -207,25 +214,12 @@ function InvitationPageContent() {
           audioRef.current = audioElement;
         }
         
-        // DO NOT AUTOPLAY HERE. Music will start on scroll.
-        // if (audioRef.current) {
-        //   const playPromise = audioRef.current.play(); 
-        //   if (playPromise !== undefined) {
-        //     playPromise.then(() => {
-        //       console.log("Autoplay initiated or music resumed.");
-        //     }).catch(error => {
-        //       console.log("Autoplay/play prevented by browser or error:", error);
-        //       if (isEffectMounted) setIsPlaying(false); 
-        //     });
-        //   }
-        // }
-
       } catch (err) {
         console.error("Error in fetchDataAndSetupAudio:", err);
         if (isEffectMounted) {
           setError(err instanceof Error ? err.message : "Error al cargar los datos de la invitación.");
           setInvitationData(null);
-          setIsPlaying(false); // Ensure isPlaying is false if audio setup/play fails
+          setIsPlaying(false); 
           setIsAlreadyConfirmed(false);
           setIsRejected(false);
           setConfirmedGuests([]);
