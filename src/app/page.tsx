@@ -66,6 +66,7 @@ function InvitationPageContent() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null); // Ref for the toggle button
 
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]);
   const [isRejected, setIsRejected] = useState<boolean>(false);
@@ -82,7 +83,6 @@ function InvitationPageContent() {
       setInvitationData(null);
       setIsLoading(true);
       setError(null);
-      // isPlaying will be reset by the audio effect cleanup
       setConfirmedGuests([]);
       setIsRejected(false);
       setIsAlreadyConfirmed(false);
@@ -102,37 +102,39 @@ function InvitationPageContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  // This useEffect handles user interactions to attempt playing audio if it was blocked or paused.
   useEffect(() => {
-      const handleUserInteraction = () => {
+      const handleUserInteraction = (event: Event) => {
           if (audioRef.current && audioRef.current.paused) {
+              // Check if the event target is the toggle button itself
+              if (toggleButtonRef.current && toggleButtonRef.current.contains(event.target as Node)) {
+                  // If the click is on the toggle button, let togglePlayPause handle it.
+                  return;
+              }
               audioRef.current.play().catch(e => console.error("Autoplay failed after user interaction:", e));
           }
       };
 
-      // Add event listeners for common user interactions to trigger playback
-      document.addEventListener('click', handleUserInteraction);
-      document.addEventListener('scroll', handleUserInteraction);
-      document.addEventListener('touchstart', handleUserInteraction);
+      document.addEventListener('click', handleUserInteraction, true); // Use capture phase for more reliability
+      document.addEventListener('scroll', handleUserInteraction, true);
+      document.addEventListener('touchstart', handleUserInteraction, true);
 
-      // Clean up listeners when the component unmounts
       return () => {
-          document.removeEventListener('click', handleUserInteraction);
-          document.removeEventListener('scroll', handleUserInteraction);
-          document.removeEventListener('touchstart', handleUserInteraction);
+          document.removeEventListener('click', handleUserInteraction, true);
+          document.removeEventListener('scroll', handleUserInteraction, true);
+          document.removeEventListener('touchstart', handleUserInteraction, true);
       };
-  }, []); // Empty dependency array ensures listeners are added only once on mount
+  }, []); 
 
   useEffect(() => {
-      let isEffectMounted = true; // To prevent state updates on unmounted component
+      let isEffectMounted = true; 
 
       const handlePlay = () => { if (isEffectMounted) setIsPlaying(true); };
       const handlePause = () => { if (isEffectMounted) setIsPlaying(false); };
-    const handleEnded = () => { if (isEffectMounted) setIsPlaying(false); }; // e.g. if music naturally ends (though loop=true)
-    const handleAudioError = (e: Event) => { 
-      console.error("Audio Element Error:", e); 
-      if (isEffectMounted) setIsPlaying(false);
-    };
+      const handleEnded = () => { if (isEffectMounted) setIsPlaying(false); }; 
+      const handleAudioError = (e: Event) => { 
+        console.error("Audio Element Error:", e); 
+        if (isEffectMounted) setIsPlaying(false);
+      };
 
     const fetchDataAndSetupAudio = async () => {
       if (!invitationId) {
@@ -167,12 +169,11 @@ function InvitationPageContent() {
         setInvitationName(data.Nombre || 'Invitado/a');
         setAssignedPasses(data.PasesAsignados || 0);
         setIsAlreadyConfirmed(data.Confirmado);
-        setIsRejected(data.Confirmado && data.PasesConfirmados === 0); // Correctly set isRejected
+        setIsRejected(data.Confirmado && data.PasesConfirmados === 0); 
         setConfirmedGuests(data.Asistentes || []);
         setGroomName('Oscar');
         setBrideName('Silvia');
 
-        // Audio Setup: Create and configure audio element if it doesn't exist
         if (!audioRef.current) {
           console.log("Creating new audio element and adding listeners.");
           const audioElement = document.createElement('audio');
@@ -202,7 +203,6 @@ function InvitationPageContent() {
           audioRef.current = audioElement;
         }
         
-        // Attempt to play audio if the element exists
         if (audioRef.current) {
           const playPromise = audioRef.current.play(); 
           if (playPromise !== undefined) {
@@ -218,7 +218,6 @@ function InvitationPageContent() {
       } catch (err) {
         console.error("Error in fetchDataAndSetupAudio:", err);
         if (isEffectMounted) {
-          // Keep existing error setting logic
           setError(err instanceof Error ? err.message : "Error al cargar los datos de la invitación.");
           setInvitationData(null);
           setIsPlaying(false);
@@ -245,7 +244,8 @@ function InvitationPageContent() {
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded);
         currentAudio.removeEventListener('error', handleAudioError);
-        audioRef.current = null; 
+        // Do not nullify audioRef.current here if it's meant to persist across invitationId changes
+        // audioRef.current = null; 
       }
     };
   }, [invitationId]);
@@ -335,12 +335,10 @@ function InvitationPageContent() {
        </header>
    );
 
-   if (isLoading && !invitationData && !error && invitationId) { // Only show loading if ID is present
+   if (isLoading && !invitationData && !error && invitationId) { 
      return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
    }
 
-   // If there's an error OR if loading is done and there's still no invitation data (even with an ID)
-   // OR if there's no invitationId to begin with (after initial check)
    if (error || (!isLoading && !invitationId) || (!isLoading && invitationId && !invitationData) ) {
        return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
@@ -353,7 +351,6 @@ function InvitationPageContent() {
        );
    }
    
-  // This check should ideally not be hit if the above logic is correct, but as a safeguard:
   if (!invitationData) {
     return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
   }
@@ -367,6 +364,7 @@ function InvitationPageContent() {
             <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-3">
                 <h3 className="text-xl md:text-2xl font-semibold mb-2">Música de Fondo</h3>
                 <Button
+                ref={toggleButtonRef} // Assign ref to the button
                 variant="outline"
                 size="icon"
                 className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10"
@@ -580,7 +578,7 @@ function InvitationPageContent() {
                    />
                )}
 
-               {error && !isSubmitting && ( // Show general errors if not submitting (submission errors are handled by toast in form)
+               {error && !isSubmitting && ( 
                    <p className="text-center text-destructive mt-3 text-sm">{error}</p>
                )}
           </AnimatedSection>
