@@ -75,7 +75,7 @@ function InvitationPageContent() {
   const [invitationName, setInvitationName] = useState<string>('');
   const [groomName, setGroomName] = useState<string>('Oscar');
   const [brideName, setBrideName] = useState<string>('Silvia');
-  const [audioReady, setAudioReady] = useState(false); // New state for audio readiness
+  const [audioReady, setAudioReady] = useState(false);
 
 
   useEffect(() => {
@@ -90,12 +90,10 @@ function InvitationPageContent() {
       setIsAlreadyConfirmed(false);
       setAssignedPasses(0);
       setInvitationName('');
-      // Reset audio-related states if ID changes
       setIsPlaying(false);
       setAudioReady(false);
       if (audioRef.current) {
         audioRef.current.pause();
-        // Consider fully removing and recreating audio element if source changes based on ID
       }
     }
   }, [searchParams, invitationId]);
@@ -111,34 +109,6 @@ function InvitationPageContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  useEffect(() => {
-    const audioElement = audioRef.current; // Get current audio element from ref
-
-    const handleFirstScrollToPlay = () => {
-        if (isPlaying || !audioElement || !audioElement.paused) {
-            return;
-        }
-        console.log("Attempting to play audio due to scroll interaction.");
-        audioElement.play().catch(e => {
-            console.warn("Play attempt after scroll interaction failed. This is expected on some mobile browsers without a prior tap/click. Audio should play once the button is tapped.", e);
-        });
-    };
-
-    // Only add scroll listener if audio is ready, not already playing, and element exists
-    if (audioReady && !isPlaying && audioElement) {
-        console.log("Adding scroll listener for initial play (audio is ready).");
-        document.addEventListener('scroll', handleFirstScrollToPlay, { capture: true });
-    }
-
-    return () => {
-        // Check if listener might have been added before trying to remove
-        if (audioReady && audioElement) { 
-             console.log("Cleaning up scroll listener for initial play.");
-             document.removeEventListener('scroll', handleFirstScrollToPlay, { capture: true });
-        }
-    };
-  }, [audioReady, isPlaying]); // Dependencies now use audioReady state
-
 
   useEffect(() => {
       let isEffectMounted = true; 
@@ -152,7 +122,7 @@ function InvitationPageContent() {
       };
 
     const fetchDataAndSetupAudio = async () => {
-      setAudioReady(false); // Reset audioReady when invitationId changes or on first load
+      setAudioReady(false); 
 
       if (!invitationId) {
         setError("Por favor, verifica el enlace o contacta a los novios.");
@@ -221,7 +191,14 @@ function InvitationPageContent() {
           audioRef.current = audioElement;
         }
         if (isEffectMounted) {
-            setAudioReady(true); // Set audioReady to true once audio element is confirmed/created
+            setAudioReady(true);
+            // Attempt to autoplay when audio is ready and component is mounted
+            if (audioRef.current) {
+              audioRef.current.play().catch(e => {
+                console.warn("Autoplay attempt failed. User interaction might be needed to start music initially.", e);
+                // isPlaying state will be updated by the 'play' event listener if successful
+              });
+            }
         }
         
       } catch (err) {
@@ -235,7 +212,7 @@ function InvitationPageContent() {
           setConfirmedGuests([]);
           setAssignedPasses(0);
           setInvitationName('');
-          setAudioReady(false); // Ensure audioReady is false on error
+          setAudioReady(false);
         }
       } finally {
         if (isEffectMounted) setIsLoading(false);
@@ -246,7 +223,7 @@ function InvitationPageContent() {
 
     return () => {
       isEffectMounted = false;
-      setAudioReady(false); // Reset audioReady on unmount or before re-run for new invitationId
+      setAudioReady(false);
       const currentAudio = audioRef.current;
       if (currentAudio) {
         console.log("Cleaning up audio: pausing, removing listeners.");
@@ -382,11 +359,6 @@ function InvitationPageContent() {
                 >
                  {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />}
                 </Button>
-                 {!isPlaying && audioReady && audioRef.current?.paused && (
-                   <p className="text-xs text-muted-foreground text-center max-w-xs">
-                     Desliza para iniciar la música o haz clic en el botón.
-                   </p>
-                 )}
             </AnimatedSection>
 
            <AnimatedSection animationType="slideInRight">
@@ -607,4 +579,3 @@ export default function Home() {
     </Suspense>
   );
 }
-
