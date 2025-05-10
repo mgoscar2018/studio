@@ -17,9 +17,33 @@ const lato = Lato({
   display: 'swap',
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bodasilviaoscar.site'; // Fallback to production URL
+
 export const metadata: Metadata = {
   title: 'Eternal Vows - Nuestra Boda',
   description: 'Invitación digital interactiva para nuestra boda.',
+  openGraph: {
+    title: 'Eternal Vows - Nuestra Boda',
+    description: 'Invitación digital interactiva para nuestra boda.',
+    url: siteUrl,
+    siteName: 'Eternal Vows',
+    images: [
+      {
+        url: `${siteUrl}/images/Portada_h.jpg`, // Absolute URL for the image
+        width: 1200, // Standard Open Graph image width
+        height: 630, // Standard Open Graph image height
+        alt: 'Oscar y Silvia - Invitación de Boda',
+      },
+    ],
+    type: 'website',
+    locale: 'es_ES',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Eternal Vows - Nuestra Boda',
+    description: 'Invitación digital interactiva para nuestra boda.',
+    images: [`${siteUrl}/images/Portada_h.jpg`], // Absolute URL for the image
+  },
 };
 
 export default function RootLayout({
