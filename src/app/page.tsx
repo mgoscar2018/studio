@@ -138,7 +138,7 @@ function InvitationPageContent() {
 
     const fetchDataAndSetupAudio = async () => {
       if (!invitationId) {
-        setError("ID de invitación no proporcionado. Por favor, verifica el enlace o contacta a los novios.");
+        setError("Por favor, verifica el enlace o contacta a los novios.");
         setIsLoading(false);
         return;
       }
@@ -153,7 +153,7 @@ function InvitationPageContent() {
 
         if (!data) {
           console.log(`Invitation ID ${invitationId} not found in database.`);
-          setError("Invitación no encontrada. Por favor, verifica el enlace.");
+          setError("Por favor, verifica el enlace o contacta a los novios.");
           setInvitationData(null);
           setIsAlreadyConfirmed(false);
           setIsRejected(false);
@@ -598,3 +598,4 @@ export default function Home() {
     </Suspense>
   );
 }
+
