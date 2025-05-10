@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: 'Boda Silvia y Oscar', // Updated siteName
     images: [
       {
-        url: `${siteUrl}/images/Portada_h.jpg`, // Absolute URL for the image
+        url: `${siteUrl}/images/Portada_1200x630.jpeg`, // Absolute URL for the image
         width: 1200, // Standard Open Graph image width
         height: 630, // Standard Open Graph image height
         alt: 'Oscar y Silvia - Invitación de Boda',
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Boda Silvia y Oscar', // Updated title
     description: '¡Acompáñanos a celebrar nuestra boda!', // Updated description
-    images: [`${siteUrl}/images/Portada_h.jpg`], // Absolute URL for the image
+    images: [`${siteUrl}/images/Portada_1200x630.jpeg`], // Absolute URL for the image
   },
 };
 
