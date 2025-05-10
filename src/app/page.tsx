@@ -37,7 +37,7 @@ const padres = [
 const padrinos = [
   { icon: FaBible, names: "Ricardo Garcia & Adriana Sotelo", role: "Padrinos de Biblia" },
   { icon: IoDiamond, names: "Tomás Castillo & Aracely Ortega", role: "Padrinos de Anillos" },
-  { icon: PiHandCoins, names: "Roberto de León & Claudia Valencia", role: "Padrinos de Arras" },
+  { icon: PiHandCoins, names: "Roberto De León & Claudia Valencia", role: "Padrinos de Arras" },
   { icon: GiLinkedRings, names: "Polly Lagunas & Minerva Gongora", role: "Padrinos de Lazo" },
   { icon: GiPillow, names: "Luis Luviano & Carmen Castrejón", role: "Padrinos de Cojines" },
 ];
@@ -101,18 +101,33 @@ function InvitationPageContent() {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+  
+  // This useEffect handles user interactions to attempt playing audio if it was blocked or paused.
+  useEffect(() => {
+      const handleUserInteraction = () => {
+          if (audioRef.current && audioRef.current.paused) {
+              audioRef.current.play().catch(e => console.error("Autoplay failed after user interaction:", e));
+          }
+      };
+
+      // Add event listeners for common user interactions to trigger playback
+      document.addEventListener('click', handleUserInteraction);
+      document.addEventListener('scroll', handleUserInteraction);
+      document.addEventListener('touchstart', handleUserInteraction);
+
+      // Clean up listeners when the component unmounts
+      return () => {
+          document.removeEventListener('click', handleUserInteraction);
+          document.removeEventListener('scroll', handleUserInteraction);
+          document.removeEventListener('touchstart', handleUserInteraction);
+      };
+  }, []); // Empty dependency array ensures listeners are added only once on mount
 
   useEffect(() => {
-    if (!invitationId) {
-      setError("Por favor, verifica el enlace o contacta a los novios.");
-      setIsLoading(false);
-      return;
-    }
+      let isEffectMounted = true; // To prevent state updates on unmounted component
 
-    let isEffectMounted = true; // To prevent state updates on unmounted component
-
-    const handlePlay = () => { if (isEffectMounted) setIsPlaying(true); };
-    const handlePause = () => { if (isEffectMounted) setIsPlaying(false); };
+      const handlePlay = () => { if (isEffectMounted) setIsPlaying(true); };
+      const handlePause = () => { if (isEffectMounted) setIsPlaying(false); };
     const handleEnded = () => { if (isEffectMounted) setIsPlaying(false); }; // e.g. if music naturally ends (though loop=true)
     const handleAudioError = (e: Event) => { 
       console.error("Audio Element Error:", e); 
@@ -120,6 +135,11 @@ function InvitationPageContent() {
     };
 
     const fetchDataAndSetupAudio = async () => {
+      if (!invitationId) {
+        setError("ID de invitación no proporcionado. Por favor, verifica el enlace o contacta a los novios.");
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(true);
       setError(null);
       console.log(`Fetching data for invitation ID: ${invitationId}...`);
@@ -147,7 +167,7 @@ function InvitationPageContent() {
         setInvitationName(data.Nombre || 'Invitado/a');
         setAssignedPasses(data.PasesAsignados || 0);
         setIsAlreadyConfirmed(data.Confirmado);
-        setIsRejected(data.Confirmado && data.PasesConfirmados === 0);
+        setIsRejected(data.Confirmado && data.PasesConfirmados === 0); // Correctly set isRejected
         setConfirmedGuests(data.Asistentes || []);
         setGroomName('Oscar');
         setBrideName('Silvia');
@@ -184,14 +204,13 @@ function InvitationPageContent() {
         
         // Attempt to play audio if the element exists
         if (audioRef.current) {
-          const playPromise = audioRef.current.play();
+          const playPromise = audioRef.current.play(); 
           if (playPromise !== undefined) {
             playPromise.then(() => {
               console.log("Autoplay initiated or music resumed.");
-              // setIsPlaying(true) will be handled by the 'play' event listener
             }).catch(error => {
               console.log("Autoplay/play prevented by browser or error:", error);
-              if (isEffectMounted) setIsPlaying(false); // Explicitly set if promise rejects
+              if (isEffectMounted) setIsPlaying(false); 
             });
           }
         }
@@ -199,7 +218,8 @@ function InvitationPageContent() {
       } catch (err) {
         console.error("Error in fetchDataAndSetupAudio:", err);
         if (isEffectMounted) {
-          setError("Error al cargar los datos de la invitación.");
+          // Keep existing error setting logic
+          setError(err instanceof Error ? err.message : "Error al cargar los datos de la invitación.");
           setInvitationData(null);
           setIsPlaying(false);
           setIsAlreadyConfirmed(false);
@@ -225,7 +245,7 @@ function InvitationPageContent() {
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded);
         currentAudio.removeEventListener('error', handleAudioError);
-        audioRef.current = null; // Nullify ref to ensure re-creation on next ID/mount
+        audioRef.current = null; 
       }
     };
   }, [invitationId]);
@@ -315,11 +335,13 @@ function InvitationPageContent() {
        </header>
    );
 
-   if (isLoading && !invitationData && !error) {
+   if (isLoading && !invitationData && !error && invitationId) { // Only show loading if ID is present
      return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
    }
 
-   if (error || (!isLoading && !invitationData)) {
+   // If there's an error OR if loading is done and there's still no invitation data (even with an ID)
+   // OR if there's no invitationId to begin with (after initial check)
+   if (error || (!isLoading && !invitationId) || (!isLoading && invitationId && !invitationData) ) {
        return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
                 {renderHeader()}
@@ -330,6 +352,12 @@ function InvitationPageContent() {
             </div>
        );
    }
+   
+  // This check should ideally not be hit if the above logic is correct, but as a safeguard:
+  if (!invitationData) {
+    return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
+  }
+
 
   return (
     <div className="min-h-screen text-foreground overflow-x-hidden">
@@ -552,7 +580,7 @@ function InvitationPageContent() {
                    />
                )}
 
-               {error && !isSubmitting && (
+               {error && !isSubmitting && ( // Show general errors if not submitting (submission errors are handled by toast in form)
                    <p className="text-center text-destructive mt-3 text-sm">{error}</p>
                )}
           </AnimatedSection>
