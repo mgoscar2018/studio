@@ -66,7 +66,7 @@ function InvitationPageContent() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPortrait, setIsPortrait] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const toggleButtonRef = useRef<HTMLButtonElement>(null); // Ref for the toggle button
+  const toggleButtonRef = useRef<HTMLButtonElement>(null); 
 
   const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]);
   const [isRejected, setIsRejected] = useState<boolean>(false);
@@ -102,46 +102,31 @@ function InvitationPageContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
-  // This useEffect handles playing audio on first user interaction if initial autoplay failed.
   useEffect(() => {
-    const handleUserInteraction = (event: Event) => {
-        // If audio is already playing, or audio element doesn't exist yet, do nothing.
-        // The listeners will be removed when isPlaying becomes true.
-        if (isPlaying || !audioRef.current) {
+    const handleFirstScrollToPlay = () => {
+        if (isPlaying || !audioRef.current || !audioRef.current.paused) {
             return;
         }
-
-        // If audio exists and is paused, attempt to play.
-        if (audioRef.current.paused) {
-            // Prevent interference if the interaction is on the music toggle button itself.
-            if (toggleButtonRef.current && toggleButtonRef.current.contains(event.target as Node)) {
-                return;
-            }
-            
-            console.log("Attempting to play audio due to user interaction.");
-            audioRef.current.play().catch(e => {
-                console.error("Play attempt after user interaction failed (from interaction effect):", e);
-            });
-            // The 'play' event on the audio element itself will set isPlaying to true,
-            // which will then lead to the cleanup of these listeners via this effect's re-run.
-        }
+        console.log("Attempting to play audio due to scroll interaction.");
+        audioRef.current.play().catch(e => {
+            console.error("Play attempt after scroll interaction failed:", e);
+        });
+        // The 'play' event on audioRef will set isPlaying to true.
+        // This effect's re-run (due to isPlaying changing) will then lead to the cleanup of this listener.
     };
 
-    // Only add listeners if music isn't playing.
-    // If audioRef.current is not yet set, handleUserInteraction will do nothing until it is.
-    if (!isPlaying) {
-        document.addEventListener('click', handleUserInteraction, { capture: true });
-        document.addEventListener('scroll', handleUserInteraction, { capture: true });
-        document.addEventListener('touchstart', handleUserInteraction, { capture: true });
+    if (!isPlaying && audioRef.current) {
+        console.log("Adding scroll listener for initial play.");
+        // Add the scroll listener. It will be cleaned up once isPlaying becomes true or component unmounts.
+        document.addEventListener('scroll', handleFirstScrollToPlay, { capture: true });
     }
 
     return () => {
-        // Cleanup: always remove listeners when the effect re-runs or component unmounts.
-        document.removeEventListener('click', handleUserInteraction, { capture: true });
-        document.removeEventListener('scroll', handleUserInteraction, { capture: true });
-        document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
+        // Cleanup: always remove the listener when the effect re-runs or component unmounts.
+        console.log("Cleaning up scroll listener for initial play.");
+        document.removeEventListener('scroll', handleFirstScrollToPlay, { capture: true });
     };
-  }, [isPlaying]); // Re-run when isPlaying changes.
+  }, [isPlaying, audioRef]); // Depend on isPlaying and audioRef (its .current value)
 
 
   useEffect(() => {
@@ -222,26 +207,25 @@ function InvitationPageContent() {
           audioRef.current = audioElement;
         }
         
-        if (audioRef.current) {
-          const playPromise = audioRef.current.play(); 
-          if (playPromise !== undefined) {
-            playPromise.then(() => {
-              console.log("Autoplay initiated or music resumed.");
-              // isPlaying state will be set by the 'play' event listener (handlePlay)
-            }).catch(error => {
-              console.log("Autoplay/play prevented by browser or error:", error);
-              if (isEffectMounted) setIsPlaying(false); 
-              // If autoplay fails, the interaction useEffect will handle playing on user gesture.
-            });
-          }
-        }
+        // DO NOT AUTOPLAY HERE. Music will start on scroll.
+        // if (audioRef.current) {
+        //   const playPromise = audioRef.current.play(); 
+        //   if (playPromise !== undefined) {
+        //     playPromise.then(() => {
+        //       console.log("Autoplay initiated or music resumed.");
+        //     }).catch(error => {
+        //       console.log("Autoplay/play prevented by browser or error:", error);
+        //       if (isEffectMounted) setIsPlaying(false); 
+        //     });
+        //   }
+        // }
 
       } catch (err) {
         console.error("Error in fetchDataAndSetupAudio:", err);
         if (isEffectMounted) {
           setError(err instanceof Error ? err.message : "Error al cargar los datos de la invitación.");
           setInvitationData(null);
-          setIsPlaying(false);
+          setIsPlaying(false); // Ensure isPlaying is false if audio setup/play fails
           setIsAlreadyConfirmed(false);
           setIsRejected(false);
           setConfirmedGuests([]);
@@ -383,7 +367,7 @@ function InvitationPageContent() {
             <AnimatedSection animationType="slideInLeft" className="flex flex-col items-center space-y-3">
                 <h3 className="text-xl md:text-2xl font-semibold mb-2">Música de Fondo</h3>
                 <Button
-                ref={toggleButtonRef} // Assign ref to the button
+                ref={toggleButtonRef} 
                 variant="outline"
                 size="icon"
                 className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10"
@@ -394,7 +378,7 @@ function InvitationPageContent() {
                 </Button>
                  {!isPlaying && !isLoading && audioRef.current?.paused && (
                    <p className="text-xs text-muted-foreground text-center max-w-xs">
-                     Haz clic para iniciar la música.
+                     Desliza para iniciar la música o haz clic en el botón.
                    </p>
                  )}
             </AnimatedSection>
