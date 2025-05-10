@@ -114,14 +114,14 @@ function InvitationPageContent() {
           }
       };
 
-      document.addEventListener('click', handleUserInteraction, true); // Use capture phase for more reliability
-      document.addEventListener('scroll', handleUserInteraction, true);
-      document.addEventListener('touchstart', handleUserInteraction, true);
+      document.addEventListener('click', handleUserInteraction, { capture: true, once: true }); 
+      document.addEventListener('scroll', handleUserInteraction, { capture: true, once: true });
+      document.addEventListener('touchstart', handleUserInteraction, { capture: true, once: true });
 
       return () => {
-          document.removeEventListener('click', handleUserInteraction, true);
-          document.removeEventListener('scroll', handleUserInteraction, true);
-          document.removeEventListener('touchstart', handleUserInteraction, true);
+          document.removeEventListener('click', handleUserInteraction, { capture: true });
+          document.removeEventListener('scroll', handleUserInteraction, { capture: true });
+          document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
       };
   }, []); 
 
@@ -238,14 +238,12 @@ function InvitationPageContent() {
       isEffectMounted = false;
       const currentAudio = audioRef.current;
       if (currentAudio) {
-        console.log("Cleaning up audio: pausing, removing listeners, and nullifying ref.");
+        console.log("Cleaning up audio: pausing, removing listeners.");
         currentAudio.pause();
         currentAudio.removeEventListener('play', handlePlay);
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded);
         currentAudio.removeEventListener('error', handleAudioError);
-        // Do not nullify audioRef.current here if it's meant to persist across invitationId changes
-        // audioRef.current = null; 
       }
     };
   }, [invitationId]);
@@ -535,7 +533,7 @@ function InvitationPageContent() {
                          <p className="text-xs text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p>
                      )}
                      {isAlreadyConfirmed && !isRejected && invitationData?.PasesConfirmados !== undefined && invitationData.PasesConfirmados > 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">{invitationData.PasesConfirmados === 1 ? '1 Pase Confirmado' : `${invitationData.PasesConfirmados} Pases Confirmados`}</p>
+                        <p className="text-xs text-destructive font-bold mt-1">{invitationData.PasesConfirmados === 1 ? '1 Pase Confirmado' : `${invitationData.PasesConfirmados} Pases Confirmados`}</p>
                      )}
                 </div>
 
@@ -560,7 +558,7 @@ function InvitationPageContent() {
                                 {confirmedGuests.length > 0 ? (
                                     <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
                                         {confirmedGuests.map((guest, index) => (
-                                            <li key={index}>{guest}</li>
+                                            <li key={index} className="font-semibold">{guest}</li>
                                         ))}
                                     </ul>
                                 ) : (
