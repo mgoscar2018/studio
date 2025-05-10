@@ -102,28 +102,47 @@ function InvitationPageContent() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
+  // This useEffect handles playing audio on first user interaction if initial autoplay failed.
   useEffect(() => {
-      const handleUserInteraction = (event: Event) => {
-          if (audioRef.current && audioRef.current.paused) {
-              // Check if the event target is the toggle button itself
-              if (toggleButtonRef.current && toggleButtonRef.current.contains(event.target as Node)) {
-                  // If the click is on the toggle button, let togglePlayPause handle it.
-                  return;
-              }
-              audioRef.current.play().catch(e => console.error("Autoplay failed after user interaction:", e));
-          }
-      };
+    const handleUserInteraction = (event: Event) => {
+        // If audio is already playing, or audio element doesn't exist yet, do nothing.
+        // The listeners will be removed when isPlaying becomes true.
+        if (isPlaying || !audioRef.current) {
+            return;
+        }
 
-      document.addEventListener('click', handleUserInteraction, { capture: true, once: true }); 
-      document.addEventListener('scroll', handleUserInteraction, { capture: true, once: true });
-      document.addEventListener('touchstart', handleUserInteraction, { capture: true, once: true });
+        // If audio exists and is paused, attempt to play.
+        if (audioRef.current.paused) {
+            // Prevent interference if the interaction is on the music toggle button itself.
+            if (toggleButtonRef.current && toggleButtonRef.current.contains(event.target as Node)) {
+                return;
+            }
+            
+            console.log("Attempting to play audio due to user interaction.");
+            audioRef.current.play().catch(e => {
+                console.error("Play attempt after user interaction failed (from interaction effect):", e);
+            });
+            // The 'play' event on the audio element itself will set isPlaying to true,
+            // which will then lead to the cleanup of these listeners via this effect's re-run.
+        }
+    };
 
-      return () => {
-          document.removeEventListener('click', handleUserInteraction, { capture: true });
-          document.removeEventListener('scroll', handleUserInteraction, { capture: true });
-          document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
-      };
-  }, []); 
+    // Only add listeners if music isn't playing.
+    // If audioRef.current is not yet set, handleUserInteraction will do nothing until it is.
+    if (!isPlaying) {
+        document.addEventListener('click', handleUserInteraction, { capture: true });
+        document.addEventListener('scroll', handleUserInteraction, { capture: true });
+        document.addEventListener('touchstart', handleUserInteraction, { capture: true });
+    }
+
+    return () => {
+        // Cleanup: always remove listeners when the effect re-runs or component unmounts.
+        document.removeEventListener('click', handleUserInteraction, { capture: true });
+        document.removeEventListener('scroll', handleUserInteraction, { capture: true });
+        document.removeEventListener('touchstart', handleUserInteraction, { capture: true });
+    };
+  }, [isPlaying]); // Re-run when isPlaying changes.
+
 
   useEffect(() => {
       let isEffectMounted = true; 
@@ -208,9 +227,11 @@ function InvitationPageContent() {
           if (playPromise !== undefined) {
             playPromise.then(() => {
               console.log("Autoplay initiated or music resumed.");
+              // isPlaying state will be set by the 'play' event listener (handlePlay)
             }).catch(error => {
               console.log("Autoplay/play prevented by browser or error:", error);
               if (isEffectMounted) setIsPlaying(false); 
+              // If autoplay fails, the interaction useEffect will handle playing on user gesture.
             });
           }
         }
