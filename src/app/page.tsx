@@ -75,6 +75,8 @@ function InvitationPageContent() {
   const [invitationName, setInvitationName] = useState<string>('');
   const [groomName, setGroomName] = useState<string>('Oscar');
   const [brideName, setBrideName] = useState<string>('Silvia');
+  const [audioReady, setAudioReady] = useState(false); // New state for audio readiness
+
 
   useEffect(() => {
     const newId = searchParams.get('id');
@@ -88,6 +90,13 @@ function InvitationPageContent() {
       setIsAlreadyConfirmed(false);
       setAssignedPasses(0);
       setInvitationName('');
+      // Reset audio-related states if ID changes
+      setIsPlaying(false);
+      setAudioReady(false);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        // Consider fully removing and recreating audio element if source changes based on ID
+      }
     }
   }, [searchParams, invitationId]);
 
@@ -103,37 +112,32 @@ function InvitationPageContent() {
   }, []);
   
   useEffect(() => {
-    const currentAudioElement = audioRef.current; // Capture for use in handler & cleanup
+    const audioElement = audioRef.current; // Get current audio element from ref
 
     const handleFirstScrollToPlay = () => {
-        // Guard conditions:
-        // - isPlaying: if true, music is already playing or intended to be playing.
-        // - !currentAudioElement: if audio element doesn't exist.
-        // - !currentAudioElement.paused: if audio is not paused (i.e., it's playing or in an intermediate state).
-        if (isPlaying || !currentAudioElement || !currentAudioElement.paused) {
+        if (isPlaying || !audioElement || !audioElement.paused) {
             return;
         }
         console.log("Attempting to play audio due to scroll interaction.");
-        currentAudioElement.play().catch(e => {
-            console.error("Play attempt after scroll interaction failed:", e);
+        audioElement.play().catch(e => {
+            console.warn("Play attempt after scroll interaction failed. This is expected on some mobile browsers without a prior tap/click. Audio should play once the button is tapped.", e);
         });
-        // Note: The 'play' event on audioRef (setup in fetchDataAndSetupAudio) 
-        // will call setIsPlaying(true). This effect will then re-run.
-        // The re-run will cause the old listener to be cleaned up.
     };
 
-    // Add listener if audio is ready and not currently playing.
-    if (!isPlaying && currentAudioElement) {
-        console.log("Adding scroll listener for initial play.");
+    // Only add scroll listener if audio is ready, not already playing, and element exists
+    if (audioReady && !isPlaying && audioElement) {
+        console.log("Adding scroll listener for initial play (audio is ready).");
         document.addEventListener('scroll', handleFirstScrollToPlay, { capture: true });
     }
 
-    // Cleanup function for this effect.
     return () => {
-        console.log("Cleaning up scroll listener for initial play (due to deps change or unmount).");
-        document.removeEventListener('scroll', handleFirstScrollToPlay, { capture: true });
+        // Check if listener might have been added before trying to remove
+        if (audioReady && audioElement) { 
+             console.log("Cleaning up scroll listener for initial play.");
+             document.removeEventListener('scroll', handleFirstScrollToPlay, { capture: true });
+        }
     };
-  }, [isPlaying, audioRef.current]); // DEPEND ON audioRef.current and isPlaying
+  }, [audioReady, isPlaying]); // Dependencies now use audioReady state
 
 
   useEffect(() => {
@@ -148,6 +152,8 @@ function InvitationPageContent() {
       };
 
     const fetchDataAndSetupAudio = async () => {
+      setAudioReady(false); // Reset audioReady when invitationId changes or on first load
+
       if (!invitationId) {
         setError("Por favor, verifica el enlace o contacta a los novios.");
         setIsLoading(false);
@@ -172,6 +178,7 @@ function InvitationPageContent() {
           setAssignedPasses(0);
           setInvitationName('');
           setIsLoading(false);
+          if(isEffectMounted) setAudioReady(false);
           return;
         }
 
@@ -213,6 +220,9 @@ function InvitationPageContent() {
           audioElement.addEventListener('error', handleAudioError);
           audioRef.current = audioElement;
         }
+        if (isEffectMounted) {
+            setAudioReady(true); // Set audioReady to true once audio element is confirmed/created
+        }
         
       } catch (err) {
         console.error("Error in fetchDataAndSetupAudio:", err);
@@ -225,6 +235,7 @@ function InvitationPageContent() {
           setConfirmedGuests([]);
           setAssignedPasses(0);
           setInvitationName('');
+          setAudioReady(false); // Ensure audioReady is false on error
         }
       } finally {
         if (isEffectMounted) setIsLoading(false);
@@ -235,6 +246,7 @@ function InvitationPageContent() {
 
     return () => {
       isEffectMounted = false;
+      setAudioReady(false); // Reset audioReady on unmount or before re-run for new invitationId
       const currentAudio = audioRef.current;
       if (currentAudio) {
         console.log("Cleaning up audio: pausing, removing listeners.");
@@ -370,7 +382,7 @@ function InvitationPageContent() {
                 >
                  {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />}
                 </Button>
-                 {!isPlaying && !isLoading && audioRef.current?.paused && (
+                 {!isPlaying && audioReady && audioRef.current?.paused && (
                    <p className="text-xs text-muted-foreground text-center max-w-xs">
                      Desliza para iniciar la música o haz clic en el botón.
                    </p>
