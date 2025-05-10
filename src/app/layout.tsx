@@ -20,13 +20,13 @@ const lato = Lato({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bodasilviaoscar.site'; // Fallback to production URL
 
 export const metadata: Metadata = {
-  title: 'Eternal Vows - Nuestra Boda',
+  title: 'Boda Silvia y Oscar', // Updated title
   description: 'Invitación digital interactiva para nuestra boda.',
   openGraph: {
-    title: 'Eternal Vows - Nuestra Boda',
+    title: 'Boda Silvia y Oscar', // Updated title
     description: 'Invitación digital interactiva para nuestra boda.',
     url: siteUrl,
-    siteName: 'Eternal Vows',
+    siteName: 'Boda Silvia y Oscar', // Updated siteName
     images: [
       {
         url: `${siteUrl}/images/Portada_h.jpg`, // Absolute URL for the image
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Eternal Vows - Nuestra Boda',
+    title: 'Boda Silvia y Oscar', // Updated title
     description: 'Invitación digital interactiva para nuestra boda.',
     images: [`${siteUrl}/images/Portada_h.jpg`], // Absolute URL for the image
   },
