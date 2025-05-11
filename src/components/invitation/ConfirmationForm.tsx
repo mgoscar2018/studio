@@ -19,6 +19,26 @@ import { cn } from '@/lib/utils';
 const guestSchema = z.object({
   name: z.string().min(1, "El nombre no puede estar vacío").trim(),
   type: z.enum(['adult', 'child'], { required_error: "Debes seleccionar si es adulto o niño." }),
+  age: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.type === 'child') {
+    if (!data.age || data.age.trim() === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "La edad es requerida para niños.",
+        path: ['age'],
+      });
+    } else {
+      const ageNum = parseInt(data.age, 10);
+      if (isNaN(ageNum) || ageNum <= 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "La edad debe ser un número positivo.",
+          path: ['age'],
+        });
+      }
+    }
+  }
 });
 
 const formSchema = z.object({
@@ -48,7 +68,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
     defaultValues: {
       guests: [],
     },
-    mode: 'onChange',
+    mode: 'onChange', // Validate on change for better UX
   });
 
  const { fields, append, remove, replace } = useFieldArray({
@@ -58,7 +78,8 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
 
  useEffect(() => {
     if (showAttendanceForm) {
-        const initialGuests = assignedPasses > 0 ? Array(1).fill({ name: '', type: 'adult' as const }) : [];
+        // Add age field to initial guests
+        const initialGuests = assignedPasses > 0 ? Array(1).fill({ name: '', type: 'adult' as const, age: '' }) : [];
          replace(initialGuests);
     } else {
         replace([]);
@@ -67,8 +88,15 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const adults = values.guests?.filter(g => g.type === 'adult').map(g => g.name).filter(Boolean) || [];
-    const kids = values.guests?.filter(g => g.type === 'child').map(g => g.name).filter(Boolean) || [];
+    const adults = values.guests?.filter(g => g.type === 'adult').map(g => g.name.trim()).filter(Boolean) || [];
+    const kids = values.guests?.filter(g => g.type === 'child').map(g => {
+        const ageNum = parseInt(g.age || '', 10);
+        if (g.name.trim() && !isNaN(ageNum) && ageNum > 0) {
+            return `${g.name.trim()} (${ageNum} años)`;
+        }
+        return g.name.trim(); // Fallback, though validation should prevent this
+    }).filter(Boolean) || [];
+
     const totalConfirmed = adults.length + kids.length;
 
     if (totalConfirmed === 0 && assignedPasses > 0) {
@@ -83,11 +111,11 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
          return;
     }
 
-     if (totalConfirmed < assignedPasses) {
+     if (totalConfirmed < assignedPasses && totalConfirmed > 0) { // Only show if some passes are confirmed
           toast({
             title: "Advertencia",
             description: `Solo se reservarán ${totalConfirmed} de los ${assignedPasses} pases disponibles.`,
-            variant: "default",
+            variant: "default", // Changed from destructive for non-critical warning
           });
      }
 
@@ -109,7 +137,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                 toast({ title: "Respuesta Recibida", description: "Gracias por hacérnoslo saber." });
              } catch (e) {
                 toast({ title: "Error", description: "No se pudo enviar la respuesta.", variant: "destructive" });
-                setShowInitialChoice(true);
+                setShowInitialChoice(true); // Allow user to try again
              }
         }
     };
@@ -146,7 +174,8 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                         className={cn(form.formState.errors.guests?.[index]?.name ? 'border-destructive' : '', 'bg-background')}
                         disabled={isLoading}
                       />
-                      {(fields.length > 1 || assignedPasses === 0) && (
+                      {/* Allow removal only if more than one guest or if 0 passes (though 0 passes form is hidden) */}
+                      {(fields.length > 1 ) && (
                          <Button
                             type="button"
                             variant="ghost"
@@ -165,8 +194,14 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                         name={`guests.${index}.type`}
                         render={({ field: radioField }) => (
                           <RadioGroup
-                            onValueChange={radioField.onChange}
-                            defaultValue={radioField.value}
+                            onValueChange={(value) => {
+                                radioField.onChange(value);
+                                // Reset age if switching from child to adult
+                                if (value === 'adult') {
+                                    form.setValue(`guests.${index}.age`, '');
+                                }
+                            }}
+                            value={radioField.value} // Ensure value is controlled
                             className="flex space-x-4"
                             disabled={isLoading}
                           >
@@ -181,15 +216,35 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                           </RadioGroup>
                         )}
                       />
+                      {/* Conditional Age Input */}
+                      {form.watch(`guests.${index}.type`) === 'child' && (
+                        <div className="mt-2 space-y-1">
+                            <Label htmlFor={`age-${field.id}`}>Edad del niño (años)</Label>
+                            <Input
+                                id={`age-${field.id}`}
+                                type="number" // Use number type for better UX on mobile
+                                placeholder="Ej: 5"
+                                {...form.register(`guests.${index}.age`)}
+                                className={cn(form.formState.errors.guests?.[index]?.age ? 'border-destructive' : '', 'bg-background w-1/2')} // Limit width
+                                disabled={isLoading}
+                                min="1" // Basic HTML5 validation
+                            />
+                            {form.formState.errors.guests?.[index]?.age && (
+                                <p className="text-sm text-destructive">{form.formState.errors.guests?.[index]?.age?.message}</p>
+                            )}
+                        </div>
+                      )}
+
                     {form.formState.errors.guests?.[index]?.name && (
                         <p className="text-sm text-destructive">{form.formState.errors.guests?.[index]?.name?.message}</p>
                     )}
                     {form.formState.errors.guests?.[index]?.type && (
                         <p className="text-sm text-destructive">{form.formState.errors.guests?.[index]?.type?.message}</p>
                     )}
+                    {/* Removed root error for specific age as it's handled per field */}
                   </div>
                 ))}
-                 {form.formState.errors.guests?.root && (
+                 {form.formState.errors.guests?.root && ( // For array-level errors like too many guests
                    <p className="text-sm text-destructive mt-2">{form.formState.errors.guests.root.message}</p>
                  )}
 
@@ -198,7 +253,8 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => append({ name: '', type: 'adult' as const })}
+                    // Add age field to new guests
+                    onClick={() => append({ name: '', type: 'adult' as const, age: '' })}
                     className="text-primary border-primary hover:bg-primary/10"
                     disabled={isLoading || fields.length >= assignedPasses}
                   >
@@ -208,18 +264,22 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                 )}
 
               </div>
-          ) : (
-                <p className="text-center text-muted-foreground">No tienes pases asignados.</p>
+          ) : ( // This case (assignedPasses === 0) should ideally not show the form for adding guests.
+                // Or it means they can't confirm anyone.
+                <p className="text-center text-muted-foreground">No tienes pases asignados para confirmar.</p>
           )}
 
            {assignedPasses > 0 && (
-               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg" disabled={isLoading || !form.formState.isValid}>
+               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg" disabled={isLoading || !form.formState.isDirty || !form.formState.isValid}>
                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                  Enviar Confirmación
                </Button>
            )}
+           {!form.formState.isValid && form.formState.isDirty && (
+                <p className="text-center text-xs text-destructive mt-2">Por favor, completa todos los campos requeridos.</p>
+            )}
         </form>
-       ) : (
+       ) : ( // This is the state after "No podré asistir" is clicked and processed.
             <div className="text-center text-muted-foreground p-4">
                  Procesando tu respuesta...
              </div>
