@@ -543,7 +543,7 @@ function InvitationPageContent() {
                      <p className="text-3xl font-semibold text-foreground">{invitationName || "Invitado/a"}</p>
 
                      {!isAlreadyConfirmed && (
-                         <p className="text-xs text-muted-foreground mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p>
+                         <p className="text-xs text-destructive font-bold mt-1">{assignedPasses === 1 ? '1 Pase Asignado' : `${assignedPasses} Pases Asignados`}</p>
                      )}
                      {isAlreadyConfirmed && !isRejected && invitationData?.PasesConfirmados !== undefined && invitationData.PasesConfirmados > 0 && (
                         <p className="text-xs text-destructive font-bold mt-1">{invitationData.PasesConfirmados === 1 ? '1 Pase Confirmado' : `${invitationData.PasesConfirmados} Pases Confirmados`}</p>
