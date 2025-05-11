@@ -485,7 +485,7 @@ function InvitationPageContent() {
 
           <Separator className="my-6 md:my-8" />
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-10"> {/* Adjusted for desktop view */}
+          <div className="grid grid-cols-1 gap-6 md:gap-10"> {/* Ensures sections are stacked */}
               <AnimatedSection animationType="slideInLeft" className="text-center">
                   <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padre</h3>
                   <div className="space-y-1 text-base md:text-lg">
