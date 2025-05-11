@@ -68,7 +68,8 @@ function InvitationPageContent() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const toggleButtonRef = useRef<HTMLButtonElement>(null); 
 
-  const [confirmedGuests, setConfirmedGuests] = useState<string[]>([]);
+  const [confirmedAdults, setConfirmedAdults] = useState<string[]>([]);
+  const [confirmedKids, setConfirmedKids] = useState<string[]>([]);
   const [isRejected, setIsRejected] = useState<boolean>(false);
   const [isAlreadyConfirmed, setIsAlreadyConfirmed] = useState<boolean>(false);
   const [assignedPasses, setAssignedPasses] = useState<number>(0);
@@ -83,16 +84,17 @@ function InvitationPageContent() {
       setInvitationData(null);
       setIsLoading(true);
       setError(null);
-      setConfirmedGuests([]);
+      setConfirmedAdults([]);
+      setConfirmedKids([]);
       setIsRejected(false);
       setIsAlreadyConfirmed(false);
       setAssignedPasses(0);
       setInvitationName('');
-      setIsPlaying(false); // Reset playing state
+      setIsPlaying(false); 
       setAudioReady(false);
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.currentTime = 0; // Reset audio
+        audioRef.current.currentTime = 0; 
       }
     }
   }, [searchParams, invitationId]);
@@ -117,7 +119,7 @@ function InvitationPageContent() {
       const handleEnded = () => { 
         if (isEffectMounted) {
             setIsPlaying(false); 
-            if(audioRef.current) audioRef.current.currentTime = 0; // Reset on end for potential replay
+            if(audioRef.current) audioRef.current.currentTime = 0; 
         }
       }; 
       const handleAudioError = (e: Event) => { 
@@ -154,14 +156,15 @@ function InvitationPageContent() {
             setAssignedPasses(data.PasesAsignados || 0);
             setIsAlreadyConfirmed(data.Confirmado);
             setIsRejected(data.Confirmado && data.PasesConfirmados === 0); 
-            setConfirmedGuests(data.Asistentes || []);
+            setConfirmedAdults(data.Asistentes || []);
+            setConfirmedKids(data.Kids || []);
         }
 
 
         if (!audioRef.current) {
           console.log("Creating new audio element and adding listeners.");
           const audioElement = document.createElement('audio');
-          audioElement.loop = true; // Keep loop for continuous play after initial start
+          audioElement.loop = true; 
           
           const opusSource = document.createElement('source');
           opusSource.src = '/music/UnPactoConDios.opus';
@@ -189,8 +192,7 @@ function InvitationPageContent() {
 
         if (isEffectMounted) {
             setAudioReady(true);
-            // Attempt to autoplay when audio is ready, data is loaded, and component is mounted
-            if (data && audioRef.current) { // Only try to play if invitation data is valid
+            if (data && audioRef.current) { 
               console.log("Attempting to autoplay music...");
               audioRef.current.play().then(() => {
                  if(isEffectMounted) setIsPlaying(true);
@@ -199,7 +201,7 @@ function InvitationPageContent() {
                 console.warn("Autoplay attempt failed. User interaction might be needed to start music initially.", e);
                 if(isEffectMounted) setIsPlaying(false); 
               });
-            } else if (!data && isEffectMounted) { // If no data, ensure audio is not playing
+            } else if (!data && isEffectMounted) { 
                 if (audioRef.current) audioRef.current.pause();
                 setIsPlaying(false);
             }
@@ -209,7 +211,7 @@ function InvitationPageContent() {
         console.error("Error in fetchDataAndSetupAudio:", err);
         if (isEffectMounted) {
           setError(err instanceof Error ? err.message : "Error al cargar los datos de la invitación.");
-          setInvitationData(null); // Clear data on error
+          setInvitationData(null); 
           if (audioRef.current) audioRef.current.pause();
           setIsPlaying(false); 
         }
@@ -231,12 +233,9 @@ function InvitationPageContent() {
         currentAudio.removeEventListener('pause', handlePause);
         currentAudio.removeEventListener('ended', handleEnded);
         currentAudio.removeEventListener('error', handleAudioError);
-        // Do not set audioRef.current to null here if it's intended to persist across re-renders (e.g. page navigation within app)
-        // However, for a full unmount/cleanup, nulling might be desired if audio instance is recreated.
-        // For this specific component, if it's the main page, the audio element can persist.
       }
     };
-  }, [invitationId]); // Re-run when invitationId changes
+  }, [invitationId]); 
 
 
   const togglePlayPause = () => {
@@ -248,15 +247,13 @@ function InvitationPageContent() {
     if (currentAudio.paused) {
       currentAudio.play().catch(error => {
         console.error("Audio playback failed on toggle:", error);
-        // setIsPlaying(false); // State will be updated by event listener
       });
     } else {
       currentAudio.pause();
     }
-     // State is updated by 'play'/'pause' event listeners attached in useEffect
   };
 
-  const handleConfirmation = async (guests: string[], rejected: boolean) => {
+  const handleConfirmation = async (adults: string[], kids: string[], rejected: boolean) => {
      if (!invitationId) {
         console.error("Cannot submit confirmation without a valid invitation ID.");
         setError("Error: ID de invitación no válido.");
@@ -265,18 +262,19 @@ function InvitationPageContent() {
      setIsSubmitting(true);
      setError(null);
      try {
-        await submitConfirmation(invitationId, { guests, rejected });
-        console.log("Confirmation submitted successfully:", { guests, rejected });
+        await submitConfirmation(invitationId, { adults, kids, rejected });
+        console.log("Confirmation submitted successfully:", { adults, kids, rejected });
         
-        // Update local state to reflect changes immediately
         setIsAlreadyConfirmed(true);
         setIsRejected(rejected);
-        setConfirmedGuests(guests);
+        setConfirmedAdults(adults);
+        setConfirmedKids(kids);
         setInvitationData(prevData => prevData ? ({
             ...prevData,
             Confirmado: true,
-            PasesConfirmados: rejected ? 0 : guests.length,
-            Asistentes: guests
+            PasesConfirmados: rejected ? 0 : (adults.length + kids.length),
+            Asistentes: adults,
+            Kids: kids
         }) : null);
 
      } catch (error) {
@@ -302,27 +300,27 @@ function InvitationPageContent() {
            </div>
             <div className={cn(
                 "relative z-10 flex flex-col items-center text-center text-white w-full h-full py-8 md:py-12 px-4",
-                 isPortrait ? "justify-between" : "justify-end pb-8" // Place content at bottom for horizontal
+                 isPortrait ? "justify-between" : "justify-end pb-8" 
             )}>
                  <div className={cn(
-                      "flex flex-col items-center w-full", // Use full width
+                      "flex flex-col items-center w-full", 
                       isPortrait ? "mt-4" : "mb-auto" 
                  )}>
                      <h1 className={cn(
                          "font-julietta text-white select-none leading-none [text-shadow:0_0_15px_rgba(0,0,0,1)]",
                          "text-7xl", 
-                         !isPortrait && "opacity-50" // Dim if horizontal
+                         !isPortrait && "opacity-50" 
                      )}>
                          SilviOscar
                     </h1>
                  </div>
                 <AnimatedSection animationType="fade" className={cn(
                     "delay-500",
-                    isPortrait ? "mb-4" : "mt-auto w-full" // Ensure it's at bottom for horizontal
+                    isPortrait ? "mb-4" : "mt-auto w-full" 
                 )}>
                     <h2 className={cn(
                         "text-4xl font-julietta text-white [text-shadow:0_0_15px_rgba(0,0,0,1)]",
-                         !isPortrait && "opacity-50" // Dim if horizontal
+                         !isPortrait && "opacity-50" 
                     )}>
                          ¡Nos casamos!
                     </h2>
@@ -347,11 +345,11 @@ function InvitationPageContent() {
        );
    }
    
-  if (!invitationData && !isLoading && !audioReady && invitationId) { // Still loading audio or initial data
+  if (!invitationData && !isLoading && !audioReady && invitationId) { 
     return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
   }
 
-  if (!invitationData && !isLoading && audioReady && invitationId) { // Should be caught by error block above, but as safety
+  if (!invitationData && !isLoading && audioReady && invitationId) { 
     return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
                 {renderHeader()}
@@ -363,7 +361,7 @@ function InvitationPageContent() {
        );
   }
 
-  if (!invitationData) { // Final fallback if data is null after loading attempts.
+  if (!invitationData) { 
     return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
   }
 
@@ -382,7 +380,7 @@ function InvitationPageContent() {
                 className="rounded-full h-14 w-14 border-2 border-primary hover:bg-primary/10"
                 onClick={togglePlayPause}
                 aria-label={isPlaying ? "Pausar música" : "Reproducir música"}
-                disabled={!audioReady} // Disable button if audio not ready
+                disabled={!audioReady} 
                 >
                  {isPlaying ? <Volume2 className="h-7 w-7 text-primary" /> : <VolumeX className="h-7 w-7 text-muted-foreground" />}
                 </Button>
@@ -438,13 +436,13 @@ function InvitationPageContent() {
                   </AnimatedSection>
                   <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
                       <Image
-                           src="/images/mosaic/M8.jpeg" // Changed from M6.jpg to M8.jpeg
-                           alt="Oscar y Silvia Mosaico 2" // Consider updating alt text if image content changed significantly
+                           src="/images/mosaic/M8.jpeg" 
+                           alt="Oscar y Silvia Mosaico 2" 
                            fill
                            style={{ objectFit: "cover" }}
                            className="animate-zoom-loop-short"
                            sizes="(max-width: 768px) 50vw, 33vw"
-                           data-ai-hint="pareja sonriendo exterior" // Updated hint
+                           data-ai-hint="pareja sonriendo exterior" 
                       />
                   </AnimatedSection>
                   <AnimatedSection animationType="fade" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg">
@@ -485,7 +483,7 @@ function InvitationPageContent() {
 
           <Separator className="my-6 md:my-8" />
 
-          <div className="grid grid-cols-1 gap-6 md:gap-10"> {/* Ensures sections are stacked */}
+          <div className="grid grid-cols-1 gap-6 md:gap-10"> 
               <AnimatedSection animationType="slideInLeft" className="text-center">
                   <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padre</h3>
                   <div className="space-y-1 text-base md:text-lg">
@@ -566,15 +564,32 @@ function InvitationPageContent() {
                                 ¡Confirmación Recibida!
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="pt-4">
-                                <p className="mb-3 text-sm md:text-base">Gracias por confirmar. Has reservado lugar para:</p>
-                                {confirmedGuests.length > 0 ? (
-                                    <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
-                                        {confirmedGuests.map((guest, index) => (
-                                            <li key={index} className="font-semibold">{guest}</li>
-                                        ))}
-                                    </ul>
-                                ) : (
+                            <CardContent className="pt-4 space-y-3">
+                                <p className="mb-1 text-sm md:text-base">Gracias por confirmar. Has reservado lugar para:</p>
+                                
+                                {confirmedAdults.length > 0 && (
+                                    <div>
+                                        <p className="font-medium text-sm md:text-base">Adultos:</p>
+                                        <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
+                                            {confirmedAdults.map((guest, index) => (
+                                                <li key={`adult-${index}`} className="font-semibold">{guest}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {confirmedKids.length > 0 && (
+                                     <div>
+                                        <p className="font-medium text-sm md:text-base mt-2">Niños:</p>
+                                        <ul className="list-disc list-inside space-y-1 text-sm md:text-base">
+                                            {confirmedKids.map((guest, index) => (
+                                                <li key={`kid-${index}`} className="font-semibold">{guest}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {confirmedAdults.length === 0 && confirmedKids.length === 0 && (
                                     <p className="italic text-muted-foreground text-sm md:text-base">(No se registraron nombres)</p>
                                 )}
                             </CardContent>
@@ -609,4 +624,3 @@ export default function Home() {
     </Suspense>
   );
 }
-

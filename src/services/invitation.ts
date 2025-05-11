@@ -12,13 +12,15 @@ export interface InvitationData {
     Confirmado: boolean;
     PasesAsignados: number;
     PasesConfirmados: number;
-    Asistentes: string[];
+    Asistentes: string[]; // For adult guests
+    Kids: string[]; // For child guests
     // Add other fields if necessary
 }
 
 // Define the structure for submission data
 export interface ConfirmationSubmissionData {
-    guests: string[];
+    adults: string[];
+    kids: string[];
     rejected: boolean;
 }
 
@@ -48,9 +50,10 @@ export async function getInvitationData(invitationId: string): Promise<Invitatio
                 BodaID: invitation.BodaID,
                 Nombre: invitation.Nombre,
                 Confirmado: invitation.Confirmado,
-                PasesAsignados: invitation.PasesAsignados, // Use PasesAsignados
-                PasesConfirmados: invitation.PasesConfirmados, // Use PasesConfirmados
+                PasesAsignados: invitation.PasesAsignados,
+                PasesConfirmados: invitation.PasesConfirmados,
                 Asistentes: invitation.Asistentes || [], // Default to empty array if null/undefined
+                Kids: invitation.Kids || [], // Default to empty array if null/undefined
             };
             return plainInvitation;
         } else {
@@ -64,16 +67,13 @@ export async function getInvitationData(invitationId: string): Promise<Invitatio
         return null;
          // Or: throw new Error('Failed to fetch invitation data from database.');
     }
-    // Note: Connection closing is typically handled by the client management strategy
-    // (global promise ensures connection reuse). Explicitly closing here might prematurely
-    // terminate the connection if the app expects it to persist.
 }
 
 
 /**
  * Submits the confirmation data to MongoDB.
  * @param invitationId The BodaID of the invitation to update.
- * @param data The confirmation data (guests list and rejection status).
+ * @param data The confirmation data (adults list, kids list, and rejection status).
  * @returns A promise resolving when the submission is complete.
  */
 export async function submitConfirmation(invitationId: string, data: ConfirmationSubmissionData): Promise<void> {
@@ -86,20 +86,23 @@ export async function submitConfirmation(invitationId: string, data: Confirmatio
         const collection = db.collection("confirmaciones");
 
         let updateData: Partial<InvitationData> = {};
+        const totalConfirmedPasses = data.adults.length + data.kids.length;
 
         if (data.rejected) {
             console.log(`Updating BodaID ${invitationId} as REJECTED.`);
             updateData = {
                 Confirmado: true,
                 PasesConfirmados: 0,
-                Asistentes: [], // Clear attendees if rejected
+                Asistentes: [],
+                Kids: [],
             };
         } else {
-            console.log(`Updating BodaID ${invitationId} as CONFIRMED with ${data.guests.length} guests.`);
+            console.log(`Updating BodaID ${invitationId} as CONFIRMED with ${data.adults.length} adults and ${data.kids.length} kids.`);
             updateData = {
                 Confirmado: true,
-                PasesConfirmados: data.guests.length,
-                Asistentes: data.guests,
+                PasesConfirmados: totalConfirmedPasses,
+                Asistentes: data.adults,
+                Kids: data.kids,
             };
         }
 
@@ -126,6 +129,3 @@ export async function submitConfirmation(invitationId: string, data: Confirmatio
         throw new Error('Failed to submit confirmation data to database.');
     }
 }
-
-// Removed Google Sheets related functions as they are no longer used.
-// Removed getMusic as it's handled client-side.

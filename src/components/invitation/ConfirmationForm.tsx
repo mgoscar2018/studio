@@ -2,55 +2,53 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react'; // Import useEffect
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-// Removed Checkbox import as it's not directly used for willAttend logic anymore
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Trash2, PlusCircle, AlertCircle, Loader2 } from 'lucide-react'; // Added Loader2 for loading state
+import { Trash2, PlusCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
+const guestSchema = z.object({
+  name: z.string().min(1, "El nombre no puede estar vacío").trim(),
+  type: z.enum(['adult', 'child'], { required_error: "Debes seleccionar si es adulto o niño." }),
+});
 
-// Adjusted schema: No longer needs willAttend boolean directly,
-// as the form is only shown when attending.
-// Focus on the guest list validation.
 const formSchema = z.object({
-    guests: z.array(
-        z.object({ name: z.string().min(1, "El nombre no puede estar vacío").trim() })
-    )
-    // Removed refine based on willAttend
+  guests: z.array(guestSchema)
 });
 
 
 interface ConfirmationFormProps {
   invitationId: string;
   assignedPasses: number;
-  onConfirm: (guests: string[], rejected: boolean) => Promise<void>; // Make onConfirm async
-  isLoading: boolean; // Receive loading state from parent
+  onConfirm: (adults: string[], kids: string[], rejected: boolean) => Promise<void>;
+  isLoading: boolean;
 }
 
 const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
     invitationId,
     assignedPasses,
     onConfirm,
-    isLoading // Use loading state passed from parent
+    isLoading
 }) => {
   const { toast } = useToast();
-  const [showInitialChoice, setShowInitialChoice] = useState(true); // Controls visibility for initial choice
-  const [showAttendanceForm, setShowAttendanceForm] = useState(false); // Controls visibility of the guest entry form
+  const [showInitialChoice, setShowInitialChoice] = useState(true);
+  const [showAttendanceForm, setShowAttendanceForm] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      // Initialize with one guest field if showing the form, otherwise empty
-      guests: showAttendanceForm && assignedPasses > 0 ? [{ name: '' }] : [],
+      guests: [],
     },
-    mode: 'onChange', // Validate on change for better UX
+    mode: 'onChange',
   });
 
  const { fields, append, remove, replace } = useFieldArray({
@@ -58,68 +56,60 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
     name: "guests",
  });
 
- // Effect to initialize guest fields when the form becomes visible
  useEffect(() => {
     if (showAttendanceForm) {
-        const initialGuests = assignedPasses > 0 ? Array(1).fill({ name: '' }) : [];
-         // Use replace to reset the array when the form appears
+        const initialGuests = assignedPasses > 0 ? Array(1).fill({ name: '', type: 'adult' as const }) : [];
          replace(initialGuests);
     } else {
-        // Clear fields if form is hidden
         replace([]);
     }
  }, [showAttendanceForm, assignedPasses, replace]);
 
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const confirmedGuestNames = values.guests?.map(g => g.name).filter(Boolean) || []; // No trim needed due to schema
+    const adults = values.guests?.filter(g => g.type === 'adult').map(g => g.name).filter(Boolean) || [];
+    const kids = values.guests?.filter(g => g.type === 'child').map(g => g.name).filter(Boolean) || [];
+    const totalConfirmed = adults.length + kids.length;
 
-    if (confirmedGuestNames.length === 0 && assignedPasses > 0) {
-         // This case should ideally be prevented by UI logic, but double-check
+    if (totalConfirmed === 0 && assignedPasses > 0) {
          form.setError("guests", { type: "manual", message: "Debes ingresar al menos un nombre." });
          toast({ title: "Error", description: "Debes ingresar al menos un nombre.", variant: "destructive" });
          return;
     }
 
-    if (confirmedGuestNames.length > assignedPasses) {
+    if (totalConfirmed > assignedPasses) {
          form.setError("guests", { type: "manual", message: `Solo tienes ${assignedPasses} pases asignados.` });
           toast({ title: "Error", description: `Solo tienes ${assignedPasses} pases asignados.`, variant: "destructive" });
          return;
     }
 
-     if (confirmedGuestNames.length < assignedPasses) {
+     if (totalConfirmed < assignedPasses) {
           toast({
             title: "Advertencia",
-            description: `Solo se reservarán ${confirmedGuestNames.length} de los ${assignedPasses} pases disponibles.`,
-            variant: "default", // Use default or a custom warning variant
+            description: `Solo se reservarán ${totalConfirmed} de los ${assignedPasses} pases disponibles.`,
+            variant: "default",
           });
      }
 
      try {
-        await onConfirm(confirmedGuestNames, false); // Submit attendance
+        await onConfirm(adults, kids, false);
         toast({ title: "¡Confirmación Exitosa!", description: "Hemos recibido tu confirmación." });
-        // The parent component will handle hiding the form upon successful state update
      } catch (e) {
-         // Error handled by parent, maybe show a specific toast here if needed
          toast({ title: "Error", description: "No se pudo enviar la confirmación.", variant: "destructive" });
      }
-
   };
 
    const handleInitialChoice = async (attend: boolean) => {
-        // e.preventDefault(); // REMOVED: Allow default button behavior (no scroll jump)
-        setShowInitialChoice(false); // Hide initial buttons
+        setShowInitialChoice(false);
         if (attend) {
-            setShowAttendanceForm(true); // Show the guest entry form
+            setShowAttendanceForm(true);
         } else {
-             // Handle rejection immediately
              try {
-                await onConfirm([], true); // Call onConfirm with rejected=true
+                await onConfirm([], [], true);
                 toast({ title: "Respuesta Recibida", description: "Gracias por hacérnoslo saber." });
-                 // Parent component will update state and likely hide this form/show rejection message
              } catch (e) {
                 toast({ title: "Error", description: "No se pudo enviar la respuesta.", variant: "destructive" });
-                setShowInitialChoice(true); // Show buttons again on error
+                setShowInitialChoice(true);
              }
         }
     };
@@ -133,12 +123,10 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
       <CardContent>
        {showInitialChoice ? (
            <div className="flex justify-center gap-4 mt-4 mb-6">
-                {/* Pass attend=true */}
                <Button size="lg" onClick={() => handleInitialChoice(true)} disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Sí, asistiré
                 </Button>
-                 {/* Pass attend=false */}
                <Button size="lg" variant="outline" onClick={() => handleInitialChoice(false)} disabled={isLoading}>
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     No podré asistir
@@ -148,47 +136,71 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {assignedPasses > 0 ? (
               <div className="space-y-4">
-                <Label className="text-lg">Nombre de los asistentes:</Label> {/* Changed label text */}
+                <Label className="text-lg">Nombre de los asistentes:</Label>
                 {fields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-2">
-                    <Input
-                      placeholder={`Nombre del asistente ${index + 1}`}
-                      {...form.register(`guests.${index}.name`)}
-                      className={form.formState.errors.guests?.[index]?.name ? 'border-destructive' : ''}
-                      disabled={isLoading} // Disable input during submission
-                    />
-                    {(fields.length > 1 || assignedPasses === 0) && ( // Allow removal even if only one field but 0 passes (edge case)
-                       <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => remove(index)}
-                          aria-label="Eliminar asistente"
-                          className="text-destructive hover:bg-destructive/10"
-                          disabled={isLoading} // Disable button during submission
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                  <div key={field.id} className="p-3 border rounded-md space-y-3 bg-muted/30">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder={`Nombre del asistente ${index + 1}`}
+                        {...form.register(`guests.${index}.name`)}
+                        className={cn(form.formState.errors.guests?.[index]?.name ? 'border-destructive' : '', 'bg-background')}
+                        disabled={isLoading}
+                      />
+                      {(fields.length > 1 || assignedPasses === 0) && (
+                         <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                            aria-label="Eliminar asistente"
+                            className="text-destructive hover:bg-destructive/10"
+                            disabled={isLoading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                      )}
+                    </div>
+                    <Controller
+                        control={form.control}
+                        name={`guests.${index}.type`}
+                        render={({ field: radioField }) => (
+                          <RadioGroup
+                            onValueChange={radioField.onChange}
+                            defaultValue={radioField.value}
+                            className="flex space-x-4"
+                            disabled={isLoading}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="adult" id={`adult-${field.id}`} />
+                              <Label htmlFor={`adult-${field.id}`}>Adulto</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="child" id={`child-${field.id}`} />
+                              <Label htmlFor={`child-${field.id}`}>Niño</Label>
+                            </div>
+                          </RadioGroup>
+                        )}
+                      />
+                    {form.formState.errors.guests?.[index]?.name && (
+                        <p className="text-sm text-destructive">{form.formState.errors.guests?.[index]?.name?.message}</p>
+                    )}
+                    {form.formState.errors.guests?.[index]?.type && (
+                        <p className="text-sm text-destructive">{form.formState.errors.guests?.[index]?.type?.message}</p>
                     )}
                   </div>
                 ))}
-                 {form.formState.errors.guests?.root && ( // Display root errors for the array
+                 {form.formState.errors.guests?.root && (
                    <p className="text-sm text-destructive mt-2">{form.formState.errors.guests.root.message}</p>
                  )}
-                  {/* Display individual field errors */}
-                 {form.formState.errors.guests?.map((error, index) => error?.name && (
-                     <p key={index} className="text-sm text-destructive">{error.name.message}</p>
-                 ))}
-
 
                 {fields.length < assignedPasses && (
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => append({ name: '' })}
+                    onClick={() => append({ name: '', type: 'adult' as const })}
                     className="text-primary border-primary hover:bg-primary/10"
-                    disabled={isLoading || fields.length >= assignedPasses} // Disable if loading or max passes reached
+                    disabled={isLoading || fields.length >= assignedPasses}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Agregar Asistente
@@ -200,8 +212,6 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                 <p className="text-center text-muted-foreground">No tienes pases asignados.</p>
           )}
 
-
-           {/* Final Submit Button - Only show if passes > 0 */}
            {assignedPasses > 0 && (
                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg" disabled={isLoading || !form.formState.isValid}>
                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -210,9 +220,6 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
            )}
         </form>
        ) : (
-            // This state (initial choice made, but form not shown) usually means rejection was chosen
-            // The parent component should ideally handle showing the rejection message.
-            // Adding a fallback message here just in case.
             <div className="text-center text-muted-foreground p-4">
                  Procesando tu respuesta...
              </div>
