@@ -55,9 +55,9 @@ const googleMapsUrl = "https://maps.app.goo.gl/RCKCQHaGdfsZZzpz9";
 
 function InvitationPageContent() {
   const searchParams = useSearchParams();
-  const initialInvitationId = searchParams.get('id');
+  const initialInvitationIdFromUrl = searchParams.get('id');
 
-  const [invitationId, setInvitationId] = useState<string | null>(initialInvitationId);
+  const [invitationIdFromUrl, setInvitationIdFromUrl] = useState<string | null>(initialInvitationIdFromUrl);
   const [invitationData, setInvitationData] = useState<InvitationData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,8 +79,9 @@ function InvitationPageContent() {
 
   useEffect(() => {
     const newId = searchParams.get('id');
-    if (newId !== invitationId) {
-      setInvitationId(newId);
+    if (newId !== invitationIdFromUrl) {
+      setInvitationIdFromUrl(newId);
+      // Reset all related states when ID from URL changes
       setInvitationData(null);
       setIsLoading(true);
       setError(null);
@@ -97,7 +98,7 @@ function InvitationPageContent() {
         audioRef.current.currentTime = 0; 
       }
     }
-  }, [searchParams, invitationId]);
+  }, [searchParams, invitationIdFromUrl]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -131,27 +132,29 @@ function InvitationPageContent() {
       if (!isEffectMounted) return;
       setAudioReady(false); 
 
-      if (!invitationId) {
+      if (!invitationIdFromUrl) {
         setError("Por favor, verifica el enlace o contacta a los novios.");
         setIsLoading(false);
         return;
       }
       setIsLoading(true);
       setError(null);
-      console.log(`Fetching data for invitation ID: ${invitationId}...`);
+      console.log(`Fetching data for invitation ID from URL: ${invitationIdFromUrl}...`);
 
       try {
-        const data = await getInvitationData(invitationId);
+        // getInvitationData will handle potential fusions and return data based on the effective BodaID
+        const data = await getInvitationData(invitationIdFromUrl);
 
         if (!isEffectMounted) return;
 
         if (!data) {
-          console.log(`Invitation ID ${invitationId} not found in database.`);
+          console.log(`Invitation ID ${invitationIdFromUrl} (or its fused equivalent) not found.`);
           setError("Por favor, verifica el enlace o contacta a los novios.");
           setInvitationData(null);
         } else {
             console.log("Invitation data fetched successfully:", data);
-            setInvitationData(data);
+            // data.BodaID is the effective ID after potential fusion
+            setInvitationData(data); 
             setInvitationName(data.Nombre || 'Invitado/a');
             setAssignedPasses(data.PasesAsignados || 0);
             setIsAlreadyConfirmed(data.Confirmado);
@@ -235,7 +238,7 @@ function InvitationPageContent() {
         currentAudio.removeEventListener('error', handleAudioError);
       }
     };
-  }, [invitationId]); 
+  }, [invitationIdFromUrl]); // Re-fetch if the ID from the URL changes
 
 
   const togglePlayPause = () => {
@@ -254,23 +257,28 @@ function InvitationPageContent() {
   };
 
   const handleConfirmation = async (adults: string[], kids: string[], rejected: boolean) => {
-     if (!invitationId) {
-        console.error("Cannot submit confirmation without a valid invitation ID.");
-        setError("Error: ID de invitación no válido.");
+     // Use invitationData.BodaID for submission as it's the effective ID after potential fusion
+     const idForConfirmation = invitationData?.BodaID;
+
+     if (!idForConfirmation) {
+        console.error("Cannot submit confirmation without a valid effective invitation ID from fetched data.");
+        setError("Error: ID de invitación efectivo no disponible.");
         return;
      }
      setIsSubmitting(true);
      setError(null);
      try {
-        await submitConfirmation(invitationId, { adults, kids, rejected });
-        console.log("Confirmation submitted successfully:", { adults, kids, rejected });
+        await submitConfirmation(idForConfirmation, { adults, kids, rejected });
+        console.log("Confirmation submitted successfully for effective BodaID:", idForConfirmation, { adults, kids, rejected });
         
         setIsAlreadyConfirmed(true);
         setIsRejected(rejected);
         setConfirmedAdults(adults);
         setConfirmedKids(kids);
+        // Update local invitationData to reflect the change
         setInvitationData(prevData => prevData ? ({
             ...prevData,
+            BodaID: idForConfirmation, // Ensure BodaID is the effective one
             Confirmado: true,
             PasesConfirmados: rejected ? 0 : (adults.length + kids.length),
             Asistentes: adults,
@@ -329,11 +337,11 @@ function InvitationPageContent() {
        </header>
    );
 
-   if (isLoading && !invitationData && !error && invitationId) { 
+   if (isLoading && !invitationData && !error && invitationIdFromUrl) { 
      return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
    }
 
-   if (error || (!isLoading && !invitationId) || (!isLoading && invitationId && !invitationData && audioReady) ) {
+   if (error || (!isLoading && !invitationIdFromUrl) || (!isLoading && invitationIdFromUrl && !invitationData && audioReady) ) {
        return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
                 {renderHeader()}
@@ -345,11 +353,11 @@ function InvitationPageContent() {
        );
    }
    
-  if (!invitationData && !isLoading && !audioReady && invitationId) { 
+  if (!invitationData && !isLoading && !audioReady && invitationIdFromUrl) { 
     return <div className="flex justify-center items-center min-h-screen">Cargando invitación...</div>;
   }
 
-  if (!invitationData && !isLoading && audioReady && invitationId) { 
+  if (!invitationData && !isLoading && audioReady && invitationIdFromUrl) { 
     return (
             <div className="min-h-screen text-foreground overflow-x-hidden">
                 {renderHeader()}
@@ -597,7 +605,7 @@ function InvitationPageContent() {
                     )
                 ) : (
                    <ConfirmationForm
-                      invitationId={invitationId ?? ''}
+                      invitationId={invitationData?.BodaID || invitationIdFromUrl || ''} // Pass effective BodaID
                       assignedPasses={assignedPasses}
                       onConfirm={handleConfirmation}
                       isLoading={isSubmitting}

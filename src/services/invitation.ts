@@ -26,58 +26,71 @@ export interface ConfirmationSubmissionData {
 
 /**
  * Fetches invitation data from MongoDB based on the BodaID.
- * @param invitationId The BodaID to search for.
+ * Handles fused invitations by checking a 'fusionadas' collection.
+ * @param initialInvitationId The BodaID to search for.
  * @returns A promise resolving to the InvitationData or null if not found.
  */
-export async function getInvitationData(invitationId: string): Promise<InvitationData | null> {
-    console.log(`Attempting to fetch data for BodaID: ${invitationId}`);
+export async function getInvitationData(initialInvitationId: string): Promise<InvitationData | null> {
+    console.log(`Attempting to fetch data for initial BodaID: ${initialInvitationId}`);
     let client;
     try {
         client = await clientPromise;
         console.log("Successfully connected to MongoDB client.");
         const db = client.db("invitaciones"); // Database name
-        const collection = db.collection("confirmaciones"); // Collection name
+        const confirmacionesCollection = db.collection("confirmaciones");
+        const fusionadasCollection = db.collection("fusionadas");
 
-        console.log(`Querying collection 'confirmaciones' for BodaID: ${invitationId}`);
-        const invitation = await collection.findOne({ BodaID: invitationId });
+        let currentBodaID = initialInvitationId;
+        let invitationDocument = await confirmacionesCollection.findOne({ BodaID: currentBodaID });
 
-        if (invitation) {
-            console.log(`Found invitation data for BodaID: ${invitationId}`);
+        if (!invitationDocument) {
+            console.log(`BodaID ${currentBodaID} not found in 'confirmaciones'. Checking 'fusionadas'...`);
+            const fusionRecord = await fusionadasCollection.findOne({ BodaIDantiguo: currentBodaID });
+
+            if (fusionRecord && fusionRecord.BodaIDnuevo) {
+                const newBodaID = fusionRecord.BodaIDnuevo as string;
+                console.log(`BodaID ${currentBodaID} found in 'fusionadas'. New BodaID to search: ${newBodaID}`);
+                currentBodaID = newBodaID; // Update currentBodaID to the new one
+                invitationDocument = await confirmacionesCollection.findOne({ BodaID: currentBodaID });
+            } else {
+                console.log(`BodaID ${initialInvitationId} not found in 'fusionadas' either.`);
+            }
+        }
+
+        if (invitationDocument) {
+            console.log(`Found invitation data for effective BodaID: ${currentBodaID}`);
             // Ensure _id is converted to string for serialization
             // Important: Create a plain object to pass to client components
             const plainInvitation: InvitationData = {
-                _id: invitation._id.toString(), // Convert ObjectId to string
-                BodaID: invitation.BodaID,
-                Nombre: invitation.Nombre,
-                Confirmado: invitation.Confirmado,
-                PasesAsignados: invitation.PasesAsignados,
-                PasesConfirmados: invitation.PasesConfirmados,
-                Asistentes: invitation.Asistentes || [], // Default to empty array if null/undefined
-                Kids: invitation.Kids || [], // Default to empty array if null/undefined
+                _id: invitationDocument._id.toString(), // Convert ObjectId to string
+                BodaID: currentBodaID, // This is the effective BodaID
+                Nombre: invitationDocument.Nombre as string,
+                Confirmado: invitationDocument.Confirmado as boolean,
+                PasesAsignados: invitationDocument.PasesAsignados as number,
+                PasesConfirmados: invitationDocument.PasesConfirmados as number,
+                Asistentes: (invitationDocument.Asistentes as string[]) || [], // Default to empty array
+                Kids: (invitationDocument.Kids as string[]) || [], // Default to empty array
             };
             return plainInvitation;
         } else {
-            console.log(`No invitation data found for BodaID: ${invitationId}`);
+            console.log(`No invitation data found for initial BodaID: ${initialInvitationId} (after potential fusion check).`);
             return null; // Explicitly return null if not found
         }
     } catch (error) {
         console.error('Error fetching invitation data from MongoDB:', error);
-        // Rethrow or handle as appropriate for your application
-        // Returning null might be suitable if not found is a possible outcome handled upstream
         return null;
-         // Or: throw new Error('Failed to fetch invitation data from database.');
     }
 }
 
 
 /**
  * Submits the confirmation data to MongoDB.
- * @param invitationId The BodaID of the invitation to update.
+ * @param bodaIdToUpdate The BodaID of the invitation to update (this should be the effective BodaID).
  * @param data The confirmation data (adults list, kids list, and rejection status).
  * @returns A promise resolving when the submission is complete.
  */
-export async function submitConfirmation(invitationId: string, data: ConfirmationSubmissionData): Promise<void> {
-    console.log(`Attempting to submit confirmation for BodaID: ${invitationId}`);
+export async function submitConfirmation(bodaIdToUpdate: string, data: ConfirmationSubmissionData): Promise<void> {
+    console.log(`Attempting to submit confirmation for BodaID: ${bodaIdToUpdate}`);
     let client;
     try {
         client = await clientPromise;
@@ -85,11 +98,11 @@ export async function submitConfirmation(invitationId: string, data: Confirmatio
         const db = client.db("invitaciones");
         const collection = db.collection("confirmaciones");
 
-        let updateData: Partial<InvitationData> = {};
+        let updateData: Partial<Omit<InvitationData, '_id' | 'BodaID' | 'Nombre' | 'PasesAsignados'>> = {}; // More precise type
         const totalConfirmedPasses = data.adults.length + data.kids.length;
 
         if (data.rejected) {
-            console.log(`Updating BodaID ${invitationId} as REJECTED.`);
+            console.log(`Updating BodaID ${bodaIdToUpdate} as REJECTED.`);
             updateData = {
                 Confirmado: true,
                 PasesConfirmados: 0,
@@ -97,7 +110,7 @@ export async function submitConfirmation(invitationId: string, data: Confirmatio
                 Kids: [],
             };
         } else {
-            console.log(`Updating BodaID ${invitationId} as CONFIRMED with ${data.adults.length} adults and ${data.kids.length} kids.`);
+            console.log(`Updating BodaID ${bodaIdToUpdate} as CONFIRMED with ${data.adults.length} adults and ${data.kids.length} kids.`);
             updateData = {
                 Confirmado: true,
                 PasesConfirmados: totalConfirmedPasses,
@@ -107,25 +120,23 @@ export async function submitConfirmation(invitationId: string, data: Confirmatio
         }
 
         const result = await collection.updateOne(
-            { BodaID: invitationId }, // Filter document by BodaID
+            { BodaID: bodaIdToUpdate }, // Filter document by BodaID
             { $set: updateData }      // Set the new values
         );
 
         if (result.matchedCount === 0) {
-            console.error(`Failed to submit confirmation: BodaID ${invitationId} not found.`);
-            throw new Error(`Invitation with ID ${invitationId} not found.`);
+            console.error(`Failed to submit confirmation: BodaID ${bodaIdToUpdate} not found.`);
+            throw new Error(`Invitation with ID ${bodaIdToUpdate} not found.`);
         }
 
         if (result.modifiedCount === 0 && result.matchedCount === 1) {
-            console.warn(`Confirmation data for BodaID ${invitationId} was already up-to-date.`);
-             // Consider if this should be an error or just a warning
+            console.warn(`Confirmation data for BodaID ${bodaIdToUpdate} was already up-to-date.`);
         } else {
-            console.log(`Successfully submitted confirmation for BodaID: ${invitationId}`);
+            console.log(`Successfully submitted confirmation for BodaID: ${bodaIdToUpdate}`);
         }
 
     } catch (error) {
         console.error('Error submitting confirmation data to MongoDB:', error);
-        // Rethrow or handle as appropriate
         throw new Error('Failed to submit confirmation data to database.');
     }
 }
