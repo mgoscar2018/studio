@@ -142,7 +142,6 @@ function InvitationPageContent() {
       console.log(`Fetching data for invitation ID from URL: ${invitationIdFromUrl}...`);
 
       try {
-        // getInvitationData will handle potential fusions and return data based on the effective BodaID
         const data = await getInvitationData(invitationIdFromUrl);
 
         if (!isEffectMounted) return;
@@ -153,7 +152,6 @@ function InvitationPageContent() {
           setInvitationData(null);
         } else {
             console.log("Invitation data fetched successfully:", data);
-            // data.BodaID is the effective ID after potential fusion
             setInvitationData(data); 
             setInvitationName(data.Nombre || 'Invitado/a');
             setAssignedPasses(data.PasesAsignados || 0);
@@ -238,7 +236,7 @@ function InvitationPageContent() {
         currentAudio.removeEventListener('error', handleAudioError);
       }
     };
-  }, [invitationIdFromUrl]); // Re-fetch if the ID from the URL changes
+  }, [invitationIdFromUrl]); 
 
 
   const togglePlayPause = () => {
@@ -257,7 +255,6 @@ function InvitationPageContent() {
   };
 
   const handleConfirmation = async (adults: string[], kids: string[], rejected: boolean) => {
-     // Use invitationData.BodaID for submission as it's the effective ID after potential fusion
      const idForConfirmation = invitationData?.BodaID;
 
      if (!idForConfirmation) {
@@ -275,10 +272,9 @@ function InvitationPageContent() {
         setIsRejected(rejected);
         setConfirmedAdults(adults);
         setConfirmedKids(kids);
-        // Update local invitationData to reflect the change
         setInvitationData(prevData => prevData ? ({
             ...prevData,
-            BodaID: idForConfirmation, // Ensure BodaID is the effective one
+            BodaID: idForConfirmation,
             Confirmado: true,
             PasesConfirmados: rejected ? 0 : (adults.length + kids.length),
             Asistentes: adults,
@@ -304,6 +300,7 @@ function InvitationPageContent() {
                   quality={90}
                   priority
                   className="animate-zoom-loop"
+                  data-ai-hint="boda pareja"
                 />
            </div>
             <div className={cn(
@@ -406,143 +403,146 @@ function InvitationPageContent() {
                   </CardContent>
               </Card>
            </AnimatedSection>
-
-          <Separator className="my-6 md:my-8" />
           
-           <AnimatedSection animationType="fade" className="text-center mb-10">
-               <div className="space-y-1 md:space-y-2">
-                    <p className="text-lg md:text-xl">Sábado</p>
-                    <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-2 md:p-3 shadow-md">
-                        <div className="text-4xl md:text-5xl font-bold">26</div>
-                        <div className="text-base md:text-lg">julio</div>
+          {!isRejected && (
+            <>
+              <Separator className="my-6 md:my-8" />
+              
+              <AnimatedSection animationType="fade" className="text-center mb-10">
+                  <div className="space-y-1 md:space-y-2">
+                        <p className="text-lg md:text-xl">Sábado</p>
+                        <div className="inline-block bg-primary/80 text-primary-foreground rounded-lg p-2 md:p-3 shadow-md">
+                            <div className="text-4xl md:text-5xl font-bold">26</div>
+                            <div className="text-base md:text-lg">julio</div>
+                        </div>
+                        <p className="text-lg md:text-xl mt-1">2025</p>
                     </div>
-                    <p className="text-lg md:text-xl mt-1">2025</p>
-                </div>
-           </AnimatedSection>
-
-          <AnimatedSection animationType="slideInRight" className="text-center">
-              <h3 className="text-xl md:text-2xl font-semibold mb-3">Sólo Faltan</h3>
-              <Countdown targetDate={weddingDate} />
-          </AnimatedSection>
-
-
-          <Separator className="my-6 md:my-8" />
-
-          <AnimatedSection animationType="fade">
-              <h3 className="text-4xl font-julietta text-center mb-4 text-primary">uestros momento</h3>
-              <div className="grid grid-cols-2 gap-2 md:gap-3">
-                  <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                          src="/images/mosaic/M1.jpg"
-                          alt="Oscar y Silvia Mosaico 1"
-                          fill
-                          style={{ objectFit: "cover" }}
-                          className="animate-zoom-loop-short"
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          data-ai-hint="pareja abrazados playa"
-                      />
-                  </AnimatedSection>
-                  <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                           src="/images/mosaic/M8.jpeg" 
-                           alt="Oscar y Silvia Mosaico 2" 
-                           fill
-                           style={{ objectFit: "cover" }}
-                           className="animate-zoom-loop-short"
-                           sizes="(max-width: 768px) 50vw, 33vw"
-                           data-ai-hint="pareja sonriendo exterior" 
-                      />
-                  </AnimatedSection>
-                  <AnimatedSection animationType="fade" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                          src="/images/mosaic/M3.jpg"
-                          alt="Oscar y Silvia Mosaico 3"
-                          fill
-                          style={{ objectFit: "cover" }}
-                          className="animate-zoom-loop-short"
-                           sizes="(max-width: 768px) 100vw, 66vw"
-                           data-ai-hint="pareja caminando ciudad"
-                      />
-                  </AnimatedSection>
-                  <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                          src="/images/mosaic/M4.jpg"
-                          alt="Oscar y Silvia Mosaico 4"
-                          fill
-                           style={{ objectFit: "cover", objectPosition: "top" }}
-                          className="animate-zoom-loop-short"
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          data-ai-hint="pareja riendo atardecer"
-                      />
-                  </AnimatedSection>
-                  <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
-                      <Image
-                          src="/images/mosaic/M5.jpg"
-                          alt="Oscar y Silvia Mosaico 5"
-                          fill
-                          style={{ objectFit: "cover" }}
-                          className="animate-zoom-loop-short"
-                           sizes="(max-width: 768px) 50vw, 33vw"
-                           data-ai-hint="detalle manos anillos"
-                      />
-                  </AnimatedSection>
-              </div>
-          </AnimatedSection>
-
-          <Separator className="my-6 md:my-8" />
-
-          <div className="grid grid-cols-1 gap-6 md:gap-10"> 
-              <AnimatedSection animationType="slideInLeft" className="text-center">
-                  <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padre</h3>
-                  <div className="space-y-1 text-base md:text-lg">
-                  {padres.map((nombre, index) => (
-                      <p key={index}>{nombre}</p>
-                  ))}
-                  </div>
-               </AnimatedSection>
+              </AnimatedSection>
 
               <AnimatedSection animationType="slideInRight" className="text-center">
-                  <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padrino</h3>
-                   <div className="space-y-3">
-                        {padrinos.map((padrino, index) => (
-                             <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
-                        ))}
-                   </div>
-               </AnimatedSection>
-          </div>
+                  <h3 className="text-xl md:text-2xl font-semibold mb-3">Sólo Faltan</h3>
+                  <Countdown targetDate={weddingDate} />
+              </AnimatedSection>
 
-          <Separator className="my-6 md:my-8" />
+              <Separator className="my-6 md:my-8" />
+
+              <AnimatedSection animationType="fade">
+                  <h3 className="text-4xl font-julietta text-center mb-4 text-primary">uestros momento</h3>
+                  <div className="grid grid-cols-2 gap-2 md:gap-3">
+                      <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                          <Image
+                              src="/images/mosaic/M1.jpg"
+                              alt="Oscar y Silvia Mosaico 1"
+                              fill
+                              style={{ objectFit: "cover" }}
+                              className="animate-zoom-loop-short"
+                              sizes="(max-width: 768px) 50vw, 33vw"
+                              data-ai-hint="pareja abrazados playa"
+                          />
+                      </AnimatedSection>
+                      <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                          <Image
+                              src="/images/mosaic/M8.jpeg" 
+                              alt="Oscar y Silvia Mosaico 2" 
+                              fill
+                              style={{ objectFit: "cover" }}
+                              className="animate-zoom-loop-short"
+                              sizes="(max-width: 768px) 50vw, 33vw"
+                              data-ai-hint="pareja sonriendo exterior" 
+                          />
+                      </AnimatedSection>
+                      <AnimatedSection animationType="fade" className="relative col-span-2 aspect-[16/9] overflow-hidden rounded-lg shadow-lg">
+                          <Image
+                              src="/images/mosaic/M3.jpg"
+                              alt="Oscar y Silvia Mosaico 3"
+                              fill
+                              style={{ objectFit: "cover" }}
+                              className="animate-zoom-loop-short"
+                              sizes="(max-width: 768px) 100vw, 66vw"
+                              data-ai-hint="pareja caminando ciudad"
+                          />
+                      </AnimatedSection>
+                      <AnimatedSection animationType="slideInLeft" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                          <Image
+                              src="/images/mosaic/M4.jpg"
+                              alt="Oscar y Silvia Mosaico 4"
+                              fill
+                              style={{ objectFit: "cover", objectPosition: "top" }}
+                              className="animate-zoom-loop-short"
+                              sizes="(max-width: 768px) 50vw, 33vw"
+                              data-ai-hint="pareja riendo atardecer"
+                          />
+                      </AnimatedSection>
+                      <AnimatedSection animationType="slideInRight" className="relative aspect-square overflow-hidden rounded-lg shadow-lg">
+                          <Image
+                              src="/images/mosaic/M5.jpg"
+                              alt="Oscar y Silvia Mosaico 5"
+                              fill
+                              style={{ objectFit: "cover" }}
+                              className="animate-zoom-loop-short"
+                              sizes="(max-width: 768px) 50vw, 33vw"
+                              data-ai-hint="detalle manos anillos"
+                          />
+                      </AnimatedSection>
+                  </div>
+              </AnimatedSection>
+
+              <Separator className="my-6 md:my-8" />
+
+              <div className="grid grid-cols-1 gap-6 md:gap-10"> 
+                  <AnimatedSection animationType="slideInLeft" className="text-center">
+                      <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padre</h3>
+                      <div className="space-y-1 text-base md:text-lg">
+                      {padres.map((nombre, index) => (
+                          <p key={index}>{nombre}</p>
+                      ))}
+                      </div>
+                  </AnimatedSection>
+
+                  <AnimatedSection animationType="slideInRight" className="text-center">
+                      <h3 className="text-4xl font-julietta mb-3 text-primary">uestros Padrino</h3>
+                      <div className="space-y-3">
+                            {padrinos.map((padrino, index) => (
+                                <PadrinoItem key={index} icon={padrino.icon} names={padrino.names} role={padrino.role} />
+                            ))}
+                      </div>
+                  </AnimatedSection>
+              </div>
+
+              <Separator className="my-6 md:my-8" />
+
+              <AnimatedSection animationType="fade">
+                  <h3 className="text-4xl font-julietta text-center mb-4 text-primary">tinerari</h3>
+                  <TimelineItinerary items={itinerary} />
+              </AnimatedSection>
+
+              <Separator className="my-6 md:my-8" />
+
+              <AnimatedSection animationType="slideInUp">
+                  <Card className="text-center shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg">
+                      <CardHeader className="p-0 pb-2">
+                          <CardTitle className="text-2xl md:text-3xl font-semibold flex items-center justify-center gap-2">
+                              <MapPin className="h-6 w-6 md:h-7 md:w-7 text-primary" />
+                              Ubicación - Jardín Margaty
+                          </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3 pt-4">
+                          <p className="text-base md:text-lg">{locationAddress}</p>
+                          <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
+                              <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
+                                  Abrir en GPS
+                              </a>
+                          </Button>
+                      </CardContent>
+                  </Card>
+              </AnimatedSection>
+
+              <Separator className="my-6 md:my-8" />
+            </>
+          )}
 
            <AnimatedSection animationType="fade">
-              <h3 className="text-4xl font-julietta text-center mb-4 text-primary">tinerari</h3>
-              <TimelineItinerary items={itinerary} />
-          </AnimatedSection>
-
-          <Separator className="my-6 md:my-8" />
-
-           <AnimatedSection animationType="slideInUp">
-              <Card className="text-center shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg">
-                   <CardHeader className="p-0 pb-2">
-                      <CardTitle className="text-2xl md:text-3xl font-semibold flex items-center justify-center gap-2">
-                          <MapPin className="h-6 w-6 md:h-7 md:w-7 text-primary" />
-                          Ubicación - Jardín Margaty
-                      </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 pt-4">
-                      <p className="text-base md:text-lg">{locationAddress}</p>
-                       <Button asChild variant="default" size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md">
-                          <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer">
-                               Abrir en GPS
-                          </a>
-                       </Button>
-                  </CardContent>
-              </Card>
-           </AnimatedSection>
-
-          <Separator className="my-6 md:my-8" />
-
-           <AnimatedSection animationType="fade">
-               <h3 className="text-4xl font-julietta text-center mb-4 text-primary">onfirma  tu  asistenci</h3>
+               <h3 className="text-4xl font-julietta text-center mb-4 text-primary">onfirma tu asistenci</h3>
 
                 <div className="text-center mb-4">
                      <p className="text-sm text-muted-foreground">Invitación para:</p>
@@ -605,14 +605,14 @@ function InvitationPageContent() {
                     )
                 ) : (
                    <ConfirmationForm
-                      invitationId={invitationData?.BodaID || invitationIdFromUrl || ''} // Pass effective BodaID
+                      invitationId={invitationData?.BodaID || invitationIdFromUrl || ''}
                       assignedPasses={assignedPasses}
                       onConfirm={handleConfirmation}
                       isLoading={isSubmitting}
                    />
                )}
 
-               {error && !isSubmitting && ( 
+               {error && !isSubmitting && !isAlreadyConfirmed && ( 
                    <p className="text-center text-destructive mt-3 text-sm">{error}</p>
                )}
           </AnimatedSection>
