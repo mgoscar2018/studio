@@ -393,19 +393,19 @@ function InvitationPageContent() {
                     <p className="text-sm text-muted-foreground mt-2">Haz clic para iniciar la música.</p>
                 )}
             </AnimatedSection>
-
-           <AnimatedSection animationType="slideInRight">
-              <Card className="shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg">
-                  <CardContent className="pt-4">
-                  <p className="text-base md:text-lg text-center italic">
-                      "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
-                  </p>
-                  </CardContent>
-              </Card>
-           </AnimatedSection>
           
           {!isRejected && (
             <>
+              <AnimatedSection animationType="slideInRight">
+                  <Card className="shadow-lg border-none bg-secondary/10 p-4 md:p-6 rounded-lg">
+                      <CardContent className="pt-4">
+                      <p className="text-base md:text-lg text-center italic">
+                          "Todos los días juntos son días maravillosos y queremos que nos acompañen en el más importante para nosotros."
+                      </p>
+                      </CardContent>
+                  </Card>
+              </AnimatedSection>
+
               <Separator className="my-6 md:my-8" />
               
               <AnimatedSection animationType="fade" className="text-center mb-10">
