@@ -11,8 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Trash2, PlusCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Trash2, PlusCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -70,13 +70,15 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
   const { toast } = useToast();
   const [showInitialChoice, setShowInitialChoice] = useState(true);
   const [showAttendanceForm, setShowAttendanceForm] = useState(false);
+  const [showPartialConfirmDialog, setShowPartialConfirmDialog] = useState(false);
+  const [partialConfirmationData, setPartialConfirmationData] = useState<{ adults: string[], kids: string[] } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       guests: [],
     },
-    mode: 'onChange', // Validate on change for better UX
+    mode: 'onChange', 
   });
 
  const { fields, append, remove, replace } = useFieldArray({
@@ -106,7 +108,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
 
     const totalConfirmed = adults.length + kids.length;
 
-    if (totalConfirmed === 0 && assignedPasses > 0 && fields.length > 0) { // Check fields.length to ensure form was intended to be filled
+    if (totalConfirmed === 0 && assignedPasses > 0 && fields.length > 0) { 
          form.setError("guests", { type: "manual", message: "Debes ingresar al menos un nombre si deseas confirmar." });
          toast({ title: "Error", description: "Debes ingresar al menos un nombre.", variant: "destructive" });
          return;
@@ -118,22 +120,35 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
          return;
     }
 
-     if (totalConfirmed < assignedPasses && totalConfirmed > 0) {
-          toast({
-            title: "Advertencia",
-            description: `Solo se reservarán ${totalConfirmed} de los ${assignedPasses} pases disponibles. Los pases restantes (${assignedPasses - totalConfirmed}) no se considerarán.`,
-            variant: "default",
-            duration: 7000,
-          });
-     }
-
-     try {
-        await onConfirm(adults, kids, false);
+    if (totalConfirmed < assignedPasses && totalConfirmed > 0) {
+        setPartialConfirmationData({ adults, kids });
+        setShowPartialConfirmDialog(true);
+        return; // Don't submit yet, wait for dialog confirmation
+    }
+    // If totalConfirmed === assignedPasses or totalConfirmed is 0 (implies rejection handled by initial choice or 0 passes assigned)
+    // or if totalConfirmed < assignedPasses but totalConfirmed is 0 (which means the form is effectively empty, should be caught by above checks or implies rejection)
+    // we directly proceed. The main case for direct proceed here is totalConfirmed === assignedPasses.
+    try {
+        await onConfirm(adults, kids, false); // false for rejected, as this path is for confirming attendance
         toast({ title: "¡Confirmación Exitosa!", description: "Hemos recibido tu confirmación." });
-     } catch (e) {
-         toast({ title: "Error", description: "No se pudo enviar la confirmación.", variant: "destructive" });
-     }
+    } catch (e) {
+        toast({ title: "Error", description: "No se pudo enviar la confirmación.", variant: "destructive" });
+    }
   };
+
+  const handleProceedWithPartialConfirmation = async () => {
+    if (!partialConfirmationData) return;
+    try {
+        await onConfirm(partialConfirmationData.adults, partialConfirmationData.kids, false);
+        toast({ title: "¡Confirmación Exitosa!", description: `Hemos recibido tu confirmación para ${partialConfirmationData.adults.length + partialConfirmationData.kids.length} asistente(s).` });
+    } catch (e) {
+        toast({ title: "Error", description: "No se pudo enviar la confirmación.", variant: "destructive" });
+    } finally {
+        setShowPartialConfirmDialog(false);
+        setPartialConfirmationData(null);
+    }
+  };
+
 
    const handleInitialChoice = async (attend: boolean) => {
         setShowInitialChoice(false);
@@ -144,8 +159,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                     description: "No tienes pases asignados. Si crees que es un error, por favor contacta a los novios.",
                     variant: "default",
                 });
-                // Keep showing initial choice or a message, don't proceed to form.
-                setShowInitialChoice(true); // Or a different state to show a message
+                setShowInitialChoice(true); 
                 return;
             }
             setShowAttendanceForm(true);
@@ -162,6 +176,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
 
 
   return (
+    <>
     <Card className="w-full max-w-lg mx-auto shadow-lg border-none bg-background">
       <CardHeader>
         <CardTitle className="text-center text-2xl md:text-3xl">¿Nos acompañas?</CardTitle>
@@ -204,7 +219,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                             size="icon"
                             onClick={() => remove(index)}
                             aria-label="Eliminar asistente"
-                            className="text-destructive hover:bg-destructive/10 mt-1" // Align with input top
+                            className="text-destructive hover:bg-destructive/10 mt-1" 
                             disabled={isLoading}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -214,14 +229,13 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                     <Controller
                         control={form.control}
                         name={`guests.${index}.type`}
-                        defaultValue="adult" // Default to adult
+                        defaultValue="adult" 
                         render={({ field: radioField }) => (
                           <RadioGroup
                             onValueChange={(value) => {
                                 radioField.onChange(value);
                                 if (value === 'adult') {
                                     form.setValue(`guests.${index}.age`, '');
-                                    // Clear age error if any
                                     form.clearErrors(`guests.${index}.age`);
                                 }
                             }}
@@ -287,7 +301,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
           )}
 
            {assignedPasses > 0 && (
-               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg" disabled={isLoading || !form.formState.isDirty || !form.formState.isValid && fields.length > 0}>
+               <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" size="lg" disabled={isLoading || !form.formState.isDirty || (!form.formState.isValid && fields.length > 0) }>
                  {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                  Enviar Confirmación
                </Button>
@@ -303,6 +317,28 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
        )}
       </CardContent>
     </Card>
+
+    <AlertDialog open={showPartialConfirmDialog} onOpenChange={setShowPartialConfirmDialog}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Confirmación Parcial de Pases</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Estás confirmando {partialConfirmationData?.adults.length ?? 0 + (partialConfirmationData?.kids.length ?? 0)} de los {assignedPasses} pases asignados.
+                    ¿Es correcto? Los pases no utilizados no se considerarán.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => {
+                    setShowPartialConfirmDialog(false);
+                    setPartialConfirmationData(null);
+                }} disabled={isLoading}>No, modificar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleProceedWithPartialConfirmation} disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sí, confirmar"}
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };
 
