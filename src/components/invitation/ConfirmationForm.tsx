@@ -78,7 +78,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
     defaultValues: {
       guests: [],
     },
-    mode: 'onChange', 
+    mode: 'onChange',
   });
 
  const { fields, append, remove, replace } = useFieldArray({
@@ -108,7 +108,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
 
     const totalConfirmed = adults.length + kids.length;
 
-    if (totalConfirmed === 0 && assignedPasses > 0 && fields.length > 0) { 
+    if (totalConfirmed === 0 && assignedPasses > 0 && fields.length > 0) {
          form.setError("guests", { type: "manual", message: "Debes ingresar al menos un nombre si deseas confirmar." });
          toast({ title: "Error", description: "Debes ingresar al menos un nombre.", variant: "destructive" });
          return;
@@ -125,9 +125,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
         setShowPartialConfirmDialog(true);
         return; // Don't submit yet, wait for dialog confirmation
     }
-    // If totalConfirmed === assignedPasses or totalConfirmed is 0 (implies rejection handled by initial choice or 0 passes assigned)
-    // or if totalConfirmed < assignedPasses but totalConfirmed is 0 (which means the form is effectively empty, should be caught by above checks or implies rejection)
-    // we directly proceed. The main case for direct proceed here is totalConfirmed === assignedPasses.
+
     try {
         await onConfirm(adults, kids, false); // false for rejected, as this path is for confirming attendance
         toast({ title: "¡Confirmación Exitosa!", description: "Hemos recibido tu confirmación." });
@@ -159,7 +157,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                     description: "No tienes pases asignados. Si crees que es un error, por favor contacta a los novios.",
                     variant: "default",
                 });
-                setShowInitialChoice(true); 
+                setShowInitialChoice(true);
                 return;
             }
             setShowAttendanceForm(true);
@@ -219,7 +217,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                             size="icon"
                             onClick={() => remove(index)}
                             aria-label="Eliminar asistente"
-                            className="text-destructive hover:bg-destructive/10 mt-1" 
+                            className="text-destructive hover:bg-destructive/10 mt-1"
                             disabled={isLoading}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -229,7 +227,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                     <Controller
                         control={form.control}
                         name={`guests.${index}.type`}
-                        defaultValue="adult" 
+                        defaultValue="adult"
                         render={({ field: radioField }) => (
                           <RadioGroup
                             onValueChange={(value) => {
@@ -249,7 +247,7 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="child" id={`child-${field.id}-${index}`} />
-                              <Label htmlFor={`child-${field.id}-${index}`}>Niño (hasta 17 años)</Label>
+                              <Label htmlFor={`child-${field.id}-${index}`}>Niño (menú infantil)</Label>
                             </div>
                           </RadioGroup>
                         )}
@@ -323,8 +321,8 @@ const ConfirmationForm: React.FC<ConfirmationFormProps> = ({
             <AlertDialogHeader>
                 <AlertDialogTitle>Confirmación Parcial de Pases</AlertDialogTitle>
                 <AlertDialogDescription>
-                    Estás confirmando {partialConfirmationData?.adults.length ?? 0 + (partialConfirmationData?.kids.length ?? 0)} de los {assignedPasses} pases asignados.
-                    ¿Es correcto? Los pases no utilizados no se considerarán.
+                    Estás confirmando {(partialConfirmationData?.adults.length ?? 0) + (partialConfirmationData?.kids.length ?? 0)} de los {assignedPasses} pases asignados.
+                    ¿Es correcto?
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
